@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ananta Cars — Compraventa de vehículos de ocasión</title>
+  <meta name="description" content="Los mejores coches de segunda mano. Revisados, con garantía y al mejor precio."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --negro: #0a0a0a;
+      --carbon: #141414;
+      --gris-oscuro: #1e1e1e;
+      --gris-medio: #2c2c2c;
+      --gris-linea: #333;
+      --gris-texto: #888;
+      --blanco: #f5f5f0;
+      --blanco-suave: #d0cfc8;
+      --rojo: #e8311a;
+      --rojo-hover: #c4280f;
+      --fuente-titulo: 'Barlow Condensed', sans-serif;
+      --fuente-cuerpo: 'Barlow', sans-serif;
+      --radio: 4px;
+      --transicion: 0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--negro);
+      color: var(--blanco);
+      font-family: var(--fuente-cuerpo);
+      font-weight: 300;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ─────────────────────────────────────── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(10,10,10,0.96);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--gris-linea);
+      padding: 0 5vw;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      font-family: var(--fuente-titulo);
+      font-size: 1.7rem; font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--blanco);
+      text-decoration: none;
+    }
+    .logo span { color: var(--rojo); }
+
+    nav a {
+      color: var(--gris-texto); font-size: 0.85rem;
+      text-decoration: none; margin-left: 2rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      transition: color var(--transicion);
+    }
+    nav a:hover { color: var(--blanco); }
+
+    .btn-whatsapp-header {
+      background: #25d366; color: #000;
+      font-family: var(--fuente-titulo);
+      font-weight: 700; font-size: 0.85rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 8px 18px; border-radius: var(--radio);
+      text-decoration: none; margin-left: 2rem;
+      transition: opacity var(--transicion);
+    }
+    .btn-whatsapp-header:hover { opacity: 0.88; }
+
+    /* ── HERO ─────────────────────────────────────── */
+    .hero {
+      padding: 80px 5vw 60px;
+      border-bottom: 1px solid var(--gris-linea);
+    }
+    .hero-label {
+      font-family: var(--fuente-titulo);
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--rojo); margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-family: var(--fuente-titulo);
+      font-size: clamp(2.8rem, 7vw, 6rem);
+      font-weight: 800; line-height: 0.95;
+      letter-spacing: -0.01em;
+      color: var(--blanco);
+      max-width: 700px;
+    }
+    .hero h1 em { color: var(--rojo); font-style: normal; }
+
+    /* ── FILTROS ─────────────────────────────────── */
+    .filtros-wrap {
+      padding: 28px 5vw;
+      border-bottom: 1px solid var(--gris-linea);
+      background: var(--carbon);
+    }
+
+    .filtros {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: flex-end;
+    }
+
+    .filtro-grupo {
+      display: flex; flex-direction: column; gap: 5px;
+    }
+    .filtro-grupo label {
+      font-size: 0.68rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--gris-texto);
+    }
+
+    .filtro-grupo select,
+    .filtro-grupo input {
+      background: var(--gris-oscuro);
+      border: 1px solid var(--gris-linea);
+      color: var(--blanco);
+      font-family: var(--fuente-cuerpo);
+      font-size: 0.88rem;
+      padding: 8px 12px;
+      border-radius: var(--radio);
+      min-width: 140px;
+      cursor: pointer;
+      appearance: none;
+    }
+    .filtro-grupo select:focus,
+    .filtro-grupo input:focus {
+      outline: none; border-color: var(--rojo);
+    }
+
+    .btn-filtrar {
+      background: var(--rojo); color: var(--blanco);
+      font-family: var(--fuente-titulo);
+      font-weight: 700; font-size: 0.88rem;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 9px 24px; border: none; border-radius: var(--radio);
+      cursor: pointer; transition: background var(--transicion);
+      align-self: flex-end;
+    }
+    .btn-filtrar:hover { background: var(--rojo-hover); }
+
+    .btn-reset {
+      background: transparent; color: var(--gris-texto);
+      font-family: var(--fuente-titulo);
+      font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 9px 14px; border: 1px solid var(--gris-linea);
+      border-radius: var(--radio); cursor: pointer;
+      transition: all var(--transicion); align-self: flex-end;
+    }
+    .btn-reset:hover { color: var(--blanco); border-color: var(--gris-texto); }
+
+    /* ── RESULTADOS BAR ──────────────────────────── */
+    .resultados-bar {
+      padding: 16px 5vw;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid var(--gris-linea);
+    }
+    .resultados-bar span {
+      font-size: 0.8rem; color: var(--gris-texto);
+      letter-spacing: 0.06em;
+    }
+    .resultados-bar strong { color: var(--blanco); }
+
+    /* ── GRID DE COCHES ─────────────────────────── */
+    .grid-coches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1px;
+      background: var(--gris-linea);
+      border-top: 1px solid var(--gris-linea);
+    }
+
+    .tarjeta {
+      background: var(--carbon);
+      cursor: pointer;
+      transition: background var(--transicion);
+      overflow: hidden;
+      position: relative;
+    }
+    .tarjeta:hover { background: var(--gris-oscuro); }
+
+    .tarjeta-foto {
+      width: 100%; aspect-ratio: 16/10;
+      background: var(--gris-oscuro);
+      overflow: hidden; position: relative;
+    }
+    .tarjeta-foto img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .tarjeta:hover .tarjeta-foto img { transform: scale(1.04); }
+
+    .tarjeta-foto-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gris-linea); font-size: 2.5rem;
+    }
+
+    .estado-badge {
+      position: absolute; top: 12px; left: 12px;
+      font-family: var(--fuente-titulo);
+      font-size: 0.7rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 4px 10px; border-radius: 2px;
+    }
+    .estado-disponible { background: #1a6b3a; color: #7fffaa; }
+    .estado-reservado  { background: #6b4c1a; color: #ffd97f; }
+    .estado-vendido    { background: #3a1a1a; color: #ff8f8f; }
+
+    .destacado-badge {
+      position: absolute; top: 12px; right: 12px;
+      background: var(--rojo); color: white;
+      font-family: var(--fuente-titulo);
+      font-size: 0.65rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 2px;
+    }
+
+    .tarjeta-info { padding: 18px 20px 20px; }
+
+    .tarjeta-marca {
+      font-family: var(--fuente-titulo);
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--rojo); margin-bottom: 4px;
+    }
+
+    .tarjeta-nombre {
+      font-family: var(--fuente-titulo);
+      font-size: 1.5rem; font-weight: 700;
+      line-height: 1.1; color: var(--blanco);
+      margin-bottom: 12px;
+    }
+
+    .tarjeta-datos {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .dato {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.78rem; color: var(--gris-texto);
+    }
+    .dato-icono { font-size: 0.9rem; }
+
+    .tarjeta-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--gris-linea);
+    }
+
+    .tarjeta-precio {
+      font-family: var(--fuente-titulo);
+      font-size: 1.7rem; font-weight: 800;
+      color: var(--blanco);
+    }
+
+    .btn-ver {
+      background: transparent; color: var(--rojo);
+      font-family: var(--fuente-titulo);
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      padding: 7px 14px; border: 1px solid var(--rojo);
+      border-radius: var(--radio); cursor: pointer;
+      text-decoration: none;
+      transition: all var(--transicion);
+    }
+    .btn-ver:hover { background: var(--rojo); color: var(--blanco); }
+
+    /* ── EMPTY STATE ─────────────────────────────── */
+    .vacio {
+      grid-column: 1/-1;
+      padding: 80px 5vw; text-align: center;
+    }
+    .vacio-icono { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
+    .vacio p { color: var(--gris-texto); font-size: 1rem; }
+
+    /* ── LOADING ─────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--gris-oscuro) 25%, var(--gris-medio) 50%, var(--gris-oscuro) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radio);
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ── FOOTER ─────────────────────────────────── */
+    footer {
+      padding: 40px 5vw;
+      border-top: 1px solid var(--gris-linea);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+    }
+    footer p { font-size: 0.8rem; color: var(--gris-texto); }
+    .footer-logo {
+      font-family: var(--fuente-titulo);
+      font-size: 1.2rem; font-weight: 800;
+      color: var(--blanco);
+    }
+    .footer-logo span { color: var(--rojo); }
+
+    /* ── RESPONSIVE ─────────────────────────────── */
+    @media (max-width: 600px) {
+      header { padding: 0 4vw; }
+      nav { display: none; }
+      .hero { padding: 48px 4vw 40px; }
+      .filtros-wrap { padding: 20px 4vw; }
+      .filtros { gap: 8px; }
+      .filtro-grupo select, .filtro-grupo input { min-width: 120px; }
+      .grid-coches { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+    <nav>
+      <a href="#catalogo">Catálogo</a>
+      <a href="panel.html">Panel</a>
+      <a href="https://wa.me/34600000000" target="_blank" class="btn-whatsapp-header">📱 WhatsApp</a>
+    </nav>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-label">Compraventa de vehículos</p>
+    <h1>Tu próximo<br/><em>coche</em><br/>te espera.</h1>
+  </section>
+
+  <!-- FILTROS -->
+  <section class="filtros-wrap" id="catalogo">
+    <div class="filtros">
+      <div class="filtro-grupo">
+        <label>Marca</label>
+        <input type="text" id="f-marca" placeholder="Ej: Seat, BMW..."/>
+      </div>
+      <div class="filtro-grupo">
+        <label>Combustible</label>
+        <select id="f-combustible">
+          <option value="">Todos</option>
+          <option value="gasolina">Gasolina</option>
+          <option value="diesel">Diésel</option>
+          <option value="hibrido">Híbrido</option>
+          <option value="electrico">Eléctrico</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <label>Carrocería</label>
+        <select id="f-carroceria">
+          <option value="">Todas</option>
+          <option value="suv">SUV</option>
+          <option value="sedan">Sedán</option>
+          <option value="familiar">Familiar</option>
+          <option value="coupe">Coupé</option>
+          <option value="monovolumen">Monovolumen</option>
+          <option value="furgon">Furgón</option>
+        </select>
+      </div>
+      <div class="filtro-grupo">
+        <label>Precio máx.</label>
+        <input type="number" id="f-precio" placeholder="Ej: 15000" min="0"/>
+      </div>
+      <div class="filtro-grupo">
+        <label>Km máx.</label>
+        <input type="number" id="f-km" placeholder="Ej: 100000" min="0"/>
+      </div>
+      <div class="filtro-grupo">
+        <label>Estado</label>
+        <select id="f-estado">
+          <option value="">Todos</option>
+          <option value="disponible" selected>Disponibles</option>
+          <option value="reservado">Reservados</option>
+          <option value="vendido">Vendidos</option>
+        </select>
+      </div>
+      <button class="btn-filtrar" onclick="buscar()">Buscar</button>
+      <button class="btn-reset" onclick="resetFiltros()">✕ Limpiar</button>
+    </div>
+  </section>
+
+  <!-- RESULTADOS -->
+  <div class="resultados-bar">
+    <span id="contador-txt">Cargando catálogo...</span>
+  </div>
+
+  <!-- GRID -->
+  <main class="grid-coches" id="grid-coches">
+    <!-- Skeletons de carga -->
+    <div class="tarjeta" id="sk1"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
+    <div class="tarjeta" id="sk2"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
+    <div class="tarjeta" id="sk3"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
+    <p>© 2025 Ananta Cars · Todos los derechos reservados</p>
+    <p>Contacto: <a href="https://wa.me/34600000000" style="color:var(--rojo)">WhatsApp</a></p>
+  </footer>
+
+  <script src="js/catalogo.js"></script>
+</body>
+</html>

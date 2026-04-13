@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Panel de gestión — Ananta Cars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-medio:#2c2c2c;--gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--rojo:#e8311a;--verde:#1a9a50;--naranja:#e87e1a;--fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;--radio:4px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300;min-height:100vh}
+
+    /* LOGIN */
+    #pantalla-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+    .login-box{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:40px;width:100%;max-width:360px}
+    .login-logo{font-family:var(--fuente-titulo);font-size:1.8rem;font-weight:800;margin-bottom:28px;text-align:center}
+    .login-logo span{color:var(--rojo)}
+    .campo{margin-bottom:16px}
+    .campo label{display:block;font-size:0.68rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:6px}
+    .campo input{width:100%;background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.95rem;padding:10px 12px;border-radius:var(--radio)}
+    .campo input:focus{outline:none;border-color:var(--rojo)}
+    .btn-login{width:100%;background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:800;font-size:1rem;letter-spacing:0.08em;text-transform:uppercase;padding:12px;border:none;border-radius:var(--radio);cursor:pointer;margin-top:8px;transition:opacity 0.2s}
+    .btn-login:hover{opacity:0.88}
+    .login-error{color:#ff6b6b;font-size:0.82rem;margin-top:10px;text-align:center;min-height:18px}
+
+    /* PANEL */
+    #pantalla-panel{display:none}
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco);text-decoration:none}
+    .logo span{color:var(--rojo)}
+    .header-right{display:flex;align-items:center;gap:16px}
+    .header-right a{font-size:0.78rem;color:var(--gris-texto);text-decoration:none;letter-spacing:0.06em;transition:color 0.2s}
+    .header-right a:hover{color:var(--blanco)}
+    .btn-cerrar{font-family:var(--fuente-titulo);font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:transparent;color:var(--gris-texto);border:1px solid var(--gris-linea);padding:6px 14px;border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
+    .btn-cerrar:hover{color:var(--rojo);border-color:var(--rojo)}
+
+    .panel-wrap{max-width:1000px;margin:0 auto;padding:40px 5vw}
+    .panel-titulo{font-family:var(--fuente-titulo);font-size:2rem;font-weight:800;margin-bottom:28px}
+
+    /* FORMULARIO AÑADIR */
+    .seccion{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:24px;margin-bottom:24px}
+    .seccion-titulo{font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:20px}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+    .form-campo{display:flex;flex-direction:column;gap:5px}
+    .form-campo label{font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
+    .form-campo input,.form-campo select,.form-campo textarea{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:9px 11px;border-radius:var(--radio)}
+    .form-campo input:focus,.form-campo select:focus,.form-campo textarea:focus{outline:none;border-color:var(--rojo)}
+    .form-campo textarea{resize:vertical;min-height:80px;grid-column:1/-1}
+    .form-full{grid-column:1/-1}
+    .form-campo-full{display:flex;flex-direction:column;gap:5px}
+    .form-campo-full label{font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
+    .form-campo-full input{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:9px 11px;border-radius:var(--radio);width:100%}
+    .form-campo-full input:focus{outline:none;border-color:var(--rojo)}
+
+    .btn-subir{background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:800;font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;padding:11px 28px;border:none;border-radius:var(--radio);cursor:pointer;margin-top:16px;transition:opacity 0.2s}
+    .btn-subir:hover{opacity:0.88}
+    .btn-subir:disabled{opacity:0.4;cursor:not-allowed}
+
+    /* LISTA DE COCHES */
+    .lista-coches{display:flex;flex-direction:column;gap:1px;background:var(--gris-linea);border:1px solid var(--gris-linea);border-radius:var(--radio);overflow:hidden}
+    .coche-item{background:var(--carbon);padding:16px 20px;display:flex;align-items:center;gap:16px;transition:background 0.2s}
+    .coche-item:hover{background:var(--gris-oscuro)}
+    .coche-thumb{width:72px;height:50px;border-radius:2px;overflow:hidden;background:var(--gris-oscuro);flex-shrink:0}
+    .coche-thumb img{width:100%;height:100%;object-fit:cover}
+    .coche-info{flex:1;min-width:0}
+    .coche-nombre{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .coche-meta{font-size:0.76rem;color:var(--gris-texto);margin-top:2px}
+    .coche-precio{font-family:var(--fuente-titulo);font-size:1.2rem;font-weight:800;white-space:nowrap}
+    .coche-acciones{display:flex;gap:6px;flex-shrink:0}
+    .btn-estado{font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:2px;cursor:pointer;border:none;transition:opacity 0.2s}
+    .btn-estado:hover{opacity:0.8}
+    .btn-disponible{background:#1a6b3a;color:#7fffaa}
+    .btn-reservado{background:#6b4c1a;color:#ffd97f}
+    .btn-vendido{background:#3a1a1a;color:#ff8f8f}
+    .btn-editar{background:transparent;color:var(--gris-texto);border:1px solid var(--gris-linea);font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s}
+    .btn-editar:hover{color:var(--blanco);border-color:var(--blanco)}
+    .btn-borrar{background:transparent;color:#ff6b6b;border:1px solid #3a1a1a;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s}
+    .btn-borrar:hover{background:#3a1a1a}
+
+    .msg{padding:10px 14px;border-radius:var(--radio);font-size:0.83rem;margin-top:12px;display:none}
+    .msg-ok{background:#1a3a26;color:#7fffaa;border:1px solid #1a6b3a}
+    .msg-err{background:#3a1a1a;color:#ff8f8f;border:1px solid #6b1a1a}
+
+    @media(max-width:600px){.coche-acciones{flex-wrap:wrap}.coche-precio{display:none}}
+  </style>
+</head>
+<body>
+
+<!-- ── PANTALLA LOGIN ─────────────────────────────── -->
+<div id="pantalla-login">
+  <div class="login-box">
+    <div class="login-logo">ANANTA<span>.</span>CARS<br/><small style="font-size:0.55em;color:var(--gris-texto);font-weight:300;letter-spacing:0.1em">PANEL DE GESTIÓN</small></div>
+    <div class="campo"><label>Usuario</label><input type="text" id="l-usuario" placeholder="admin"/></div>
+    <div class="campo"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••"/></div>
+    <button class="btn-login" onclick="login()">Entrar</button>
+    <p class="login-error" id="login-error"></p>
+  </div>
+</div>
+
+<!-- ── PANEL ─────────────────────────────────────── -->
+<div id="pantalla-panel">
+  <header>
+    <span class="logo">ANANTA<span>.</span>CARS</span>
+    <div class="header-right">
+      <a href="index.html" target="_blank">Ver web →</a>
+      <button class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <div class="panel-wrap">
+    <h1 class="panel-titulo">Panel de gestión</h1>
+
+    <!-- AÑADIR COCHE -->
+    <div class="seccion">
+      <p class="seccion-titulo">➕ Añadir vehículo</p>
+      <div class="form-grid">
+        <div class="form-campo"><label>Marca *</label><input type="text" id="n-marca" placeholder="Seat"/></div>
+        <div class="form-campo"><label>Modelo *</label><input type="text" id="n-modelo" placeholder="León"/></div>
+        <div class="form-campo"><label>Año *</label><input type="number" id="n-anio" placeholder="2019" min="1990" max="2030"/></div>
+        <div class="form-campo"><label>Precio (€) *</label><input type="number" id="n-precio" placeholder="12500" min="0"/></div>
+        <div class="form-campo"><label>Kilómetros *</label><input type="number" id="n-km" placeholder="85000" min="0"/></div>
+        <div class="form-campo"><label>Combustible</label>
+          <select id="n-combustible">
+            <option value="gasolina">Gasolina</option>
+            <option value="diesel">Diésel</option>
+            <option value="hibrido">Híbrido</option>
+            <option value="electrico">Eléctrico</option>
+          </select>
+        </div>
+        <div class="form-campo"><label>Caja</label>
+          <select id="n-caja">
+            <option value="manual">Manual</option>
+            <option value="automatico">Automático</option>
+          </select>
+        </div>
+        <div class="form-campo"><label>CV</label><input type="number" id="n-cv" placeholder="115" min="0"/></div>
+        <div class="form-campo"><label>Carrocería</label>
+          <select id="n-carroceria">
+            <option value="sedan">Sedán</option>
+            <option value="suv">SUV</option>
+            <option value="familiar">Familiar</option>
+            <option value="coupe">Coupé</option>
+            <option value="monovolumen">Monovolumen</option>
+            <option value="furgon">Furgón</option>
+          </select>
+        </div>
+        <div class="form-campo"><label>Color</label><input type="text" id="n-color" placeholder="Blanco perla"/></div>
+      </div>
+      <div style="margin-top:14px">
+        <div class="form-campo-full"><label>Descripción</label><input type="text" id="n-descripcion" placeholder="Segundo dueño, ITV pasada, sin golpes..."/></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
+      </div>
+      <div style="margin-top:10px">
+        <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:9px 11px;border-radius:var(--radio);width:100%"/></div>
+      </div>
+      <button class="btn-subir" id="btn-crear" onclick="crearCoche()">Publicar vehículo</button>
+      <div class="msg msg-ok" id="msg-crear-ok">✅ Vehículo publicado correctamente</div>
+      <div class="msg msg-err" id="msg-crear-err">❌ Error al publicar. Revisa los campos.</div>
+    </div>
+
+    <!-- LISTA DE COCHES -->
+    <div class="seccion">
+      <p class="seccion-titulo">🚗 Vehículos en catálogo</p>
+      <div id="lista-coches">Cargando...</div>
+    </div>
+  </div>
+</div>
+
+<script src="js/panel.js"></script>
+</body>
+</html>

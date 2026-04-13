@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ficha del vehículo — Ananta Cars</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --negro:#0a0a0a; --carbon:#141414; --gris-oscuro:#1e1e1e;
+      --gris-medio:#2c2c2c; --gris-linea:#333; --gris-texto:#888;
+      --blanco:#f5f5f0; --blanco-suave:#d0cfc8;
+      --rojo:#e8311a; --rojo-hover:#c4280f;
+      --fuente-titulo:'Barlow Condensed',sans-serif;
+      --fuente-cuerpo:'Barlow',sans-serif;
+      --radio:4px; --transicion:0.2s ease;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco);text-decoration:none}
+    .logo span{color:var(--rojo)}
+    .btn-volver{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;letter-spacing:0.06em;transition:color var(--transicion)}
+    .btn-volver:hover{color:var(--blanco)}
+
+    .ficha-wrap{max-width:1100px;margin:0 auto;padding:40px 5vw 80px}
+
+    /* GALERÍA */
+    .galeria{margin-bottom:32px}
+    .foto-principal{width:100%;aspect-ratio:16/9;background:var(--gris-oscuro);border-radius:var(--radio);overflow:hidden;margin-bottom:10px}
+    .foto-principal img{width:100%;height:100%;object-fit:cover}
+    .miniaturas{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+    .miniatura{width:90px;height:60px;border-radius:2px;overflow:hidden;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:border-color var(--transicion)}
+    .miniatura.activa{border-color:var(--rojo)}
+    .miniatura img{width:100%;height:100%;object-fit:cover}
+
+    /* INFO */
+    .ficha-layout{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
+    @media(max-width:780px){.ficha-layout{grid-template-columns:1fr}}
+
+    .ficha-marca{font-family:var(--fuente-titulo);font-size:0.75rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--rojo);margin-bottom:6px}
+    .ficha-titulo{font-family:var(--fuente-titulo);font-size:clamp(2rem,5vw,3.2rem);font-weight:800;line-height:1;margin-bottom:6px}
+    .ficha-anio{font-family:var(--fuente-titulo);font-size:1.2rem;color:var(--gris-texto);margin-bottom:24px}
+
+    .ficha-datos{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--gris-linea);border:1px solid var(--gris-linea);border-radius:var(--radio);margin-bottom:28px;overflow:hidden}
+    .dato-fila{background:var(--carbon);padding:14px 16px;display:flex;flex-direction:column;gap:3px}
+    .dato-fila-label{font-size:0.65rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gris-texto)}
+    .dato-fila-valor{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:700;color:var(--blanco)}
+
+    .descripcion{font-size:0.92rem;line-height:1.7;color:var(--blanco-suave);margin-bottom:28px}
+
+    /* VIDEO */
+    .video-wrap{margin-bottom:28px}
+    .video-wrap h3{font-family:var(--fuente-titulo);font-size:0.75rem;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px}
+    .video-embed{width:100%;aspect-ratio:16/9;border-radius:var(--radio);border:none}
+
+    /* SIDEBAR PRECIO */
+    .sidebar{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:28px;position:sticky;top:84px}
+    .sidebar-estado{display:inline-block;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:5px 12px;border-radius:2px;margin-bottom:16px}
+    .estado-disponible{background:#1a6b3a;color:#7fffaa}
+    .estado-reservado{background:#6b4c1a;color:#ffd97f}
+    .estado-vendido{background:#3a1a1a;color:#ff8f8f}
+    .sidebar-precio{font-family:var(--fuente-titulo);font-size:2.8rem;font-weight:800;line-height:1;margin-bottom:24px}
+
+    .btn-whatsapp{display:block;width:100%;background:#25d366;color:#000;font-family:var(--fuente-titulo);font-weight:800;font-size:1rem;letter-spacing:0.06em;text-transform:uppercase;padding:14px;border-radius:var(--radio);text-align:center;text-decoration:none;transition:opacity var(--transicion);margin-bottom:10px}
+    .btn-whatsapp:hover{opacity:0.88}
+    .btn-llamar{display:block;width:100%;background:transparent;color:var(--blanco);font-family:var(--fuente-titulo);font-weight:700;font-size:0.9rem;letter-spacing:0.06em;text-transform:uppercase;padding:12px;border:1px solid var(--gris-linea);border-radius:var(--radio);text-align:center;text-decoration:none;transition:all var(--transicion)}
+    .btn-llamar:hover{border-color:var(--blanco)}
+
+    .sidebar-aviso{font-size:0.72rem;color:var(--gris-texto);margin-top:16px;line-height:1.5;text-align:center}
+
+    /* LOADING */
+    .cargando{padding:80px 5vw;text-align:center;color:var(--gris-texto)}
+  </style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+  <a href="index.html" class="btn-volver">← Volver al catálogo</a>
+</header>
+
+<div class="ficha-wrap" id="ficha-wrap">
+  <div class="cargando">Cargando ficha del vehículo...</div>
+</div>
+
+<script src="js/ficha.js"></script>
+</body>
+</html>
