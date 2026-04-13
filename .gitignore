@@ -1,0 +1,27 @@
+# Entorno virtual Python
+venv/
+.venv/
+env/
+
+# Variables de entorno (NUNCA subir a GitHub)
+.env
+backend/.env
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# Archivos temporales
+*.tmp
+*.log
+*.DS_Store
+Thumbs.db
+
+# Vercel
+.vercel
+
+# Node
+node_modules/
