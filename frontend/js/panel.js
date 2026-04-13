@@ -1,4 +1,4 @@
-// panel.js — Lógica del panel privado de gestión v2
+// panel.js — Lógica del panel privado v3 (con gestión de fotos)
 const API = "https://anantacars-production.up.railway.app";
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
@@ -15,9 +15,7 @@ async function login() {
   const password = document.getElementById("l-pass").value;
   const errEl    = document.getElementById("login-error");
   errEl.textContent = "";
-
   if (!usuario || !password) { errEl.textContent = "Rellena usuario y contraseña."; return; }
-
   try {
     const resp = await fetch(`${API}/api/auth/login`, {
       method: "POST",
@@ -28,9 +26,7 @@ async function login() {
     const data = await resp.json();
     setToken(data.token);
     mostrarPanel();
-  } catch {
-    errEl.textContent = "Error de conexión.";
-  }
+  } catch { errEl.textContent = "Error de conexión."; }
 }
 
 function cerrarSesion() {
@@ -45,7 +41,6 @@ async function mostrarPanel() {
   await cargarListaCoches();
 }
 
-// Verificar token al cargar
 (async () => {
   const token = getToken();
   if (!token) return;
@@ -84,18 +79,16 @@ async function crearCoche() {
     const payload = {
       marca, modelo, anio, precio, km,
       combustible: document.getElementById("n-combustible").value,
-      caja: document.getElementById("n-caja").value,
-      carroceria: document.getElementById("n-carroceria").value,
-      cv: parseInt(document.getElementById("n-cv").value) || null,
-      color: document.getElementById("n-color").value.trim() || null,
+      caja:        document.getElementById("n-caja").value,
+      carroceria:  document.getElementById("n-carroceria").value,
+      cv:          parseInt(document.getElementById("n-cv").value) || null,
+      color:       document.getElementById("n-color").value.trim() || null,
       descripcion: document.getElementById("n-descripcion").value.trim() || null,
       video_youtube: document.getElementById("n-video").value.trim() || null,
     };
 
     const respCoche = await fetch(`${API}/api/coches`, {
-      method: "POST",
-      headers: authHeaders(),
-      body: JSON.stringify(payload),
+      method: "POST", headers: authHeaders(), body: JSON.stringify(payload),
     });
     if (!respCoche.ok) throw new Error("Error creando coche");
     const coche = await respCoche.json();
@@ -116,13 +109,11 @@ async function crearCoche() {
       document.getElementById(id).value = "";
     });
     document.getElementById("n-fotos").value = "";
-
     msgOk.style.display = "block";
     await cargarListaCoches();
   } catch (err) {
     msgErr.textContent = "❌ Error al publicar. Comprueba la conexión.";
     msgErr.style.display = "block";
-    console.error(err);
   } finally {
     btn.disabled = false; btn.textContent = "Publicar vehículo";
   }
@@ -141,7 +132,6 @@ async function cargarListaCoches() {
   try {
     const resp = await fetch(`${API}/api/coches`, { headers: authHeaders() });
     const coches = await resp.json();
-
     if (!coches.length) {
       lista.innerHTML = `<p style="color:var(--gris-texto);padding:20px 0">No hay coches en el catálogo todavía.</p>`;
       return;
@@ -205,10 +195,13 @@ let cocheEditandoId = null;
 
 async function abrirEditar(id) {
   cocheEditandoId = id;
-
   try {
-    const resp = await fetch(`${API}/api/coches/${id}`, { headers: authHeaders() });
-    const c = await resp.json();
+    const [respCoche, respFotos] = await Promise.all([
+      fetch(`${API}/api/coches/${id}`, { headers: authHeaders() }),
+      fetch(`${API}/api/fotos/${id}`,  { headers: authHeaders() }),
+    ]);
+    const c     = await respCoche.json();
+    const fotos = await respFotos.json();
 
     document.getElementById("e-marca").value       = c.marca || "";
     document.getElementById("e-modelo").value      = c.modelo || "";
@@ -224,13 +217,34 @@ async function abrirEditar(id) {
     document.getElementById("e-video").value       = c.video_youtube || "";
     document.getElementById("e-destacado").checked = c.destacado || false;
 
-    document.getElementById("msg-editar-ok").style.display = "none";
+    // Renderizar fotos actuales
+    renderFotosEditar(fotos, c.foto_portada);
+
+    document.getElementById("msg-editar-ok").style.display  = "none";
     document.getElementById("msg-editar-err").style.display = "none";
     document.getElementById("modal-editar").classList.add("activo");
-
   } catch {
     alert("Error al cargar los datos del vehículo");
   }
+}
+
+function renderFotosEditar(fotos, portadaUrl) {
+  const contenedor = document.getElementById("fotos-actuales");
+  if (!fotos.length) {
+    contenedor.innerHTML = `<p style="color:var(--gris-texto);font-size:0.82rem">Sin fotos todavía.</p>`;
+    return;
+  }
+  contenedor.innerHTML = fotos.map(f => `
+    <div class="foto-item" id="foto-item-${f.id}">
+      <img src="${f.url}" alt="foto"/>
+      <div class="foto-acciones">
+        ${f.url === portadaUrl
+          ? `<span class="badge-portada">★ Portada</span>`
+          : `<button class="btn-portada" onclick="setPortada(${f.id},'${f.url}')">★ Portada</button>`
+        }
+        <button class="btn-eliminar-foto" onclick="eliminarFoto(${f.id})">🗑</button>
+      </div>
+    </div>`).join("");
 }
 
 function cerrarModal() {
@@ -261,22 +275,98 @@ async function guardarEdicion() {
 
   try {
     const resp = await fetch(`${API}/api/coches/${cocheEditandoId}`, {
-      method: "PATCH",
-      headers: authHeaders(),
-      body: JSON.stringify(payload),
+      method: "PATCH", headers: authHeaders(), body: JSON.stringify(payload),
     });
-
-    if (!resp.ok) throw new Error("Error al guardar");
-
+    if (!resp.ok) throw new Error();
     msgOk.style.display = "block";
     await cargarListaCoches();
-
     setTimeout(() => cerrarModal(), 1200);
-
   } catch {
     msgErr.style.display = "block";
   }
 }
+
+
+// ── GESTIÓN DE FOTOS EN EDITAR ────────────────────────────────────────────────
+
+async function subirFotosEditar() {
+  const input  = document.getElementById("e-fotos-nuevas");
+  const btn    = document.getElementById("btn-subir-fotos");
+  const msgOk  = document.getElementById("msg-fotos-ok");
+  const msgErr = document.getElementById("msg-fotos-err");
+  msgOk.style.display = msgErr.style.display = "none";
+
+  if (!input.files.length) return;
+
+  btn.disabled = true; btn.textContent = "Subiendo...";
+
+  try {
+    const formData = new FormData();
+    for (const f of input.files) formData.append("fotos", f);
+
+    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${getToken()}` },
+      body: formData,
+    });
+    if (!resp.ok) throw new Error();
+
+    input.value = "";
+    msgOk.style.display = "block";
+
+    // Recargar fotos del modal
+    const [respCoche, respFotos] = await Promise.all([
+      fetch(`${API}/api/coches/${cocheEditandoId}`, { headers: authHeaders() }),
+      fetch(`${API}/api/fotos/${cocheEditandoId}`,  { headers: authHeaders() }),
+    ]);
+    const c     = await respCoche.json();
+    const fotos = await respFotos.json();
+    renderFotosEditar(fotos, c.foto_portada);
+    await cargarListaCoches();
+
+  } catch {
+    msgErr.style.display = "block";
+  } finally {
+    btn.disabled = false; btn.textContent = "Subir fotos";
+  }
+}
+
+async function eliminarFoto(fotoId) {
+  if (!confirm("¿Eliminar esta foto?")) return;
+  try {
+    const resp = await fetch(`${API}/api/fotos/${fotoId}`, {
+      method: "DELETE", headers: authHeaders(),
+    });
+    if (resp.ok) {
+      document.getElementById(`foto-item-${fotoId}`)?.remove();
+      await cargarListaCoches();
+    } else {
+      alert("Error al eliminar la foto");
+    }
+  } catch { alert("Error de conexión"); }
+}
+
+async function setPortada(fotoId, url) {
+  try {
+    const resp = await fetch(`${API}/api/coches/${cocheEditandoId}`, {
+      method: "PATCH",
+      headers: authHeaders(),
+      body: JSON.stringify({ foto_portada: url }),
+    });
+    if (!resp.ok) throw new Error();
+
+    // Recargar fotos
+    const [respCoche, respFotos] = await Promise.all([
+      fetch(`${API}/api/coches/${cocheEditandoId}`, { headers: authHeaders() }),
+      fetch(`${API}/api/fotos/${cocheEditandoId}`,  { headers: authHeaders() }),
+    ]);
+    const c     = await respCoche.json();
+    const fotos = await respFotos.json();
+    renderFotosEditar(fotos, c.foto_portada);
+    await cargarListaCoches();
+  } catch { alert("Error al cambiar portada"); }
+}
+
 
 // Cerrar modal al hacer click fuera
 document.getElementById("modal-editar").addEventListener("click", function(e) {

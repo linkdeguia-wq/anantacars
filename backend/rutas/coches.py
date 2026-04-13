@@ -46,6 +46,7 @@ class CocheEditar(BaseModel):
     video_youtube: Optional[str] = None
     estado: Optional[str] = None
     destacado: Optional[bool] = None
+    foto_portada: Optional[str] = None
 
 
 def requiere_admin(authorization: str = Header(...)):
