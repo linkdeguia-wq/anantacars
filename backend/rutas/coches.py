@@ -20,6 +20,7 @@ class CocheNuevo(BaseModel):
     modelo: str
     anio: int
     precio: float
+    precio_anterior: Optional[float] = None
     km: int
     combustible: str
     caja: str
@@ -27,6 +28,7 @@ class CocheNuevo(BaseModel):
     carroceria: str
     color: Optional[str] = None
     descripcion: Optional[str] = None
+    notas_internas: Optional[str] = None
     video_youtube: Optional[str] = None
     estado: str = "disponible"
     destacado: bool = False
@@ -36,6 +38,7 @@ class CocheEditar(BaseModel):
     modelo: Optional[str] = None
     anio: Optional[int] = None
     precio: Optional[float] = None
+    precio_anterior: Optional[float] = None
     km: Optional[int] = None
     combustible: Optional[str] = None
     caja: Optional[str] = None
@@ -43,6 +46,7 @@ class CocheEditar(BaseModel):
     carroceria: Optional[str] = None
     color: Optional[str] = None
     descripcion: Optional[str] = None
+    notas_internas: Optional[str] = None
     video_youtube: Optional[str] = None
     estado: Optional[str] = None
     destacado: Optional[bool] = None
@@ -115,6 +119,37 @@ async def crear_coche(coche: CocheNuevo, authorization: str = Header(...)):
     return data[0] if isinstance(data, list) else data
 
 
+@router.post("/{coche_id}/duplicar")
+async def duplicar_coche(coche_id: int, authorization: str = Header(...)):
+    """Duplica un coche existente con todos sus datos."""
+    requiere_admin(authorization)
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params={"select": "*", "id": f"eq.{coche_id}"})
+
+    data = resp.json()
+    if not data:
+        raise HTTPException(status_code=404, detail="Coche no encontrado")
+
+    coche = data[0]
+    # Quitar campos que no se deben duplicar
+    for campo in ["id", "creado_at", "actualizado_at", "foto_portada"]:
+        coche.pop(campo, None)
+    coche["estado"] = "disponible"
+    coche["marca"] = f"{coche['marca']} (copia)"
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            URL_TABLA,
+            headers={**HEADERS_SERVICE, "Prefer": "return=representation"},
+            json=coche,
+        )
+    if resp.status_code not in (200, 201):
+        raise HTTPException(status_code=500, detail="Error al duplicar")
+    data = resp.json()
+    return data[0] if isinstance(data, list) else data
+
+
 @router.patch("/{coche_id}")
 async def editar_coche(coche_id: int, cambios: CocheEditar, authorization: str = Header(...)):
     requiere_admin(authorization)
@@ -149,6 +184,21 @@ async def cambiar_estado(coche_id: int, estado: str, authorization: str = Header
     if resp.status_code not in (200, 204):
         raise HTTPException(status_code=500, detail="Error al cambiar estado")
     return {"ok": True, "id": coche_id, "estado": estado}
+
+
+@router.patch("/{coche_id}/orden-fotos")
+async def actualizar_orden_fotos(coche_id: int, orden: list[int], authorization: str = Header(...)):
+    """Actualiza el orden de las fotos de un coche."""
+    requiere_admin(authorization)
+    async with httpx.AsyncClient() as client:
+        for i, foto_id in enumerate(orden):
+            await client.patch(
+                f"{SUPABASE_URL}/rest/v1/fotos_coches",
+                headers=HEADERS_SERVICE,
+                params={"id": f"eq.{foto_id}", "coche_id": f"eq.{coche_id}"},
+                json={"orden": i + 1},
+            )
+    return {"ok": True}
 
 
 @router.delete("/{coche_id}")
