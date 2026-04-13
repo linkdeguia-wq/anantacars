@@ -1,4 +1,4 @@
-// panel.js — Lógica del panel privado de gestión
+// panel.js — Lógica del panel privado de gestión v2
 const API = "https://anantacars-production.up.railway.app";
 
 // ── AUTH ──────────────────────────────────────────────────────────────────────
