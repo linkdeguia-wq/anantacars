@@ -76,7 +76,7 @@ async def listar_coches(
         resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params=params)
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=500, detail="Error al obtener coches")
+        raise HTTPException(status_code=500, detail=f"Supabase error {resp.status_code}: {resp.text}")
     return resp.json()
 
 
