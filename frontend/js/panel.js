@@ -6,7 +6,6 @@ const API = "https://anantacars-production.up.railway.app";
 function getToken() { return localStorage.getItem("ac_token"); }
 function setToken(t) { localStorage.setItem("ac_token", t); }
 function quitarToken() { localStorage.removeItem("ac_token"); }
-
 function authHeaders() {
   return { "Authorization": `Bearer ${getToken()}`, "Content-Type": "application/json" };
 }
@@ -25,13 +24,10 @@ async function login() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ usuario, password }),
     });
-
     if (!resp.ok) { errEl.textContent = "Credenciales incorrectas."; return; }
-
     const data = await resp.json();
     setToken(data.token);
     mostrarPanel();
-
   } catch {
     errEl.textContent = "Error de conexión.";
   }
@@ -60,15 +56,14 @@ async function mostrarPanel() {
   } catch { quitarToken(); }
 })();
 
-// Enter en login
 document.getElementById("l-pass")?.addEventListener("keydown", e => e.key === "Enter" && login());
 
 
 // ── CREAR COCHE ───────────────────────────────────────────────────────────────
 
 async function crearCoche() {
-  const btn   = document.getElementById("btn-crear");
-  const msgOk = document.getElementById("msg-crear-ok");
+  const btn    = document.getElementById("btn-crear");
+  const msgOk  = document.getElementById("msg-crear-ok");
   const msgErr = document.getElementById("msg-crear-err");
   msgOk.style.display = msgErr.style.display = "none";
 
@@ -86,7 +81,6 @@ async function crearCoche() {
   btn.disabled = true; btn.textContent = "Publicando...";
 
   try {
-    // 1. Crear el coche
     const payload = {
       marca, modelo, anio, precio, km,
       combustible: document.getElementById("n-combustible").value,
@@ -103,17 +97,14 @@ async function crearCoche() {
       headers: authHeaders(),
       body: JSON.stringify(payload),
     });
-
     if (!respCoche.ok) throw new Error("Error creando coche");
     const coche = await respCoche.json();
 
-    // 2. Subir fotos si hay
     const archivos = document.getElementById("n-fotos").files;
     if (archivos.length > 0) {
       btn.textContent = `Subiendo fotos (${archivos.length})...`;
       const formData = new FormData();
       for (const f of archivos) formData.append("fotos", f);
-
       await fetch(`${API}/api/fotos/subir/${coche.id}`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${getToken()}` },
@@ -121,7 +112,6 @@ async function crearCoche() {
       });
     }
 
-    // Limpiar formulario
     ["n-marca","n-modelo","n-anio","n-precio","n-km","n-cv","n-color","n-descripcion","n-video"].forEach(id => {
       document.getElementById(id).value = "";
     });
@@ -129,7 +119,6 @@ async function crearCoche() {
 
     msgOk.style.display = "block";
     await cargarListaCoches();
-
   } catch (err) {
     msgErr.textContent = "❌ Error al publicar. Comprueba la conexión.";
     msgErr.style.display = "block";
@@ -149,29 +138,23 @@ function formatPrecio(n) {
 async function cargarListaCoches() {
   const lista = document.getElementById("lista-coches");
   lista.innerHTML = "Cargando...";
-
   try {
-    const resp = await fetch(`${API}/api/coches?estado=`, {
-      headers: authHeaders(),
-    });
+    const resp = await fetch(`${API}/api/coches`, { headers: authHeaders() });
     const coches = await resp.json();
 
     if (!coches.length) {
       lista.innerHTML = `<p style="color:var(--gris-texto);padding:20px 0">No hay coches en el catálogo todavía.</p>`;
       return;
     }
-
     lista.innerHTML = `<div class="lista-coches">${coches.map(renderItem).join("")}</div>`;
-
   } catch {
     lista.innerHTML = `<p style="color:#ff6b6b">Error al cargar la lista.</p>`;
   }
 }
 
 function renderItem(c) {
-  const estadoActual = c.estado;
   const estadosBtns = ["disponible","reservado","vendido"].map(e => {
-    if (e === estadoActual) return "";
+    if (e === c.estado) return "";
     const labels = { disponible:"✅ Disponible", reservado:"⏳ Reservar", vendido:"🔴 Vendido" };
     return `<button class="btn-estado btn-${e}" onclick="cambiarEstado(${c.id},'${e}')">${labels[e]}</button>`;
   }).join("");
@@ -183,11 +166,12 @@ function renderItem(c) {
       </div>
       <div class="coche-info">
         <div class="coche-nombre">${c.marca} ${c.modelo} ${c.anio}</div>
-        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible} · ${c.estado.toUpperCase()}</div>
+        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible} · ${c.estado.toUpperCase()}${c.destacado ? ' · ⭐' : ''}</div>
       </div>
       <div class="coche-precio">${formatPrecio(c.precio)}</div>
       <div class="coche-acciones">
         ${estadosBtns}
+        <button class="btn-editar" onclick="abrirEditar(${c.id})">✏️ Editar</button>
         <button class="btn-borrar" onclick="borrarCoche(${c.id},'${c.marca} ${c.modelo}')">🗑 Borrar</button>
       </div>
     </div>`;
@@ -196,8 +180,7 @@ function renderItem(c) {
 async function cambiarEstado(id, nuevoEstado) {
   try {
     const resp = await fetch(`${API}/api/coches/${id}/estado?estado=${nuevoEstado}`, {
-      method: "PATCH",
-      headers: authHeaders(),
+      method: "PATCH", headers: authHeaders(),
     });
     if (resp.ok) await cargarListaCoches();
     else alert("Error al cambiar estado");
@@ -205,13 +188,97 @@ async function cambiarEstado(id, nuevoEstado) {
 }
 
 async function borrarCoche(id, nombre) {
-  if (!confirm(`¿Seguro que quieres eliminar "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  if (!confirm(`¿Seguro que quieres eliminar "${nombre}"?`)) return;
   try {
     const resp = await fetch(`${API}/api/coches/${id}`, {
-      method: "DELETE",
-      headers: authHeaders(),
+      method: "DELETE", headers: authHeaders(),
     });
     if (resp.ok) await cargarListaCoches();
     else alert("Error al eliminar");
   } catch { alert("Error de conexión"); }
 }
+
+
+// ── EDITAR COCHE ──────────────────────────────────────────────────────────────
+
+let cocheEditandoId = null;
+
+async function abrirEditar(id) {
+  cocheEditandoId = id;
+
+  try {
+    const resp = await fetch(`${API}/api/coches/${id}`, { headers: authHeaders() });
+    const c = await resp.json();
+
+    document.getElementById("e-marca").value       = c.marca || "";
+    document.getElementById("e-modelo").value      = c.modelo || "";
+    document.getElementById("e-anio").value        = c.anio || "";
+    document.getElementById("e-precio").value      = c.precio || "";
+    document.getElementById("e-km").value          = c.km || "";
+    document.getElementById("e-combustible").value = c.combustible || "gasolina";
+    document.getElementById("e-caja").value        = c.caja || "manual";
+    document.getElementById("e-cv").value          = c.cv || "";
+    document.getElementById("e-carroceria").value  = c.carroceria || "sedan";
+    document.getElementById("e-color").value       = c.color || "";
+    document.getElementById("e-descripcion").value = c.descripcion || "";
+    document.getElementById("e-video").value       = c.video_youtube || "";
+    document.getElementById("e-destacado").checked = c.destacado || false;
+
+    document.getElementById("msg-editar-ok").style.display = "none";
+    document.getElementById("msg-editar-err").style.display = "none";
+    document.getElementById("modal-editar").classList.add("activo");
+
+  } catch {
+    alert("Error al cargar los datos del vehículo");
+  }
+}
+
+function cerrarModal() {
+  document.getElementById("modal-editar").classList.remove("activo");
+  cocheEditandoId = null;
+}
+
+async function guardarEdicion() {
+  const msgOk  = document.getElementById("msg-editar-ok");
+  const msgErr = document.getElementById("msg-editar-err");
+  msgOk.style.display = msgErr.style.display = "none";
+
+  const payload = {
+    marca:         document.getElementById("e-marca").value.trim(),
+    modelo:        document.getElementById("e-modelo").value.trim(),
+    anio:          parseInt(document.getElementById("e-anio").value),
+    precio:        parseFloat(document.getElementById("e-precio").value),
+    km:            parseInt(document.getElementById("e-km").value),
+    combustible:   document.getElementById("e-combustible").value,
+    caja:          document.getElementById("e-caja").value,
+    cv:            parseInt(document.getElementById("e-cv").value) || null,
+    carroceria:    document.getElementById("e-carroceria").value,
+    color:         document.getElementById("e-color").value.trim() || null,
+    descripcion:   document.getElementById("e-descripcion").value.trim() || null,
+    video_youtube: document.getElementById("e-video").value.trim() || null,
+    destacado:     document.getElementById("e-destacado").checked,
+  };
+
+  try {
+    const resp = await fetch(`${API}/api/coches/${cocheEditandoId}`, {
+      method: "PATCH",
+      headers: authHeaders(),
+      body: JSON.stringify(payload),
+    });
+
+    if (!resp.ok) throw new Error("Error al guardar");
+
+    msgOk.style.display = "block";
+    await cargarListaCoches();
+
+    setTimeout(() => cerrarModal(), 1200);
+
+  } catch {
+    msgErr.style.display = "block";
+  }
+}
+
+// Cerrar modal al hacer click fuera
+document.getElementById("modal-editar").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModal();
+});
