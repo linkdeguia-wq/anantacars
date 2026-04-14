@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Comparar vehículos — Ananta Cars</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--rojo:#e8311a;--fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;--radio:4px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300}
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco);text-decoration:none}
+    .logo span{color:var(--rojo)}
+    .btn-volver{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;transition:color 0.2s}
+    .btn-volver:hover{color:var(--blanco)}
+    .wrap{max-width:1100px;margin:0 auto;padding:40px 5vw}
+    h1{font-family:var(--fuente-titulo);font-size:2rem;font-weight:800;margin-bottom:28px}
+    .tabla-comparar{width:100%;border-collapse:collapse;border:1px solid var(--gris-linea);border-radius:var(--radio);overflow:hidden}
+    .tabla-comparar th{background:var(--gris-oscuro);padding:14px 16px;text-align:left;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gris-texto);border-bottom:1px solid var(--gris-linea)}
+    .tabla-comparar td{padding:12px 16px;border-bottom:1px solid var(--gris-linea);font-size:0.88rem;vertical-align:top}
+    .tabla-comparar tr:last-child td{border-bottom:none}
+    .tabla-comparar tr:nth-child(even) td{background:var(--carbon)}
+    .tabla-comparar tr:nth-child(odd) td{background:var(--negro)}
+    .campo-label{color:var(--gris-texto);font-size:0.78rem}
+    .foto-comparar{width:100%;aspect-ratio:16/9;object-fit:contain;background:var(--gris-oscuro);border-radius:var(--radio);margin-bottom:8px}
+    .nombre-coche{font-family:var(--fuente-titulo);font-size:1.2rem;font-weight:800;margin-bottom:4px}
+    .precio-coche{font-family:var(--fuente-titulo);font-size:1.5rem;font-weight:800;color:var(--rojo)}
+    .mejor{color:#7fffaa;font-weight:600}
+    .peor{color:#ff8f8f}
+    .btn-ficha{display:inline-block;background:var(--rojo);color:#fff;font-family:var(--fuente-titulo);font-weight:700;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;border-radius:var(--radio);text-decoration:none;margin-top:10px;transition:opacity 0.2s}
+    .btn-ficha:hover{opacity:0.88}
+    #cargando{padding:80px;text-align:center;color:var(--gris-texto)}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+    <a href="index.html" class="btn-volver">← Volver al catálogo</a>
+  </header>
+  <div class="wrap">
+    <h1>Comparar vehículos</h1>
+    <div id="contenido"><div id="cargando">Cargando comparativa...</div></div>
+  </div>
+  <script>
+    const API = "https://anantacars-production.up.railway.app";
+    const params = new URLSearchParams(window.location.search);
+    const ids = params.get("ids") || "";
+
+    function fmt(n) { return new Intl.NumberFormat("es-ES", {style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n); }
+    function fmtKm(n) { return new Intl.NumberFormat("es-ES").format(n) + " km"; }
+
+    async function cargar() {
+      if (!ids) { document.getElementById("contenido").innerHTML = '<p style="color:var(--gris-texto)">No hay vehículos para comparar. <a href="index.html" style="color:var(--rojo)">Volver al catálogo</a></p>'; return; }
+      try {
+        const resp = await fetch(`${API}/api/coches/comparar?ids=${ids}`);
+        const coches = await resp.json();
+        if (!coches.length) { document.getElementById("contenido").innerHTML = '<p>No se encontraron vehículos.</p>'; return; }
+        renderTabla(coches);
+      } catch { document.getElementById("contenido").innerHTML = '<p style="color:#ff6b6b">Error al cargar.</p>'; }
+    }
+
+    function renderTabla(coches) {
+      const precios = coches.map(c => c.precio);
+      const kms = coches.map(c => c.km);
+      const minPrecio = Math.min(...precios);
+      const minKm = Math.min(...kms);
+
+      const cols = coches.map(c => `
+        <th>
+          <img src="${c.foto_portada || ''}" class="foto-comparar" onerror="this.style.display='none'"/>
+          <div class="nombre-coche">${c.marca} ${c.modelo}</div>
+          <div style="color:var(--gris-texto);font-size:0.78rem;margin-bottom:8px">${c.anio}</div>
+          <div class="precio-coche ${c.precio === minPrecio ? 'mejor' : ''}">${fmt(c.precio)}</div>
+          <a href="ficha.html?id=${c.id}" class="btn-ficha">Ver ficha →</a>
+        </th>`).join("");
+
+      const filas = [
+        ["Kilómetros", coches.map((c,i) => `<td class="${c.km === minKm ? 'mejor' : ''}">${fmtKm(c.km)}</td>`).join("")],
+        ["Combustible", coches.map(c => `<td>${c.combustible}</td>`).join("")],
+        ["Cambio",      coches.map(c => `<td>${c.caja}</td>`).join("")],
+        ["Potencia",    coches.map(c => `<td>${c.cv ? c.cv + " CV" : "—"}</td>`).join("")],
+        ["Carrocería",  coches.map(c => `<td>${c.carroceria}</td>`).join("")],
+        ["Color",       coches.map(c => `<td>${c.color || "—"}</td>`).join("")],
+        ["Estado",      coches.map(c => `<td>${c.estado}</td>`).join("")],
+      ].map(([label, celdas]) => `<tr><td class="campo-label">${label}</td>${celdas}</tr>`).join("");
+
+      document.getElementById("contenido").innerHTML = `
+        <table class="tabla-comparar">
+          <thead><tr><th></th>${cols}</tr></thead>
+          <tbody>${filas}</tbody>
+        </table>
+        <p style="color:var(--gris-texto);font-size:0.78rem;margin-top:16px">🟢 Verde = mejor valor · Los precios son orientativos</p>`;
+    }
+
+    cargar();
+  </script>
+</body>
+</html>

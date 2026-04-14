@@ -1,432 +1,192 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ananta Cars — Compraventa de vehículos de ocasión</title>
   <meta name="description" content="Los mejores coches de segunda mano. Revisados, con garantía y al mejor precio."/>
+  <link rel="manifest" href="/manifest.json"/>
+  <meta name="theme-color" content="#e8311a"/>
+  <link rel="apple-touch-icon" href="/assets/icon-192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
-    :root {
-      --negro: #0a0a0a;
-      --carbon: #141414;
-      --gris-oscuro: #1e1e1e;
-      --gris-medio: #2c2c2c;
-      --gris-linea: #333;
-      --gris-texto: #888;
-      --blanco: #f5f5f0;
-      --blanco-suave: #d0cfc8;
-      --rojo: #e8311a;
-      --rojo-hover: #c4280f;
-      --fuente-titulo: 'Barlow Condensed', sans-serif;
-      --fuente-cuerpo: 'Barlow', sans-serif;
-      --radio: 4px;
-      --transicion: 0.2s ease;
+    :root{
+      --negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-medio:#2c2c2c;
+      --gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--blanco-suave:#d0cfc8;
+      --rojo:#e8311a;--rojo-hover:#c4280f;
+      --fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;
+      --radio:4px;--transicion:0.2s ease;
     }
+    [data-theme="light"]{
+      --negro:#f0f0ec;--carbon:#e8e8e4;--gris-oscuro:#ddddd8;--gris-medio:#d0d0cb;
+      --gris-linea:#ccc;--gris-texto:#666;--blanco:#1a1a1a;--blanco-suave:#333;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300;min-height:100vh;transition:background 0.3s,color 0.3s}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    [data-theme="light"] header{background:rgba(240,240,236,0.96)}
+    .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;letter-spacing:0.04em;color:var(--blanco);text-decoration:none}
+    .logo span{color:var(--rojo)}
+    nav{display:flex;align-items:center;gap:0.5rem}
+    nav a{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;margin-left:1.5rem;letter-spacing:0.08em;text-transform:uppercase;transition:color var(--transicion)}
+    nav a:hover{color:var(--blanco)}
+    .btn-tema{background:transparent;border:1px solid var(--gris-linea);color:var(--gris-texto);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:0.9rem;display:flex;align-items:center;justify-content:center;transition:all 0.2s;margin-left:1rem}
+    .btn-tema:hover{border-color:var(--blanco);color:var(--blanco)}
+    .btn-comparar-header{background:var(--rojo);color:#fff;font-family:var(--fuente-titulo);font-weight:700;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;padding:6px 14px;border-radius:var(--radio);text-decoration:none;margin-left:1rem;display:none;transition:opacity 0.2s}
+    .btn-comparar-header:hover{opacity:0.88}
+    .btn-comparar-header.visible{display:inline-flex;align-items:center;gap:6px}
+    .btn-wa-header{background:#25d366;color:#000;font-family:var(--fuente-titulo);font-weight:700;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;padding:7px 16px;border-radius:var(--radio);text-decoration:none;margin-left:1rem;transition:opacity var(--transicion)}
+    .btn-wa-header:hover{opacity:0.88}
 
-    html { scroll-behavior: smooth; }
+    .hero{padding:80px 5vw 60px;border-bottom:1px solid var(--gris-linea)}
+    .hero-label{font-family:var(--fuente-titulo);font-size:0.75rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--rojo);margin-bottom:1rem}
+    .hero h1{font-family:var(--fuente-titulo);font-size:clamp(2.8rem,7vw,6rem);font-weight:800;line-height:0.95;color:var(--blanco);max-width:700px}
+    .hero h1 em{color:var(--rojo);font-style:normal}
+    .hero-links{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap}
+    .hero-link{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;letter-spacing:0.06em;transition:color 0.2s;border-bottom:1px solid var(--gris-linea);padding-bottom:2px}
+    .hero-link:hover{color:var(--blanco);border-color:var(--blanco)}
 
-    body {
-      background: var(--negro);
-      color: var(--blanco);
-      font-family: var(--fuente-cuerpo);
-      font-weight: 300;
-      min-height: 100vh;
-    }
+    .filtros-wrap{padding:24px 5vw;border-bottom:1px solid var(--gris-linea);background:var(--carbon)}
+    .filtros{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end}
+    .filtro-grupo{display:flex;flex-direction:column;gap:5px}
+    .filtro-grupo label{font-size:0.65rem;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
+    .filtro-grupo select,.filtro-grupo input{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 12px;border-radius:var(--radio);min-width:130px;cursor:pointer;appearance:none}
+    .filtro-grupo select:focus,.filtro-grupo input:focus{outline:none;border-color:var(--rojo)}
+    .btn-filtrar{background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:700;font-size:0.88rem;letter-spacing:0.1em;text-transform:uppercase;padding:9px 22px;border:none;border-radius:var(--radio);cursor:pointer;transition:background var(--transicion);align-self:flex-end}
+    .btn-filtrar:hover{background:var(--rojo-hover)}
+    .btn-reset{background:transparent;color:var(--gris-texto);font-family:var(--fuente-titulo);font-size:0.8rem;letter-spacing:0.1em;text-transform:uppercase;padding:9px 14px;border:1px solid var(--gris-linea);border-radius:var(--radio);cursor:pointer;transition:all var(--transicion);align-self:flex-end}
+    .btn-reset:hover{color:var(--blanco);border-color:var(--gris-texto)}
 
-    /* ── HEADER ─────────────────────────────────────── */
-    header {
-      position: sticky; top: 0; z-index: 100;
-      background: rgba(10,10,10,0.96);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--gris-linea);
-      padding: 0 5vw;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-    }
+    .resultados-bar{padding:14px 5vw;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gris-linea);flex-wrap:wrap;gap:8px}
+    .resultados-bar span{font-size:0.8rem;color:var(--gris-texto);letter-spacing:0.06em}
+    .resultados-bar strong{color:var(--blanco)}
 
-    .logo {
-      font-family: var(--fuente-titulo);
-      font-size: 1.7rem; font-weight: 800;
-      letter-spacing: 0.04em;
-      color: var(--blanco);
-      text-decoration: none;
-    }
-    .logo span { color: var(--rojo); }
+    .grid-coches{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1px;background:var(--gris-linea);border-top:1px solid var(--gris-linea)}
+    .tarjeta{background:var(--carbon);cursor:pointer;transition:background var(--transicion);overflow:hidden;position:relative}
+    .tarjeta:hover{background:var(--gris-oscuro)}
+    .tarjeta-foto{width:100%;aspect-ratio:16/10;background:var(--gris-oscuro);overflow:hidden;position:relative}
+    .foto-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(18px) brightness(0.5) saturate(1.2);transform:scale(1.1);transition:transform 0.4s ease}
+    .tarjeta:hover .foto-bg{transform:scale(1.15)}
+    .tarjeta-foto img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;transition:transform 0.4s ease}
+    .tarjeta:hover .tarjeta-foto img{transform:scale(1.03)}
+    .tarjeta-foto-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--gris-linea);font-size:2.5rem}
+    .estado-badge{position:absolute;top:12px;left:12px;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:4px 10px;border-radius:2px;z-index:2}
+    .estado-disponible{background:#1a6b3a;color:#7fffaa}
+    .estado-reservado{background:#6b4c1a;color:#ffd97f}
+    .estado-vendido{background:#3a1a1a;color:#ff8f8f}
+    .destacado-badge{position:absolute;top:12px;right:12px;background:var(--rojo);color:white;font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;z-index:2}
+    .oferta-badge{position:absolute;bottom:12px;right:12px;background:#b45309;color:#fef3c7;font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;z-index:2}
+    .tarjeta-info{padding:18px 20px 20px}
+    .tarjeta-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+    .tarjeta-marca{font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--rojo)}
+    .btn-comparar-tarjeta{background:transparent;border:1px solid var(--gris-linea);color:var(--gris-texto);font-size:0.65rem;padding:3px 8px;border-radius:2px;cursor:pointer;transition:all 0.2s;font-family:var(--fuente-titulo);letter-spacing:0.06em;text-transform:uppercase}
+    .btn-comparar-tarjeta:hover{border-color:var(--blanco);color:var(--blanco)}
+    .btn-comparar-tarjeta.seleccionado{background:var(--rojo);border-color:var(--rojo);color:#fff}
+    .tarjeta-nombre{font-family:var(--fuente-titulo);font-size:1.5rem;font-weight:700;line-height:1.1;color:var(--blanco);margin-bottom:12px}
+    .tarjeta-datos{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+    .dato{display:flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--gris-texto)}
+    .tarjeta-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--gris-linea)}
+    .tarjeta-precio{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+    .precio-anterior{font-size:1rem;font-weight:400;color:var(--gris-texto);text-decoration:line-through}
+    .btn-ver{background:transparent;color:var(--rojo);font-family:var(--fuente-titulo);font-size:0.78rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;border:1px solid var(--rojo);border-radius:var(--radio);cursor:pointer;text-decoration:none;transition:all var(--transicion)}
+    .btn-ver:hover{background:var(--rojo);color:var(--blanco)}
 
-    nav a {
-      color: var(--gris-texto); font-size: 0.85rem;
-      text-decoration: none; margin-left: 2rem;
-      letter-spacing: 0.08em; text-transform: uppercase;
-      transition: color var(--transicion);
-    }
-    nav a:hover { color: var(--blanco); }
+    .vacio{grid-column:1/-1;padding:80px 5vw;text-align:center}
+    .vacio p{color:var(--gris-texto);font-size:1rem}
 
-    .btn-whatsapp-header {
-      background: #25d366; color: #000;
-      font-family: var(--fuente-titulo);
-      font-weight: 700; font-size: 0.85rem;
-      letter-spacing: 0.06em; text-transform: uppercase;
-      padding: 8px 18px; border-radius: var(--radio);
-      text-decoration: none; margin-left: 2rem;
-      transition: opacity var(--transicion);
-    }
-    .btn-whatsapp-header:hover { opacity: 0.88; }
+    .skeleton{background:linear-gradient(90deg,var(--gris-oscuro) 25%,var(--gris-medio) 50%,var(--gris-oscuro) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:var(--radio)}
+    @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
-    /* ── HERO ─────────────────────────────────────── */
-    .hero {
-      padding: 80px 5vw 60px;
-      border-bottom: 1px solid var(--gris-linea);
-    }
-    .hero-label {
-      font-family: var(--fuente-titulo);
-      font-size: 0.75rem; font-weight: 600;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--rojo); margin-bottom: 1rem;
-    }
-    .hero h1 {
-      font-family: var(--fuente-titulo);
-      font-size: clamp(2.8rem, 7vw, 6rem);
-      font-weight: 800; line-height: 0.95;
-      letter-spacing: -0.01em;
-      color: var(--blanco);
-      max-width: 700px;
-    }
-    .hero h1 em { color: var(--rojo); font-style: normal; }
+    .cargando-mas{padding:24px;text-align:center;color:var(--gris-texto);font-size:0.85rem;grid-column:1/-1}
 
-    /* ── FILTROS ─────────────────────────────────── */
-    .filtros-wrap {
-      padding: 28px 5vw;
-      border-bottom: 1px solid var(--gris-linea);
-      background: var(--carbon);
-    }
+    /* BARRA COMPARADOR FLOTANTE */
+    .barra-comparar{position:fixed;bottom:0;left:0;right:0;background:var(--carbon);border-top:1px solid var(--rojo);padding:14px 5vw;display:flex;align-items:center;gap:16px;z-index:150;transform:translateY(100%);transition:transform 0.3s ease;flex-wrap:wrap}
+    .barra-comparar.visible{transform:translateY(0)}
+    .barra-comparar-titulo{font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-right:auto}
+    .barra-coches{display:flex;gap:10px}
+    .barra-coche{display:flex;align-items:center;gap:8px;background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:6px 12px;font-size:0.82rem}
+    .barra-coche button{background:none;border:none;color:var(--gris-texto);cursor:pointer;font-size:0.9rem;padding:0 2px}
+    .btn-ir-comparar{background:var(--rojo);color:#fff;font-family:var(--fuente-titulo);font-weight:800;font-size:0.82rem;letter-spacing:0.08em;text-transform:uppercase;padding:9px 20px;border:none;border-radius:var(--radio);cursor:pointer;transition:opacity 0.2s}
+    .btn-ir-comparar:hover{opacity:0.88}
+    .btn-limpiar-comparar{background:transparent;color:var(--gris-texto);font-family:var(--fuente-titulo);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--gris-linea);border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
+    .btn-limpiar-comparar:hover{color:var(--blanco);border-color:var(--blanco)}
 
-    .filtros {
-      display: flex; flex-wrap: wrap; gap: 10px;
-      align-items: flex-end;
-    }
+    footer{padding:40px 5vw;border-top:1px solid var(--gris-linea);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+    footer p{font-size:0.8rem;color:var(--gris-texto)}
+    footer a{color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
+    footer a:hover{color:var(--blanco)}
+    .footer-logo{font-family:var(--fuente-titulo);font-size:1.2rem;font-weight:800;color:var(--blanco)}
+    .footer-logo span{color:var(--rojo)}
 
-    .filtro-grupo {
-      display: flex; flex-direction: column; gap: 5px;
-    }
-    .filtro-grupo label {
-      font-size: 0.68rem; font-weight: 500;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--gris-texto);
-    }
-
-    .filtro-grupo select,
-    .filtro-grupo input {
-      background: var(--gris-oscuro);
-      border: 1px solid var(--gris-linea);
-      color: var(--blanco);
-      font-family: var(--fuente-cuerpo);
-      font-size: 0.88rem;
-      padding: 8px 12px;
-      border-radius: var(--radio);
-      min-width: 140px;
-      cursor: pointer;
-      appearance: none;
-    }
-    .filtro-grupo select:focus,
-    .filtro-grupo input:focus {
-      outline: none; border-color: var(--rojo);
-    }
-
-    .btn-filtrar {
-      background: var(--rojo); color: var(--blanco);
-      font-family: var(--fuente-titulo);
-      font-weight: 700; font-size: 0.88rem;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 9px 24px; border: none; border-radius: var(--radio);
-      cursor: pointer; transition: background var(--transicion);
-      align-self: flex-end;
-    }
-    .btn-filtrar:hover { background: var(--rojo-hover); }
-
-    .btn-reset {
-      background: transparent; color: var(--gris-texto);
-      font-family: var(--fuente-titulo);
-      font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 9px 14px; border: 1px solid var(--gris-linea);
-      border-radius: var(--radio); cursor: pointer;
-      transition: all var(--transicion); align-self: flex-end;
-    }
-    .btn-reset:hover { color: var(--blanco); border-color: var(--gris-texto); }
-
-    /* ── RESULTADOS BAR ──────────────────────────── */
-    .resultados-bar {
-      padding: 16px 5vw;
-      display: flex; justify-content: space-between; align-items: center;
-      border-bottom: 1px solid var(--gris-linea);
-    }
-    .resultados-bar span {
-      font-size: 0.8rem; color: var(--gris-texto);
-      letter-spacing: 0.06em;
-    }
-    .resultados-bar strong { color: var(--blanco); }
-
-    /* ── GRID DE COCHES ─────────────────────────── */
-    .grid-coches {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1px;
-      background: var(--gris-linea);
-      border-top: 1px solid var(--gris-linea);
-    }
-
-    .tarjeta {
-      background: var(--carbon);
-      cursor: pointer;
-      transition: background var(--transicion);
-      overflow: hidden;
-      position: relative;
-    }
-    .tarjeta:hover { background: var(--gris-oscuro); }
-
-    .tarjeta-foto {
-      width: 100%; aspect-ratio: 16/10;
-      background: var(--gris-oscuro);
-      overflow: hidden; position: relative;
-    }
-    .tarjeta-foto .foto-bg {
-      position: absolute; inset: 0;
-      background-size: cover; background-position: center;
-      filter: blur(18px) brightness(0.5) saturate(1.2);
-      transform: scale(1.1);
-      transition: transform 0.4s ease;
-    }
-    .tarjeta:hover .tarjeta-foto .foto-bg { transform: scale(1.15); }
-    .tarjeta-foto img {
-      position: relative; z-index: 1;
-      width: 100%; height: 100%; object-fit: contain;
-      transition: transform 0.4s ease;
-    }
-    .tarjeta:hover .tarjeta-foto img { transform: scale(1.03); }
-
-    .tarjeta-foto-placeholder {
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gris-linea); font-size: 2.5rem;
-    }
-
-    .estado-badge {
-      position: absolute; top: 12px; left: 12px;
-      font-family: var(--fuente-titulo);
-      font-size: 0.7rem; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 4px 10px; border-radius: 2px;
-    }
-    .estado-disponible { background: #1a6b3a; color: #7fffaa; }
-    .estado-reservado  { background: #6b4c1a; color: #ffd97f; }
-    .estado-vendido    { background: #3a1a1a; color: #ff8f8f; }
-
-    .destacado-badge {
-      position: absolute; top: 12px; right: 12px;
-      background: var(--rojo); color: white;
-      font-family: var(--fuente-titulo);
-      font-size: 0.65rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 2px;
-    }
-
-    .tarjeta-info { padding: 18px 20px 20px; }
-
-    .tarjeta-marca {
-      font-family: var(--fuente-titulo);
-      font-size: 0.7rem; font-weight: 600;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--rojo); margin-bottom: 4px;
-    }
-
-    .tarjeta-nombre {
-      font-family: var(--fuente-titulo);
-      font-size: 1.5rem; font-weight: 700;
-      line-height: 1.1; color: var(--blanco);
-      margin-bottom: 12px;
-    }
-
-    .tarjeta-datos {
-      display: flex; gap: 14px; flex-wrap: wrap;
-      margin-bottom: 14px;
-    }
-    .dato {
-      display: flex; align-items: center; gap: 5px;
-      font-size: 0.78rem; color: var(--gris-texto);
-    }
-    .dato-icono { font-size: 0.9rem; }
-
-    .tarjeta-footer {
-      display: flex; justify-content: space-between; align-items: center;
-      padding-top: 14px;
-      border-top: 1px solid var(--gris-linea);
-    }
-
-    .tarjeta-precio {
-      font-family: var(--fuente-titulo);
-      font-size: 1.7rem; font-weight: 800;
-      color: var(--blanco);
-      display: flex; align-items: baseline; gap: 8px;
-    }
-    .precio-anterior {
-      font-size: 1rem; font-weight: 400;
-      color: var(--gris-texto);
-      text-decoration: line-through;
-    }
-    .oferta-badge {
-      position: absolute; bottom: 12px; right: 12px;
-      background: #b45309; color: #fef3c7;
-      font-family: var(--fuente-titulo);
-      font-size: 0.65rem; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      padding: 3px 8px; border-radius: 2px;
-    }
-
-    .btn-ver {
-      background: transparent; color: var(--rojo);
-      font-family: var(--fuente-titulo);
-      font-size: 0.78rem; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 7px 14px; border: 1px solid var(--rojo);
-      border-radius: var(--radio); cursor: pointer;
-      text-decoration: none;
-      transition: all var(--transicion);
-    }
-    .btn-ver:hover { background: var(--rojo); color: var(--blanco); }
-
-    /* ── EMPTY STATE ─────────────────────────────── */
-    .vacio {
-      grid-column: 1/-1;
-      padding: 80px 5vw; text-align: center;
-    }
-    .vacio-icono { font-size: 3rem; margin-bottom: 16px; opacity: 0.3; }
-    .vacio p { color: var(--gris-texto); font-size: 1rem; }
-
-    /* ── LOADING ─────────────────────────────────── */
-    .skeleton {
-      background: linear-gradient(90deg, var(--gris-oscuro) 25%, var(--gris-medio) 50%, var(--gris-oscuro) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.4s infinite;
-      border-radius: var(--radio);
-    }
-    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
-
-    /* ── FOOTER ─────────────────────────────────── */
-    footer {
-      padding: 40px 5vw;
-      border-top: 1px solid var(--gris-linea);
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 16px;
-    }
-    footer p { font-size: 0.8rem; color: var(--gris-texto); }
-    .footer-logo {
-      font-family: var(--fuente-titulo);
-      font-size: 1.2rem; font-weight: 800;
-      color: var(--blanco);
-    }
-    .footer-logo span { color: var(--rojo); }
-
-    /* ── RESPONSIVE ─────────────────────────────── */
-    @media (max-width: 600px) {
-      header { padding: 0 4vw; }
-      nav { display: none; }
-      .hero { padding: 48px 4vw 40px; }
-      .filtros-wrap { padding: 20px 4vw; }
-      .filtros { gap: 8px; }
-      .filtro-grupo select, .filtro-grupo input { min-width: 120px; }
-      .grid-coches { grid-template-columns: 1fr; }
-    }
+    @media(max-width:600px){header{padding:0 4vw}nav .nav-links{display:none}.hero{padding:48px 4vw 40px}.grid-coches{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-
-  <!-- HEADER -->
   <header>
     <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
     <nav>
-      <a href="#catalogo">Catálogo</a>
-      <a href="panel.html">Panel</a>
-      <a href="https://wa.me/34600000000" target="_blank" class="btn-whatsapp-header">📱 WhatsApp</a>
+      <span class="nav-links">
+        <a href="#catalogo">Catálogo</a>
+        <a href="como-funciona.html">Cómo funciona</a>
+      </span>
+      <a id="btn-comparar-header" class="btn-comparar-header" href="#">⚖ Comparar (<span id="num-comparar">0</span>)</a>
+      <button class="btn-tema" id="btn-tema" onclick="toggleTema()" title="Cambiar tema">🌙</button>
+      <a href="https://wa.me/34600000000" target="_blank" class="btn-wa-header">📱 WhatsApp</a>
     </nav>
   </header>
 
-  <!-- HERO -->
   <section class="hero">
     <p class="hero-label">Compraventa de vehículos</p>
     <h1>Tu próximo<br/><em>coche</em><br/>te espera.</h1>
+    <div class="hero-links">
+      <a href="como-funciona.html" class="hero-link">¿Cómo funciona? →</a>
+      <a href="#catalogo" class="hero-link">Ver catálogo →</a>
+    </div>
   </section>
 
-  <!-- FILTROS -->
   <section class="filtros-wrap" id="catalogo">
     <div class="filtros">
-      <div class="filtro-grupo">
-        <label>Marca</label>
-        <input type="text" id="f-marca" placeholder="Ej: Seat, BMW..."/>
+      <div class="filtro-grupo"><label>Marca</label><input type="text" id="f-marca" placeholder="Ej: Seat, BMW..."/></div>
+      <div class="filtro-grupo"><label>Combustible</label>
+        <select id="f-combustible"><option value="">Todos</option><option value="gasolina">Gasolina</option><option value="diesel">Diésel</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select>
       </div>
-      <div class="filtro-grupo">
-        <label>Combustible</label>
-        <select id="f-combustible">
-          <option value="">Todos</option>
-          <option value="gasolina">Gasolina</option>
-          <option value="diesel">Diésel</option>
-          <option value="hibrido">Híbrido</option>
-          <option value="electrico">Eléctrico</option>
-        </select>
+      <div class="filtro-grupo"><label>Carrocería</label>
+        <select id="f-carroceria"><option value="">Todas</option><option value="suv">SUV</option><option value="sedan">Sedán</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
       </div>
-      <div class="filtro-grupo">
-        <label>Carrocería</label>
-        <select id="f-carroceria">
-          <option value="">Todas</option>
-          <option value="suv">SUV</option>
-          <option value="sedan">Sedán</option>
-          <option value="familiar">Familiar</option>
-          <option value="coupe">Coupé</option>
-          <option value="monovolumen">Monovolumen</option>
-          <option value="furgon">Furgón</option>
-        </select>
-      </div>
-      <div class="filtro-grupo">
-        <label>Precio máx.</label>
-        <input type="number" id="f-precio" placeholder="Ej: 15000" min="0"/>
-      </div>
-      <div class="filtro-grupo">
-        <label>Km máx.</label>
-        <input type="number" id="f-km" placeholder="Ej: 100000" min="0"/>
-      </div>
-      <div class="filtro-grupo">
-        <label>Estado</label>
-        <select id="f-estado">
-          <option value="">Todos</option>
-          <option value="disponible" selected>Disponibles</option>
-          <option value="reservado">Reservados</option>
-          <option value="vendido">Vendidos</option>
-        </select>
+      <div class="filtro-grupo"><label>Precio máx.</label><input type="number" id="f-precio" placeholder="Ej: 15000" min="0"/></div>
+      <div class="filtro-grupo"><label>Km máx.</label><input type="number" id="f-km" placeholder="Ej: 100000" min="0"/></div>
+      <div class="filtro-grupo"><label>Estado</label>
+        <select id="f-estado"><option value="">Todos</option><option value="disponible" selected>Disponibles</option><option value="reservado">Reservados</option><option value="vendido">Vendidos</option></select>
       </div>
       <button class="btn-filtrar" onclick="buscar()">Buscar</button>
       <button class="btn-reset" onclick="resetFiltros()">✕ Limpiar</button>
     </div>
   </section>
 
-  <!-- RESULTADOS -->
   <div class="resultados-bar">
     <span id="contador-txt">Cargando catálogo...</span>
   </div>
 
-  <!-- GRID -->
   <main class="grid-coches" id="grid-coches">
-    <!-- Skeletons de carga -->
-    <div class="tarjeta" id="sk1"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
-    <div class="tarjeta" id="sk2"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
-    <div class="tarjeta" id="sk3"><div class="tarjeta-foto skeleton"></div><div style="padding:18px"><div class="skeleton" style="height:14px;width:60%;margin-bottom:8px"></div><div class="skeleton" style="height:22px;width:80%"></div></div></div>
+    <div class="tarjeta"><div class="tarjeta-foto skeleton"></div></div>
+    <div class="tarjeta"><div class="tarjeta-foto skeleton"></div></div>
+    <div class="tarjeta"><div class="tarjeta-foto skeleton"></div></div>
   </main>
 
-  <!-- FOOTER -->
+  <!-- BARRA COMPARADOR -->
+  <div class="barra-comparar" id="barra-comparar">
+    <span class="barra-comparar-titulo">⚖ Comparando</span>
+    <div class="barra-coches" id="barra-coches"></div>
+    <button class="btn-limpiar-comparar" onclick="limpiarComparar()">Limpiar</button>
+    <button class="btn-ir-comparar" onclick="irAComparar()">Comparar →</button>
+  </div>
+
   <footer>
     <div class="footer-logo">ANANTA<span>.</span>CARS</div>
-    <p>© 2025 Ananta Cars · Todos los derechos reservados</p>
+    <p>© 2025 Ananta Cars · <a href="como-funciona.html">Cómo funciona</a></p>
     <p>Contacto: <a href="https://wa.me/34600000000" style="color:var(--rojo)">WhatsApp</a></p>
   </footer>
 
@@ -434,5 +194,22 @@
   <!-- Google Analytics — sustituir G-XXXXXXXXXX por tu ID real -->
   <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
+  <script>
+    // PWA Service Worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+    // Tema
+    function toggleTema() {
+      const html = document.documentElement;
+      const tema = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', tema);
+      localStorage.setItem('tema', tema);
+      document.getElementById('btn-tema').textContent = tema === 'dark' ? '🌙' : '☀️';
+    }
+    const temaGuardado = localStorage.getItem('tema') || 'dark';
+    document.documentElement.setAttribute('data-theme', temaGuardado);
+    document.getElementById('btn-tema').textContent = temaGuardado === 'dark' ? '🌙' : '☀️';
+  </script>
 </body>
 </html>

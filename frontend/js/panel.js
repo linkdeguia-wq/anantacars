@@ -1,4 +1,4 @@
-// panel.js — v4 completo con todas las funcionalidades
+// panel.js — v5 completo con dashboard, config, historial, exportar PDF
 const API = "https://anantacars-production.up.railway.app";
 
 // ── TOAST ─────────────────────────────────────────────────────────────────────
@@ -9,13 +9,24 @@ function toast(msg, error = false) {
   setTimeout(() => el.classList.remove("show"), 3000);
 }
 
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function cambiarTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach((b,i) => {
+    const tabs = ["dashboard","catalogo","anadir","config"];
+    b.classList.toggle("activo", tabs[i] === tab);
+  });
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("activo"));
+  document.getElementById(`tab-${tab}`)?.classList.add("activo");
+  if (tab === "dashboard") cargarStats();
+  if (tab === "catalogo")  cargarListaCoches();
+  if (tab === "config")    cargarConfig();
+}
+
 // ── AUTH ──────────────────────────────────────────────────────────────────────
 function getToken() { return localStorage.getItem("ac_token"); }
 function setToken(t) { localStorage.setItem("ac_token", t); }
 function quitarToken() { localStorage.removeItem("ac_token"); }
-function authHeaders() {
-  return { "Authorization": `Bearer ${getToken()}`, "Content-Type": "application/json" };
-}
+function authHeaders() { return { "Authorization": `Bearer ${getToken()}`, "Content-Type": "application/json" }; }
 
 async function login() {
   const usuario  = document.getElementById("l-usuario").value.trim();
@@ -25,8 +36,8 @@ async function login() {
   if (!usuario || !password) { errEl.textContent = "Rellena usuario y contraseña."; return; }
   try {
     const resp = await fetch(`${API}/api/auth/login`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usuario, password }),
+      method: "POST", headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({usuario, password}),
     });
     if (!resp.ok) { errEl.textContent = "Credenciales incorrectas."; return; }
     setToken((await resp.json()).token);
@@ -43,7 +54,7 @@ function cerrarSesion() {
 async function mostrarPanel() {
   document.getElementById("pantalla-login").style.display = "none";
   document.getElementById("pantalla-panel").style.display = "block";
-  await cargarListaCoches();
+  cargarStats();
 }
 
 (async () => {
@@ -56,6 +67,21 @@ async function mostrarPanel() {
 })();
 
 document.getElementById("l-pass")?.addEventListener("keydown", e => e.key === "Enter" && login());
+
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+async function cargarStats() {
+  try {
+    const resp = await fetch(`${API}/api/coches/stats`, {headers: authHeaders()});
+    const s = await resp.json();
+    document.getElementById("st-total").textContent       = s.total || 0;
+    document.getElementById("st-disponibles").textContent = s.disponibles || 0;
+    document.getElementById("st-reservados").textContent  = s.reservados || 0;
+    document.getElementById("st-vendidos").textContent    = s.vendidos || 0;
+    document.getElementById("st-precio").textContent      = s.precio_medio ? `${s.precio_medio.toLocaleString("es-ES")}€` : "—";
+    document.getElementById("st-visitas").textContent     = s.visitas_totales || 0;
+  } catch { /* silencioso */ }
+}
 
 
 // ── CREAR COCHE ───────────────────────────────────────────────────────────────
@@ -79,24 +105,23 @@ async function crearCoche() {
   btn.disabled = true; btn.textContent = "Publicando...";
 
   try {
-    const precioAnterior = parseFloat(document.getElementById("n-precio-anterior").value) || null;
     const payload = {
       marca, modelo, anio, precio, km,
-      precio_anterior: precioAnterior,
-      combustible:     document.getElementById("n-combustible").value,
-      caja:            document.getElementById("n-caja").value,
-      carroceria:      document.getElementById("n-carroceria").value,
-      cv:              parseInt(document.getElementById("n-cv").value) || null,
-      color:           document.getElementById("n-color").value.trim() || null,
-      descripcion:     document.getElementById("n-descripcion").value.trim() || null,
-      notas_internas:  document.getElementById("n-notas").value.trim() || null,
-      video_youtube:   document.getElementById("n-video").value.trim() || null,
+      precio_anterior:  parseFloat(document.getElementById("n-precio-anterior").value) || null,
+      combustible:      document.getElementById("n-combustible").value,
+      caja:             document.getElementById("n-caja").value,
+      carroceria:       document.getElementById("n-carroceria").value,
+      cv:               parseInt(document.getElementById("n-cv").value) || null,
+      color:            document.getElementById("n-color").value.trim() || null,
+      descripcion:      document.getElementById("n-descripcion").value.trim() || null,
+      notas_internas:   document.getElementById("n-notas").value.trim() || null,
+      video_youtube:    document.getElementById("n-video").value.trim() || null,
     };
 
     const respCoche = await fetch(`${API}/api/coches`, {
       method: "POST", headers: authHeaders(), body: JSON.stringify(payload),
     });
-    if (!respCoche.ok) throw new Error("Error creando coche");
+    if (!respCoche.ok) throw new Error();
     const coche = await respCoche.json();
 
     const archivos = document.getElementById("n-fotos").files;
@@ -105,20 +130,18 @@ async function crearCoche() {
       const formData = new FormData();
       for (const f of archivos) formData.append("fotos", f);
       await fetch(`${API}/api/fotos/subir/${coche.id}?redimensionar=true&marca_agua=true`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${getToken()}` },
-        body: formData,
+        method: "POST", headers: {"Authorization": `Bearer ${getToken()}`}, body: formData,
       });
     }
 
-    ["n-marca","n-modelo","n-anio","n-precio","n-precio-anterior","n-km","n-cv","n-color","n-descripcion","n-notas","n-video"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = "";
+    ["n-marca","n-modelo","n-anio","n-precio","n-precio-anterior","n-km","n-cv","n-color","n-notas","n-video"].forEach(id => {
+      const el = document.getElementById(id); if (el) el.value = "";
     });
+    document.getElementById("n-descripcion").value = "";
     document.getElementById("n-fotos").value = "";
     msgOk.style.display = "block";
     toast("✅ Vehículo publicado");
-    await cargarListaCoches();
+    cambiarTab("catalogo");
   } catch {
     msgErr.textContent = "❌ Error al publicar. Comprueba la conexión.";
     msgErr.style.display = "block";
@@ -129,9 +152,7 @@ async function crearCoche() {
 
 
 // ── LISTA ─────────────────────────────────────────────────────────────────────
-function formatPrecio(n) {
-  return new Intl.NumberFormat("es-ES", { style:"currency", currency:"EUR", maximumFractionDigits:0 }).format(n);
-}
+function formatPrecio(n) { return new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n); }
 
 async function cargarListaCoches() {
   const lista  = document.getElementById("lista-coches");
@@ -140,10 +161,11 @@ async function cargarListaCoches() {
   lista.innerHTML = "Cargando...";
 
   try {
-    const params = new URLSearchParams({ orden });
+    const params = new URLSearchParams({orden, por_pagina: 50});
     if (estado) params.set("estado", estado);
-    const resp   = await fetch(`${API}/api/coches?${params}`, { headers: authHeaders() });
-    const coches = await resp.json();
+    const resp   = await fetch(`${API}/api/coches?${params}`, {headers: authHeaders()});
+    const data   = await resp.json();
+    const coches = data.coches || [];
 
     if (!coches.length) {
       lista.innerHTML = `<p style="color:var(--gris-texto);padding:20px 0">No hay coches con esos filtros.</p>`;
@@ -151,19 +173,19 @@ async function cargarListaCoches() {
     }
     lista.innerHTML = `<div class="lista-coches">${coches.map(renderItem).join("")}</div>`;
   } catch {
-    lista.innerHTML = `<p style="color:#ff6b6b">Error al cargar la lista.</p>`;
+    lista.innerHTML = `<p style="color:#ff6b6b">Error al cargar.</p>`;
   }
 }
 
 function renderItem(c) {
   const estadosBtns = ["disponible","reservado","vendido"].map(e => {
     if (e === c.estado) return "";
-    const labels = { disponible:"✅ Disponible", reservado:"⏳ Reservar", vendido:"🔴 Vendido" };
+    const labels = {disponible:"✅ Disponible", reservado:"⏳ Reservar", vendido:"🔴 Vendido"};
     return `<button class="btn-estado btn-${e}" onclick="cambiarEstado(${c.id},'${e}')">${labels[e]}</button>`;
   }).join("");
 
   const precioHTML = c.precio_anterior
-    ? `${formatPrecio(c.precio)} <small style="text-decoration:line-through;color:var(--gris-texto);font-size:0.75em">${formatPrecio(c.precio_anterior)}</small>`
+    ? `${formatPrecio(c.precio)} <small style="text-decoration:line-through;color:var(--gris-texto)">${formatPrecio(c.precio_anterior)}</small>`
     : formatPrecio(c.precio);
 
   return `
@@ -185,9 +207,7 @@ function renderItem(c) {
 
 async function cambiarEstado(id, nuevoEstado) {
   try {
-    const resp = await fetch(`${API}/api/coches/${id}/estado?estado=${nuevoEstado}`, {
-      method: "PATCH", headers: authHeaders(),
-    });
+    const resp = await fetch(`${API}/api/coches/${id}/estado?estado=${nuevoEstado}`, {method:"PATCH", headers:authHeaders()});
     if (resp.ok) { toast(`Estado → ${nuevoEstado}`); await cargarListaCoches(); }
     else toast("Error al cambiar estado", true);
   } catch { toast("Error de conexión", true); }
@@ -195,9 +215,7 @@ async function cambiarEstado(id, nuevoEstado) {
 
 async function duplicarCoche(id) {
   try {
-    const resp = await fetch(`${API}/api/coches/${id}/duplicar`, {
-      method: "POST", headers: authHeaders(),
-    });
+    const resp = await fetch(`${API}/api/coches/${id}/duplicar`, {method:"POST", headers:authHeaders()});
     if (resp.ok) { toast("✅ Coche duplicado"); await cargarListaCoches(); }
     else toast("Error al duplicar", true);
   } catch { toast("Error de conexión", true); }
@@ -206,9 +224,7 @@ async function duplicarCoche(id) {
 async function borrarCoche(id, nombre) {
   if (!confirm(`¿Seguro que quieres eliminar "${nombre}"?`)) return;
   try {
-    const resp = await fetch(`${API}/api/coches/${id}`, {
-      method: "DELETE", headers: authHeaders(),
-    });
+    const resp = await fetch(`${API}/api/coches/${id}`, {method:"DELETE", headers:authHeaders()});
     if (resp.ok) { toast("🗑 Eliminado"); await cargarListaCoches(); }
     else toast("Error al eliminar", true);
   } catch { toast("Error de conexión", true); }
@@ -221,12 +237,14 @@ let cocheEditandoId = null;
 async function abrirEditar(id) {
   cocheEditandoId = id;
   try {
-    const [respCoche, respFotos] = await Promise.all([
-      fetch(`${API}/api/coches/${id}`, { headers: authHeaders() }),
-      fetch(`${API}/api/fotos/${id}`,  { headers: authHeaders() }),
+    const [respCoche, respFotos, respHist] = await Promise.all([
+      fetch(`${API}/api/coches/${id}`,           {headers: authHeaders()}),
+      fetch(`${API}/api/fotos/${id}`,            {headers: authHeaders()}),
+      fetch(`${API}/api/coches/${id}/historial`, {headers: authHeaders()}),
     ]);
     const c     = await respCoche.json();
     const fotos = await respFotos.json();
+    const hist  = await respHist.json();
 
     document.getElementById("e-marca").value           = c.marca || "";
     document.getElementById("e-modelo").value          = c.modelo || "";
@@ -243,14 +261,34 @@ async function abrirEditar(id) {
     document.getElementById("e-notas").value           = c.notas_internas || "";
     document.getElementById("e-video").value           = c.video_youtube || "";
     document.getElementById("e-destacado").checked     = c.destacado || false;
-    document.getElementById("btn-ver-ficha").href      = `ficha.html?id=${id}`;
+    document.getElementById("btn-ver-ficha").href      = `/coches/${c.marca}-${c.modelo}-${c.anio}-id${id}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
 
     renderFotosEditar(fotos, c.foto_portada);
-    ["msg-editar-ok","msg-editar-err","msg-fotos-ok","msg-fotos-err"].forEach(id => {
-      document.getElementById(id).style.display = "none";
+    renderHistorial(hist);
+
+    ["msg-editar-ok","msg-editar-err","msg-fotos-ok","msg-fotos-err"].forEach(i => {
+      document.getElementById(i).style.display = "none";
     });
     document.getElementById("modal-editar").classList.add("activo");
   } catch { toast("Error al cargar el vehículo", true); }
+}
+
+function renderHistorial(hist) {
+  const cont = document.getElementById("historial-lista");
+  if (!hist.length) {
+    cont.innerHTML = `<p style="color:var(--gris-texto);padding:10px;font-size:0.82rem">Sin cambios registrados</p>`;
+    return;
+  }
+  cont.innerHTML = hist.map(h => {
+    const fecha = new Date(h.creado_at).toLocaleDateString("es-ES", {day:"2-digit",month:"2-digit",year:"2-digit",hour:"2-digit",minute:"2-digit"});
+    return `<div class="historial-item">
+      <div>
+        <div class="historial-campo">${h.campo}</div>
+        <div class="historial-vals">${h.valor_anterior ? `<span>${h.valor_anterior}</span> → ` : ""}<span>${h.valor_nuevo || "—"}</span></div>
+      </div>
+      <div class="historial-fecha">${fecha}</div>
+    </div>`;
+  }).join("");
 }
 
 function renderFotosEditar(fotos, portadaUrl) {
@@ -268,26 +306,21 @@ function renderFotosEditar(fotos, portadaUrl) {
         <button class="btn-del-foto" onclick="eliminarFoto(${f.id})">🗑 Borrar</button>
       </div>
     </div>`).join("");
-
-  // Drag & drop para reordenar
   iniciarDragDrop();
 }
 
 function iniciarDragDrop() {
   const grid = document.getElementById("fotos-actuales");
   let dragging = null;
-
   grid.querySelectorAll(".foto-item").forEach(item => {
     item.addEventListener("dragstart", () => { dragging = item; item.style.opacity = "0.4"; });
     item.addEventListener("dragend",   () => { dragging = null; item.style.opacity = "1"; guardarOrdenFotos(); });
-    item.addEventListener("dragover",  e => { e.preventDefault(); });
+    item.addEventListener("dragover",  e => e.preventDefault());
     item.addEventListener("drop", e => {
       e.preventDefault();
       if (dragging && dragging !== item) {
         const items = [...grid.querySelectorAll(".foto-item")];
-        const fromIdx = items.indexOf(dragging);
-        const toIdx   = items.indexOf(item);
-        if (fromIdx < toIdx) item.after(dragging);
+        if (items.indexOf(dragging) < items.indexOf(item)) item.after(dragging);
         else item.before(dragging);
       }
     });
@@ -298,7 +331,7 @@ async function guardarOrdenFotos() {
   const orden = [...document.querySelectorAll(".foto-item")].map(el => parseInt(el.dataset.id));
   try {
     await fetch(`${API}/api/coches/${cocheEditandoId}/orden-fotos`, {
-      method: "PATCH", headers: authHeaders(), body: JSON.stringify(orden),
+      method:"PATCH", headers:authHeaders(), body:JSON.stringify(orden),
     });
     toast("Orden guardado");
   } catch { toast("Error al guardar orden", true); }
@@ -314,14 +347,12 @@ async function guardarEdicion() {
   const msgErr = document.getElementById("msg-editar-err");
   msgOk.style.display = msgErr.style.display = "none";
 
-  const precioAnterior = parseFloat(document.getElementById("e-precio-anterior").value) || null;
-
   const payload = {
     marca:           document.getElementById("e-marca").value.trim(),
     modelo:          document.getElementById("e-modelo").value.trim(),
     anio:            parseInt(document.getElementById("e-anio").value),
     precio:          parseFloat(document.getElementById("e-precio").value),
-    precio_anterior: precioAnterior,
+    precio_anterior: parseFloat(document.getElementById("e-precio-anterior").value) || null,
     km:              parseInt(document.getElementById("e-km").value),
     combustible:     document.getElementById("e-combustible").value,
     caja:            document.getElementById("e-caja").value,
@@ -336,7 +367,7 @@ async function guardarEdicion() {
 
   try {
     const resp = await fetch(`${API}/api/coches/${cocheEditandoId}`, {
-      method: "PATCH", headers: authHeaders(), body: JSON.stringify(payload),
+      method:"PATCH", headers:authHeaders(), body:JSON.stringify(payload),
     });
     if (!resp.ok) throw new Error();
     msgOk.style.display = "block";
@@ -361,28 +392,23 @@ async function subirFotosEditar() {
 
   const redimensionar = document.getElementById("opt-redimensionar").checked;
   const marcaAgua     = document.getElementById("opt-marcaagua").checked;
-
   btn.disabled = true; btn.textContent = "Subiendo...";
 
   try {
     const formData = new FormData();
     for (const f of input.files) formData.append("fotos", f);
-
-    const resp = await fetch(
-      `${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=${redimensionar}&marca_agua=${marcaAgua}`,
-      { method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: formData }
-    );
+    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=${redimensionar}&marca_agua=${marcaAgua}`, {
+      method:"POST", headers:{"Authorization": `Bearer ${getToken()}`}, body: formData,
+    });
     if (!resp.ok) throw new Error();
-
     input.value = "";
     msgOk.style.display = "block";
     toast("✅ Fotos subidas");
-
-    const [respCoche, respFotos] = await Promise.all([
-      fetch(`${API}/api/coches/${cocheEditandoId}`, { headers: authHeaders() }),
-      fetch(`${API}/api/fotos/${cocheEditandoId}`,  { headers: authHeaders() }),
+    const [respC, respF] = await Promise.all([
+      fetch(`${API}/api/coches/${cocheEditandoId}`, {headers:authHeaders()}),
+      fetch(`${API}/api/fotos/${cocheEditandoId}`,  {headers:authHeaders()}),
     ]);
-    renderFotosEditar(await respFotos.json(), (await respCoche.json()).foto_portada);
+    renderFotosEditar(await respF.json(), (await respC.json()).foto_portada);
     await cargarListaCoches();
   } catch {
     msgErr.style.display = "block";
@@ -395,9 +421,7 @@ async function subirFotosEditar() {
 async function eliminarFoto(fotoId) {
   if (!confirm("¿Eliminar esta foto?")) return;
   try {
-    const resp = await fetch(`${API}/api/fotos/${fotoId}`, {
-      method: "DELETE", headers: authHeaders(),
-    });
+    const resp = await fetch(`${API}/api/fotos/${fotoId}`, {method:"DELETE", headers:authHeaders()});
     if (resp.ok) {
       document.getElementById(`foto-item-${fotoId}`)?.remove();
       toast("Foto eliminada");
@@ -409,21 +433,136 @@ async function eliminarFoto(fotoId) {
 async function setPortada(fotoId, url) {
   try {
     const resp = await fetch(`${API}/api/coches/${cocheEditandoId}`, {
-      method: "PATCH", headers: authHeaders(),
-      body: JSON.stringify({ foto_portada: url }),
+      method:"PATCH", headers:authHeaders(), body:JSON.stringify({foto_portada: url}),
     });
     if (!resp.ok) throw new Error();
     toast("✅ Portada actualizada");
-    const [respCoche, respFotos] = await Promise.all([
-      fetch(`${API}/api/coches/${cocheEditandoId}`, { headers: authHeaders() }),
-      fetch(`${API}/api/fotos/${cocheEditandoId}`,  { headers: authHeaders() }),
+    const [respC, respF] = await Promise.all([
+      fetch(`${API}/api/coches/${cocheEditandoId}`, {headers:authHeaders()}),
+      fetch(`${API}/api/fotos/${cocheEditandoId}`,  {headers:authHeaders()}),
     ]);
-    renderFotosEditar(await respFotos.json(), (await respCoche.json()).foto_portada);
+    renderFotosEditar(await respF.json(), (await respC.json()).foto_portada);
     await cargarListaCoches();
   } catch { toast("Error al cambiar portada", true); }
 }
 
-// Cerrar modal al hacer click fuera
 document.getElementById("modal-editar").addEventListener("click", function(e) {
   if (e.target === this) cerrarModal();
 });
+
+
+// ── CONFIGURACIÓN ─────────────────────────────────────────────────────────────
+async function cargarConfig() {
+  try {
+    const resp = await fetch(`${API}/api/config/admin`, {headers: authHeaders()});
+    const cfg  = await resp.json();
+
+    document.getElementById("cfg-calculadora").checked = cfg.modulo_calculadora !== false;
+    document.getElementById("cfg-comparador").checked  = cfg.modulo_comparador !== false;
+    document.getElementById("cfg-alertas").checked     = cfg.modulo_alertas !== false;
+    document.getElementById("cfg-garantia").checked    = cfg.garantia_activa || false;
+    document.getElementById("cfg-chat").checked        = cfg.modulo_chat || false;
+    document.getElementById("cfg-nombre").value        = cfg.nombre_negocio || "";
+    document.getElementById("cfg-whatsapp").value      = cfg.whatsapp || "";
+    document.getElementById("cfg-dominio").value       = cfg.dominio || "";
+    document.getElementById("cfg-analytics").value     = cfg.analytics_id || "";
+    document.getElementById("cfg-tin").value           = cfg.calc_tin || 6.99;
+    document.getElementById("cfg-plazo").value         = cfg.calc_plazo_max || 84;
+    document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
+    document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
+    document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
+  } catch { toast("Error al cargar configuración", true); }
+}
+
+async function guardarToggle(campo, valor) {
+  try {
+    await fetch(`${API}/api/config`, {
+      method:"PATCH", headers:authHeaders(),
+      body: JSON.stringify({[campo]: valor}),
+    });
+    toast(valor ? "✅ Módulo activado" : "Módulo desactivado");
+  } catch { toast("Error al guardar", true); }
+}
+
+async function guardarConfig() {
+  const msgOk  = document.getElementById("msg-cfg-ok");
+  const msgErr = document.getElementById("msg-cfg-err");
+  msgOk.style.display = msgErr.style.display = "none";
+
+  const payload = {
+    nombre_negocio:    document.getElementById("cfg-nombre").value.trim() || null,
+    whatsapp:          document.getElementById("cfg-whatsapp").value.trim() || null,
+    dominio:           document.getElementById("cfg-dominio").value.trim() || null,
+    analytics_id:      document.getElementById("cfg-analytics").value.trim() || null,
+    calc_tin:          parseFloat(document.getElementById("cfg-tin").value) || null,
+    calc_plazo_max:    parseInt(document.getElementById("cfg-plazo").value) || null,
+    calc_entrada_min:  parseInt(document.getElementById("cfg-entrada").value) || null,
+    garantia_texto:    document.getElementById("cfg-garantia-txt").value.trim() || null,
+    chat_codigo:       document.getElementById("cfg-chat-codigo").value.trim() || null,
+    modulo_calculadora: document.getElementById("cfg-calculadora").checked,
+    modulo_comparador:  document.getElementById("cfg-comparador").checked,
+    modulo_alertas:     document.getElementById("cfg-alertas").checked,
+    garantia_activa:    document.getElementById("cfg-garantia").checked,
+    modulo_chat:        document.getElementById("cfg-chat").checked,
+  };
+
+  try {
+    const resp = await fetch(`${API}/api/config`, {
+      method:"PATCH", headers:authHeaders(), body:JSON.stringify(payload),
+    });
+    if (!resp.ok) throw new Error();
+    msgOk.style.display = "block";
+    toast("✅ Configuración guardada");
+  } catch {
+    msgErr.style.display = "block";
+    toast("Error al guardar configuración", true);
+  }
+}
+
+
+// ── EXPORTAR PDF ──────────────────────────────────────────────────────────────
+async function exportarPDF() {
+  toast("Generando PDF...");
+  try {
+    const resp   = await fetch(`${API}/api/coches?estado=disponible&por_pagina=100`, {headers: authHeaders()});
+    const data   = await resp.json();
+    const coches = data.coches || [];
+
+    const win = window.open("", "_blank");
+    win.document.write(`
+      <!DOCTYPE html><html><head>
+      <meta charset="UTF-8"/>
+      <title>Catálogo Ananta Cars</title>
+      <style>
+        body{font-family:Arial,sans-serif;padding:20px;color:#111}
+        h1{color:#e8311a;margin-bottom:4px}
+        .fecha{color:#888;font-size:0.85rem;margin-bottom:24px}
+        table{width:100%;border-collapse:collapse;font-size:0.85rem}
+        th{background:#e8311a;color:#fff;padding:8px 10px;text-align:left}
+        td{padding:8px 10px;border-bottom:1px solid #ddd}
+        tr:nth-child(even) td{background:#f9f9f9}
+        .precio{font-weight:bold}
+        @media print{body{padding:0}}
+      </style></head><body>
+      <h1>Catálogo Ananta Cars</h1>
+      <div class="fecha">Generado el ${new Date().toLocaleDateString("es-ES")} · ${coches.length} vehículos disponibles</div>
+      <table>
+        <thead><tr><th>Marca</th><th>Modelo</th><th>Año</th><th>Km</th><th>Combustible</th><th>CV</th><th>Precio</th></tr></thead>
+        <tbody>
+          ${coches.map(c => `
+            <tr>
+              <td>${c.marca}</td>
+              <td>${c.modelo}</td>
+              <td>${c.anio}</td>
+              <td>${new Intl.NumberFormat("es-ES").format(c.km)} km</td>
+              <td>${c.combustible}</td>
+              <td>${c.cv || "—"}</td>
+              <td class="precio">${new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(c.precio)}</td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+      <script>window.onload=()=>window.print()<\/script>
+      </body></html>`);
+    win.document.close();
+  } catch { toast("Error al generar PDF", true); }
+}

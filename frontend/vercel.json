@@ -1,21 +1,18 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/coches/:slug", "destination": "/ficha.html" },
+    { "source": "/como-funciona", "destination": "/como-funciona.html" },
+    { "source": "/comparar", "destination": "/comparar.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "X-XSS-Protection", "value": "1; mode=block" }
       ]
     },
-    {
-      "source": "/js/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=3600" }
-      ]
-    }
+    { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
   ]
 }

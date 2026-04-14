@@ -25,16 +25,34 @@
     header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
     .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco)}
     .logo span{color:var(--rojo)}
-    .header-right{display:flex;align-items:center;gap:16px}
+    .header-right{display:flex;align-items:center;gap:12px}
     .header-right a{font-size:0.78rem;color:var(--gris-texto);text-decoration:none;letter-spacing:0.06em;transition:color 0.2s}
     .header-right a:hover{color:var(--blanco)}
     .btn-cerrar{font-family:var(--fuente-titulo);font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;background:transparent;color:var(--gris-texto);border:1px solid var(--gris-linea);padding:6px 14px;border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
     .btn-cerrar:hover{color:var(--rojo);border-color:var(--rojo)}
-    .panel-wrap{max-width:1000px;margin:0 auto;padding:40px 5vw}
-    .panel-titulo{font-family:var(--fuente-titulo);font-size:2rem;font-weight:800;margin-bottom:28px}
-    .seccion{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:24px;margin-bottom:24px}
-    .seccion-titulo{font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:20px}
-    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
+
+    /* TABS NAV */
+    .tabs-nav{display:flex;gap:0;border-bottom:1px solid var(--gris-linea);padding:0 5vw;background:var(--carbon);overflow-x:auto}
+    .tab-btn{font-family:var(--fuente-titulo);font-size:0.78rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:14px 20px;background:transparent;border:none;color:var(--gris-texto);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap}
+    .tab-btn.activo{color:var(--blanco);border-bottom-color:var(--rojo)}
+    .tab-btn:hover{color:var(--blanco)}
+    .tab-panel{display:none}
+    .tab-panel.activo{display:block}
+
+    .panel-wrap{max-width:1000px;margin:0 auto;padding:32px 5vw}
+
+    /* STATS */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px}
+    .stat-card{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:20px;text-align:center}
+    .stat-num{font-family:var(--fuente-titulo);font-size:2.2rem;font-weight:800;color:var(--blanco)}
+    .stat-label{font-size:0.7rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-top:4px}
+    .stat-rojo .stat-num{color:var(--rojo)}
+    .stat-verde .stat-num{color:#7fffaa}
+    .stat-naranja .stat-num{color:#ffd97f}
+
+    .seccion{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:24px;margin-bottom:20px}
+    .seccion-titulo{font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+    .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
     .form-campo{display:flex;flex-direction:column;gap:5px}
     .form-campo label{font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
     .form-campo input,.form-campo select{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:9px 11px;border-radius:var(--radio)}
@@ -44,28 +62,27 @@
     .form-campo-full input,.form-campo-full textarea{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:9px 11px;border-radius:var(--radio);width:100%}
     .form-campo-full textarea{resize:vertical;min-height:60px}
     .form-campo-full input:focus,.form-campo-full textarea:focus{outline:none;border-color:var(--rojo)}
-    .btn-subir{background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:800;font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;padding:11px 28px;border:none;border-radius:var(--radio);cursor:pointer;margin-top:16px;transition:opacity 0.2s}
+    .btn-subir{background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:800;font-size:0.9rem;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px;border:none;border-radius:var(--radio);cursor:pointer;margin-top:14px;transition:opacity 0.2s}
     .btn-subir:hover{opacity:0.88}
     .btn-subir:disabled{opacity:0.4;cursor:not-allowed}
+    .btn-secundario-panel{background:transparent;color:var(--gris-texto);font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:9px 18px;border:1px solid var(--gris-linea);border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
+    .btn-secundario-panel:hover{color:var(--blanco);border-color:var(--blanco)}
 
-    /* TOOLBAR LISTA */
+    /* LISTA */
     .lista-toolbar{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
     .lista-toolbar label{font-size:0.68rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto)}
     .lista-toolbar select{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.82rem;padding:6px 10px;border-radius:var(--radio)}
-
-    /* LISTA */
     .lista-coches{display:flex;flex-direction:column;gap:1px;background:var(--gris-linea);border:1px solid var(--gris-linea);border-radius:var(--radio);overflow:hidden}
     .coche-item{background:var(--carbon);padding:14px 18px;display:flex;align-items:center;gap:14px;transition:background 0.2s}
     .coche-item:hover{background:var(--gris-oscuro)}
     .coche-thumb{width:72px;height:50px;border-radius:2px;overflow:hidden;background:var(--gris-oscuro);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:1.4rem}
-    .coche-thumb img{width:100%;height:100%;object-fit:cover}
+    .coche-thumb img{width:100%;height:100%;object-fit:contain}
     .coche-info{flex:1;min-width:0}
     .coche-nombre{font-family:var(--fuente-titulo);font-size:1.05rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .coche-meta{font-size:0.74rem;color:var(--gris-texto);margin-top:2px}
-    .coche-precio{font-family:var(--fuente-titulo);font-size:1.15rem;font-weight:800;white-space:nowrap}
+    .coche-precio{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:800;white-space:nowrap}
     .coche-acciones{display:flex;gap:5px;flex-shrink:0;flex-wrap:wrap}
     .btn-estado{font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 9px;border-radius:2px;cursor:pointer;border:none;transition:opacity 0.2s}
-    .btn-estado:hover{opacity:0.8}
     .btn-disponible{background:#1a6b3a;color:#7fffaa}
     .btn-reservado{background:#6b4c1a;color:#ffd97f}
     .btn-vendido{background:#3a1a1a;color:#ff8f8f}
@@ -73,19 +90,18 @@
     .btn-accion:hover{border-color:var(--blanco)}
     .btn-accion-rojo{color:#ff6b6b;border-color:#3a1a1a}
     .btn-accion-rojo:hover{background:#3a1a1a;border-color:#ff6b6b}
-
-    .msg{padding:10px 14px;border-radius:var(--radio);font-size:0.83rem;margin-top:12px;display:none}
+    .msg{padding:10px 14px;border-radius:var(--radio);font-size:0.83rem;margin-top:10px;display:none}
     .msg-ok{background:#1a3a26;color:#7fffaa;border:1px solid #1a6b3a}
     .msg-err{background:#3a1a1a;color:#ff8f8f;border:1px solid #6b1a1a}
 
-    /* MODAL */
+    /* MODAL EDITAR */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:200;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
     .modal-overlay.activo{display:flex}
     .modal{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:28px;width:100%;max-width:740px;margin:auto}
     .modal-titulo{font-family:var(--fuente-titulo);font-size:0.8rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:20px}
-    .modal-seccion{margin-top:20px;padding-top:18px;border-top:1px solid var(--gris-linea)}
+    .modal-seccion{margin-top:18px;padding-top:18px;border-top:1px solid var(--gris-linea)}
     .modal-seccion-titulo{font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:12px}
-    .modal-footer{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
+    .modal-footer{display:flex;gap:10px;margin-top:18px;justify-content:flex-end;flex-wrap:wrap}
     .btn-guardar{background:var(--rojo);color:var(--blanco);font-family:var(--fuente-titulo);font-weight:800;font-size:0.88rem;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px;border:none;border-radius:var(--radio);cursor:pointer;transition:opacity 0.2s}
     .btn-guardar:hover{opacity:0.88}
     .btn-cancelar{background:transparent;color:var(--gris-texto);font-family:var(--fuente-titulo);font-size:0.88rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 18px;border:1px solid var(--gris-linea);border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
@@ -93,9 +109,7 @@
     .toggle-row{display:flex;align-items:center;gap:10px;margin-top:12px}
     .toggle-row label{font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
     .toggle-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--rojo);cursor:pointer}
-
-    /* FOTOS MODAL */
-    .fotos-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+    .fotos-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
     .foto-item{position:relative;width:100px;height:70px;border-radius:var(--radio);overflow:hidden;border:2px solid var(--gris-linea);cursor:grab}
     .foto-item.portada{border-color:var(--rojo)}
     .foto-item img{width:100%;height:100%;object-fit:contain;background:var(--gris-oscuro);pointer-events:none}
@@ -112,6 +126,33 @@
     .opciones-foto{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
     .opciones-foto label{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--gris-texto);cursor:pointer}
     .opciones-foto input[type=checkbox]{accent-color:var(--rojo)}
+
+    /* HISTORIAL */
+    .historial-lista{display:flex;flex-direction:column;gap:1px;background:var(--gris-linea);border:1px solid var(--gris-linea);border-radius:var(--radio);overflow:hidden;max-height:300px;overflow-y:auto}
+    .historial-item{background:var(--gris-oscuro);padding:10px 14px;display:grid;grid-template-columns:1fr auto;gap:8px;font-size:0.8rem}
+    .historial-campo{font-family:var(--fuente-titulo);font-weight:700;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--rojo)}
+    .historial-vals{color:var(--gris-texto)}
+    .historial-vals span{color:var(--blanco)}
+    .historial-fecha{color:var(--gris-texto);font-size:0.72rem;white-space:nowrap}
+
+    /* CONFIG */
+    .config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-bottom:16px}
+    .config-item{background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .config-item-info{flex:1}
+    .config-item-titulo{font-family:var(--fuente-titulo);font-size:0.85rem;font-weight:700;margin-bottom:2px}
+    .config-item-desc{font-size:0.72rem;color:var(--gris-texto)}
+    .toggle-switch{position:relative;width:44px;height:24px;flex-shrink:0}
+    .toggle-switch input{opacity:0;width:0;height:0}
+    .toggle-slider{position:absolute;cursor:pointer;inset:0;background:var(--gris-medio);border-radius:24px;transition:0.3s}
+    .toggle-slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s}
+    input:checked + .toggle-slider{background:var(--rojo)}
+    input:checked + .toggle-slider:before{transform:translateX(20px)}
+    .config-campos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+    .config-campo{display:flex;flex-direction:column;gap:4px}
+    .config-campo label{font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)}
+    .config-campo input,.config-campo textarea{background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%}
+    .config-campo input:focus,.config-campo textarea:focus{outline:none;border-color:var(--rojo)}
+    .config-campo textarea{resize:vertical;min-height:70px}
 
     /* TOAST */
     .toast{position:fixed;bottom:24px;right:24px;background:#1a3a26;color:#7fffaa;border:1px solid #1a6b3a;border-radius:var(--radio);padding:12px 20px;font-size:0.85rem;z-index:999;opacity:0;transform:translateY(10px);transition:all 0.3s;pointer-events:none}
@@ -144,61 +185,163 @@
     </div>
   </header>
 
+  <!-- TABS -->
+  <nav class="tabs-nav">
+    <button class="tab-btn activo" onclick="cambiarTab('dashboard')">📊 Dashboard</button>
+    <button class="tab-btn" onclick="cambiarTab('catalogo')">🚗 Catálogo</button>
+    <button class="tab-btn" onclick="cambiarTab('anadir')">➕ Añadir</button>
+    <button class="tab-btn" onclick="cambiarTab('config')">⚙️ Configuración</button>
+  </nav>
+
   <div class="panel-wrap">
-    <h1 class="panel-titulo">Panel de gestión</h1>
 
-    <!-- AÑADIR -->
-    <div class="seccion">
-      <p class="seccion-titulo">➕ Añadir vehículo</p>
-      <div class="form-grid">
-        <div class="form-campo"><label>Marca *</label><input type="text" id="n-marca" placeholder="Seat"/></div>
-        <div class="form-campo"><label>Modelo *</label><input type="text" id="n-modelo" placeholder="León"/></div>
-        <div class="form-campo"><label>Año *</label><input type="number" id="n-anio" placeholder="2019" min="1990" max="2030"/></div>
-        <div class="form-campo"><label>Precio (€) *</label><input type="number" id="n-precio" placeholder="12500" min="0"/></div>
-        <div class="form-campo"><label>Precio anterior (€)</label><input type="number" id="n-precio-anterior" placeholder="14000" min="0"/></div>
-        <div class="form-campo"><label>Kilómetros *</label><input type="number" id="n-km" placeholder="85000" min="0"/></div>
-        <div class="form-campo"><label>Combustible</label>
-          <select id="n-combustible"><option value="gasolina">Gasolina</option><option value="diesel">Diésel</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select>
-        </div>
-        <div class="form-campo"><label>Caja</label>
-          <select id="n-caja"><option value="manual">Manual</option><option value="automatico">Automático</option></select>
-        </div>
-        <div class="form-campo"><label>CV</label><input type="number" id="n-cv" placeholder="115" min="0"/></div>
-        <div class="form-campo"><label>Carrocería</label>
-          <select id="n-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
-        </div>
-        <div class="form-campo"><label>Color</label><input type="text" id="n-color" placeholder="Blanco perla"/></div>
+    <!-- TAB: DASHBOARD -->
+    <div class="tab-panel activo" id="tab-dashboard">
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="st-total">—</div><div class="stat-label">Total coches</div></div>
+        <div class="stat-card stat-verde"><div class="stat-num" id="st-disponibles">—</div><div class="stat-label">Disponibles</div></div>
+        <div class="stat-card stat-naranja"><div class="stat-num" id="st-reservados">—</div><div class="stat-label">Reservados</div></div>
+        <div class="stat-card stat-rojo"><div class="stat-num" id="st-vendidos">—</div><div class="stat-label">Vendidos</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-precio">—</div><div class="stat-label">Precio medio</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-visitas">—</div><div class="stat-label">Visitas totales</div></div>
       </div>
-      <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
-      <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
-      <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
-      <div class="form-campo-full"><label>Fotos</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
-      <button class="btn-subir" id="btn-crear" onclick="crearCoche()">Publicar vehículo</button>
-      <div class="msg msg-ok" id="msg-crear-ok">✅ Vehículo publicado correctamente</div>
-      <div class="msg msg-err" id="msg-crear-err"></div>
+      <div class="seccion">
+        <p class="seccion-titulo">Acciones rápidas</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-subir" onclick="cambiarTab('anadir')">➕ Añadir vehículo</button>
+          <button class="btn-secundario-panel" onclick="exportarPDF()">📄 Exportar catálogo PDF</button>
+          <button class="btn-secundario-panel" onclick="cambiarTab('catalogo')">🚗 Ver catálogo</button>
+        </div>
+      </div>
     </div>
 
-    <!-- LISTA -->
-    <div class="seccion">
-      <p class="seccion-titulo">🚗 Vehículos en catálogo</p>
-      <div class="lista-toolbar">
-        <label>Ordenar por</label>
-        <select id="orden-lista" onchange="cargarListaCoches()">
-          <option value="creado_at.desc">Más recientes</option>
-          <option value="precio.asc">Precio ↑</option>
-          <option value="precio.desc">Precio ↓</option>
-          <option value="km.asc">Menos km</option>
-        </select>
-        <label>Estado</label>
-        <select id="filtro-estado-lista" onchange="cargarListaCoches()">
-          <option value="">Todos</option>
-          <option value="disponible">Disponibles</option>
-          <option value="reservado">Reservados</option>
-          <option value="vendido">Vendidos</option>
-        </select>
+    <!-- TAB: CATÁLOGO -->
+    <div class="tab-panel" id="tab-catalogo">
+      <div class="seccion">
+        <p class="seccion-titulo">
+          Vehículos en catálogo
+          <button class="btn-secundario-panel" onclick="exportarPDF()" style="font-size:0.72rem">📄 Exportar PDF</button>
+        </p>
+        <div class="lista-toolbar">
+          <label>Ordenar</label>
+          <select id="orden-lista" onchange="cargarListaCoches()">
+            <option value="creado_at.desc">Más recientes</option>
+            <option value="precio.asc">Precio ↑</option>
+            <option value="precio.desc">Precio ↓</option>
+            <option value="km.asc">Menos km</option>
+          </select>
+          <label>Estado</label>
+          <select id="filtro-estado-lista" onchange="cargarListaCoches()">
+            <option value="">Todos</option>
+            <option value="disponible">Disponibles</option>
+            <option value="reservado">Reservados</option>
+            <option value="vendido">Vendidos</option>
+          </select>
+        </div>
+        <div id="lista-coches">Cargando...</div>
       </div>
-      <div id="lista-coches">Cargando...</div>
     </div>
+
+    <!-- TAB: AÑADIR -->
+    <div class="tab-panel" id="tab-anadir">
+      <div class="seccion">
+        <p class="seccion-titulo">➕ Añadir vehículo</p>
+        <div class="form-grid">
+          <div class="form-campo"><label>Marca *</label><input type="text" id="n-marca" placeholder="Seat"/></div>
+          <div class="form-campo"><label>Modelo *</label><input type="text" id="n-modelo" placeholder="León"/></div>
+          <div class="form-campo"><label>Año *</label><input type="number" id="n-anio" placeholder="2019" min="1990" max="2030"/></div>
+          <div class="form-campo"><label>Precio (€) *</label><input type="number" id="n-precio" placeholder="12500" min="0"/></div>
+          <div class="form-campo"><label>Precio anterior (€)</label><input type="number" id="n-precio-anterior" placeholder="14000" min="0"/></div>
+          <div class="form-campo"><label>Kilómetros *</label><input type="number" id="n-km" placeholder="85000" min="0"/></div>
+          <div class="form-campo"><label>Combustible</label>
+            <select id="n-combustible"><option value="gasolina">Gasolina</option><option value="diesel">Diésel</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select>
+          </div>
+          <div class="form-campo"><label>Caja</label>
+            <select id="n-caja"><option value="manual">Manual</option><option value="automatico">Automático</option></select>
+          </div>
+          <div class="form-campo"><label>CV</label><input type="number" id="n-cv" placeholder="115" min="0"/></div>
+          <div class="form-campo"><label>Carrocería</label>
+            <select id="n-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
+          </div>
+          <div class="form-campo"><label>Color</label><input type="text" id="n-color" placeholder="Blanco perla"/></div>
+        </div>
+        <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
+        <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
+        <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
+        <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
+        <button class="btn-subir" id="btn-crear" onclick="crearCoche()">Publicar vehículo</button>
+        <div class="msg msg-ok" id="msg-crear-ok">✅ Vehículo publicado correctamente</div>
+        <div class="msg msg-err" id="msg-crear-err"></div>
+      </div>
+    </div>
+
+    <!-- TAB: CONFIGURACIÓN -->
+    <div class="tab-panel" id="tab-config">
+      <div class="seccion">
+        <p class="seccion-titulo">⚙️ Módulos activos</p>
+        <div class="config-grid">
+          <div class="config-item">
+            <div class="config-item-info"><div class="config-item-titulo">Calculadora financiación</div><div class="config-item-desc">Cuota mensual en la ficha</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="cfg-calculadora" onchange="guardarToggle('modulo_calculadora', this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div class="config-item-info"><div class="config-item-titulo">Comparador de coches</div><div class="config-item-desc">Botón comparar en catálogo</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="cfg-comparador" onchange="guardarToggle('modulo_comparador', this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div class="config-item-info"><div class="config-item-titulo">Alertas WhatsApp</div><div class="config-item-desc">Formulario en ficha de coche</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="cfg-alertas" onchange="guardarToggle('modulo_alertas', this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div class="config-item-info"><div class="config-item-titulo">Sello de garantía</div><div class="config-item-desc">Badge verde en la ficha</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="cfg-garantia" onchange="guardarToggle('garantia_activa', this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+          <div class="config-item">
+            <div class="config-item-info"><div class="config-item-titulo">Chat en vivo</div><div class="config-item-desc">Tidio, Crisp, etc.</div></div>
+            <label class="toggle-switch"><input type="checkbox" id="cfg-chat" onchange="guardarToggle('modulo_chat', this.checked)"/><span class="toggle-slider"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">🏢 Datos del negocio</p>
+        <div class="config-campos">
+          <div class="config-campo"><label>Nombre del negocio</label><input type="text" id="cfg-nombre" placeholder="Ananta Cars"/></div>
+          <div class="config-campo"><label>WhatsApp (con prefijo país)</label><input type="text" id="cfg-whatsapp" placeholder="34600000000"/></div>
+          <div class="config-campo"><label>Dominio web</label><input type="text" id="cfg-dominio" placeholder="https://anantacars.vercel.app"/></div>
+          <div class="config-campo"><label>Google Analytics ID</label><input type="text" id="cfg-analytics" placeholder="G-XXXXXXXXXX"/></div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">💳 Calculadora de financiación</p>
+        <div class="config-campos">
+          <div class="config-campo"><label>TIN (%)</label><input type="number" id="cfg-tin" placeholder="6.99" step="0.01" min="0"/></div>
+          <div class="config-campo"><label>Plazo máximo (meses)</label><input type="number" id="cfg-plazo" placeholder="84" min="12" max="120"/></div>
+          <div class="config-campo"><label>Entrada mínima (%)</label><input type="number" id="cfg-entrada" placeholder="10" min="0" max="100"/></div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">🛡️ Sello de garantía</p>
+        <div class="config-campos">
+          <div class="config-campo"><label>Texto del sello</label><input type="text" id="cfg-garantia-txt" placeholder="Garantía 6 meses incluida"/></div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">💬 Chat en vivo (Tidio / Crisp)</p>
+        <div class="config-campo">
+          <label>Código de embed (pega el script completo)</label>
+          <textarea id="cfg-chat-codigo" placeholder="&lt;script&gt;...&lt;/script&gt;"></textarea>
+        </div>
+      </div>
+
+      <button class="btn-subir" onclick="guardarConfig()">Guardar configuración</button>
+      <div class="msg msg-ok" id="msg-cfg-ok">✅ Configuración guardada</div>
+      <div class="msg msg-err" id="msg-cfg-err">❌ Error al guardar</div>
+    </div>
+
   </div>
 </div>
 
@@ -206,13 +349,12 @@
 <div class="modal-overlay" id="modal-editar">
   <div class="modal">
     <p class="modal-titulo">✏️ Editar vehículo</p>
-
     <div class="form-grid">
       <div class="form-campo"><label>Marca</label><input type="text" id="e-marca"/></div>
       <div class="form-campo"><label>Modelo</label><input type="text" id="e-modelo"/></div>
       <div class="form-campo"><label>Año</label><input type="number" id="e-anio" min="1990" max="2030"/></div>
       <div class="form-campo"><label>Precio (€)</label><input type="number" id="e-precio" min="0"/></div>
-      <div class="form-campo"><label>Precio anterior (€)</label><input type="number" id="e-precio-anterior" min="0" placeholder="Dejar vacío si no aplica"/></div>
+      <div class="form-campo"><label>Precio anterior (€)</label><input type="number" id="e-precio-anterior" min="0" placeholder="Vacío = sin rebaja"/></div>
       <div class="form-campo"><label>Kilómetros</label><input type="number" id="e-km" min="0"/></div>
       <div class="form-campo"><label>Combustible</label>
         <select id="e-combustible"><option value="gasolina">Gasolina</option><option value="diesel">Diésel</option><option value="hibrido">Híbrido</option><option value="electrico">Eléctrico</option></select>
@@ -228,12 +370,11 @@
     </div>
     <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="e-descripcion"></textarea></div>
     <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="e-notas"/></div>
-    <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="e-video"/></div>
+    <div class="form-campo-full"><label>Vídeo YouTube</label><input type="text" id="e-video"/></div>
     <div class="toggle-row"><input type="checkbox" id="e-destacado"/><label for="e-destacado">Marcar como destacado ⭐</label></div>
 
-    <!-- FOTOS -->
     <div class="modal-seccion">
-      <p class="modal-seccion-titulo">📷 Fotos — pasa el ratón para acciones · arrastra para reordenar</p>
+      <p class="modal-seccion-titulo">📷 Fotos — hover para acciones · arrastra para reordenar</p>
       <div class="fotos-grid" id="fotos-actuales"></div>
       <div class="opciones-foto">
         <label><input type="checkbox" id="opt-redimensionar" checked/> Redimensionar automáticamente</label>
@@ -244,7 +385,12 @@
         <button class="btn-subir-fotos" id="btn-subir-fotos" onclick="subirFotosEditar()">Subir fotos</button>
       </div>
       <div class="msg msg-ok" id="msg-fotos-ok">✅ Fotos subidas</div>
-      <div class="msg msg-err" id="msg-fotos-err">❌ Error al subir fotos</div>
+      <div class="msg msg-err" id="msg-fotos-err">❌ Error al subir</div>
+    </div>
+
+    <div class="modal-seccion">
+      <p class="modal-seccion-titulo">📋 Historial de cambios</p>
+      <div class="historial-lista" id="historial-lista"><p style="color:var(--gris-texto);padding:10px;font-size:0.82rem">Sin cambios registrados</p></div>
     </div>
 
     <div class="modal-footer">
@@ -257,7 +403,6 @@
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script src="js/panel.js"></script>
