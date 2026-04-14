@@ -109,7 +109,11 @@ async function cargarFicha() {
         <!-- SIDEBAR -->
         <div class="sidebar">
           <span class="sidebar-estado ${estadoClase(c.estado)}">${estadoTxt(c.estado)}</span>
-          <div class="sidebar-precio">${formatPrecio(c.precio)}</div>
+          <div class="sidebar-precio">
+            ${formatPrecio(c.precio)}
+            ${c.precio_anterior ? `<div style="font-size:1rem;font-weight:400;color:var(--gris-texto);text-decoration:line-through;margin-top:2px">${formatPrecio(c.precio_anterior)}</div>` : ''}
+            ${c.precio_anterior ? `<div style="font-size:0.75rem;color:#fef3c7;background:#b45309;display:inline-block;padding:2px 8px;border-radius:2px;margin-top:4px;font-family:var(--fuente-titulo);letter-spacing:0.08em">🔥 PRECIO REBAJADO</div>` : ''}
+          </div>
           ${c.estado !== "vendido" ? `
           <a class="btn-whatsapp" href="https://wa.me/${WA}?text=${encodeURIComponent(`Hola, me interesa el ${c.marca} ${c.modelo} ${c.anio} por ${formatPrecio(c.precio)}`)}">
             📱 Contactar por WhatsApp
@@ -117,6 +121,14 @@ async function cargarFicha() {
           <a class="btn-llamar" href="tel:+${WA}">📞 Llamar</a>
           ` : `<p style="color:var(--gris-texto);font-size:0.9rem">Este vehículo ya ha sido vendido.</p>`}
           <p class="sidebar-aviso">Precio al contado. Consulta financiación disponible.</p>
+        </div>
+
+        <!-- CAJA ALERTA -->
+        <div class="alerta-box">
+          <p class="alerta-titulo">🔔 Avísame de coches similares</p>
+          <input class="alerta-input" id="alerta-tel" type="tel" placeholder="Tu WhatsApp: 34612345678"/>
+          <button class="btn-alerta" onclick="suscribirAlerta('${c.marca}')">Activar alerta</button>
+          <p class="alerta-msg" id="alerta-msg"></p>
         </div>
       </div>`;
 
@@ -135,3 +147,42 @@ async function cargarFicha() {
 }
 
 cargarFicha();
+
+
+// ── VISITAS ───────────────────────────────────────────────────────────────────
+async function registrarVisita(cocheId) {
+  // Evitar contar visitas repetidas en la misma sesión
+  const key = `visita_${cocheId}`;
+  if (sessionStorage.getItem(key)) return;
+  sessionStorage.setItem(key, '1');
+  try {
+    await fetch(`${API}/api/coches/${cocheId}/visita`, { method: 'POST' });
+  } catch { /* silencioso */ }
+}
+
+
+// ── ALERTAS ───────────────────────────────────────────────────────────────────
+async function suscribirAlerta(marca) {
+  const tel   = document.getElementById("alerta-tel")?.value.trim();
+  const msg   = document.getElementById("alerta-msg");
+  if (!tel || tel.length < 9) {
+    msg.textContent = "Introduce un número válido";
+    msg.style.cssText = "display:block;color:#ff8f8f";
+    return;
+  }
+  try {
+    const resp = await fetch(`${API}/api/alertas/suscribir`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ telefono: tel, marca }),
+    });
+    if (resp.ok) {
+      msg.textContent = "✅ ¡Alerta activada! Te avisaremos por WhatsApp";
+      msg.style.cssText = "display:block;color:#7fffaa";
+      document.getElementById("alerta-tel").value = "";
+    } else throw new Error();
+  } catch {
+    msg.textContent = "Error al activar la alerta. Inténtalo de nuevo.";
+    msg.style.cssText = "display:block;color:#ff8f8f";
+  }
+}

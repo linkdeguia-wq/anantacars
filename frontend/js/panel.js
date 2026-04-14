@@ -171,7 +171,7 @@ function renderItem(c) {
       <div class="coche-thumb">${c.foto_portada ? `<img src="${c.foto_portada}" alt=""/>` : "🚗"}</div>
       <div class="coche-info">
         <div class="coche-nombre">${c.marca} ${c.modelo} ${c.anio}${c.destacado ? " ⭐" : ""}</div>
-        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible} · <strong style="color:var(--blanco)">${c.estado.toUpperCase()}</strong></div>
+        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible} · <strong style="color:var(--blanco)">${c.estado.toUpperCase()}</strong>${c.visitas ? ` · 👁 ${c.visitas}` : ""}</div>
       </div>
       <div class="coche-precio">${precioHTML}</div>
       <div class="coche-acciones">

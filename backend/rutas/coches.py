@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException, Header, Query
 from pydantic import BaseModel
 from typing import Optional
 import httpx
-from config import SUPABASE_URL, HEADERS_SERVICE
+from config import SUPABASE_URL, HEADERS_SERVICE, ENTORNO
 from rutas.auth import verificar_token
 
 router = APIRouter()
@@ -81,7 +81,7 @@ async def listar_coches(
         resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params=params)
 
     if resp.status_code != 200:
-        raise HTTPException(status_code=500, detail=f"Supabase error {resp.status_code}: {resp.text}")
+        raise HTTPException(status_code=500, detail="Error al obtener coches" if ENTORNO != "desarrollo" else f"Supabase {resp.status_code}: {resp.text}")
     return resp.json()
 
 
@@ -199,6 +199,27 @@ async def actualizar_orden_fotos(coche_id: int, orden: list[int], authorization:
                 json={"orden": i + 1},
             )
     return {"ok": True}
+
+
+@router.post("/{coche_id}/visita")
+async def registrar_visita(coche_id: int):
+    """Registra una visita a la ficha de un coche. No requiere auth."""
+    async with httpx.AsyncClient() as client:
+        # Obtener visitas actuales
+        resp = await client.get(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"select": "visitas", "id": f"eq.{coche_id}"},
+        )
+        data = resp.json()
+        if not data:
+            return {"ok": False}
+        visitas_actuales = data[0].get("visitas") or 0
+        await client.patch(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"id": f"eq.{coche_id}"},
+            json={"visitas": visitas_actuales + 1},
+        )
+    return {"ok": True, "visitas": visitas_actuales + 1}
 
 
 @router.delete("/{coche_id}")
