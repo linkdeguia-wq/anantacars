@@ -22,7 +22,10 @@ function youtubeEmbedUrl(url) {
 }
 
 function cambiarFoto(url, miniaturas) {
-  document.querySelector(".foto-principal img").src = url;
+  const img = document.getElementById("foto-main");
+  const bg  = document.getElementById("foto-bg");
+  if (img) img.src = url;
+  if (bg)  bg.style.backgroundImage = `url('${url}')`;
   miniaturas.forEach(m => m.classList.remove("activa"));
 }
 
@@ -60,10 +63,11 @@ async function cargarFicha() {
     wrap.innerHTML = `
       <!-- GALERÍA -->
       <div class="galeria">
-        <div class="foto-principal">
+        <div class="foto-principal" id="foto-principal-wrap">
           ${fotoPortada
-            ? `<img src="${fotoPortada}" alt="${c.marca} ${c.modelo}"/>`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2">🚗</div>`
+            ? `<div class="foto-bg-principal" style="background-image:url('${fotoPortada}')" id="foto-bg"></div>
+               <img src="${fotoPortada}" alt="${c.marca} ${c.modelo}" id="foto-main"/>`
+            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2;position:relative;z-index:1">🚗</div>`
           }
         </div>
         ${miniaturasHTML ? `<div class="miniaturas">${miniaturasHTML}</div>` : ""}

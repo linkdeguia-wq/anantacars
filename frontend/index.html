@@ -192,11 +192,20 @@
       background: var(--gris-oscuro);
       overflow: hidden; position: relative;
     }
-    .tarjeta-foto img {
-      width: 100%; height: 100%; object-fit: cover;
+    .tarjeta-foto .foto-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      filter: blur(18px) brightness(0.5) saturate(1.2);
+      transform: scale(1.1);
       transition: transform 0.4s ease;
     }
-    .tarjeta:hover .tarjeta-foto img { transform: scale(1.04); }
+    .tarjeta:hover .tarjeta-foto .foto-bg { transform: scale(1.15); }
+    .tarjeta-foto img {
+      position: relative; z-index: 1;
+      width: 100%; height: 100%; object-fit: contain;
+      transition: transform 0.4s ease;
+    }
+    .tarjeta:hover .tarjeta-foto img { transform: scale(1.03); }
 
     .tarjeta-foto-placeholder {
       width: 100%; height: 100%;

@@ -29,12 +29,13 @@
 
     /* GALERÍA */
     .galeria{margin-bottom:32px}
-    .foto-principal{width:100%;aspect-ratio:16/9;background:var(--gris-oscuro);border-radius:var(--radio);overflow:hidden;margin-bottom:10px}
-    .foto-principal img{width:100%;height:100%;object-fit:cover}
+    .foto-principal{width:100%;aspect-ratio:16/9;background:var(--gris-oscuro);border-radius:var(--radio);overflow:hidden;margin-bottom:10px;position:relative}
+    .foto-bg-principal{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(20px) brightness(0.45) saturate(1.2);transform:scale(1.1)}
+    .foto-principal img{position:relative;z-index:1;width:100%;height:100%;object-fit:contain}
     .miniaturas{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
     .miniatura{width:90px;height:60px;border-radius:2px;overflow:hidden;cursor:pointer;border:2px solid transparent;flex-shrink:0;transition:border-color var(--transicion)}
     .miniatura.activa{border-color:var(--rojo)}
-    .miniatura img{width:100%;height:100%;object-fit:cover}
+    .miniatura img{width:100%;height:100%;object-fit:contain;background:var(--gris-oscuro)}
 
     /* INFO */
     .ficha-layout{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start}
