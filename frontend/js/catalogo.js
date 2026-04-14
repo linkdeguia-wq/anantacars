@@ -118,9 +118,17 @@ async function buscar(reset = true) {
 
   try {
     const resp = await fetch(`${API}/api/coches?${params}`);
+    if (!resp.ok) {
+      console.error("API error:", resp.status, await resp.text());
+      throw new Error(`HTTP ${resp.status}`);
+    }
     const data = await resp.json();
-    const coches = data.coches || [];
-    hayMas = data.hay_mas || false;
+    console.log("API response:", data);
+
+    // Compatible con backend viejo (array) y nuevo (objeto con .coches)
+    const coches = Array.isArray(data) ? data : (data.coches || []);
+    const total   = Array.isArray(data) ? data.length : (data.total || coches.length);
+    hayMas = Array.isArray(data) ? false : (data.hay_mas || false);
 
     if (reset) {
       if (!coches.length) {
@@ -148,10 +156,11 @@ async function buscar(reset = true) {
       observarScroll();
     }
 
-    contador.innerHTML = `<strong>${data.total}</strong> vehículo${data.total !== 1 ? "s" : ""} encontrado${data.total !== 1 ? "s" : ""}`;
+    contador.innerHTML = `<strong>${total}</strong> vehículo${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`;
     paginaActual++;
 
-  } catch {
+  } catch (err) {
+    console.error("Error en buscar():", err);
     if (reset) grid.innerHTML = `<div class="vacio"><p>Error al cargar el catálogo. Inténtalo de nuevo.</p></div>`;
     contador.innerHTML = "Error de conexión";
   }
