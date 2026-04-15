@@ -290,9 +290,9 @@ async function cargarFicha() {
     // Sticky WA en móvil
     if (window.innerWidth < 780 && c.estado !== "vendido") {
       const waNum = cfgGlobal.whatsapp || WA;
-      const waMsg = encodeURIComponent(\`Hola, me interesa el \${c.marca} \${c.modelo} \${c.anio}\`);
+      const waMsg = encodeURIComponent("Hola, me interesa el " + c.marca + " " + c.modelo + " " + c.anio);
       const sticky = document.createElement("a");
-      sticky.href = \`https://wa.me/\${waNum}?text=\${waMsg}\`;
+      sticky.href = "https://wa.me/" + waNum + "?text=" + waMsg;
       sticky.target = "_blank";
       sticky.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:200;background:#25d366;color:#000;font-family:var(--fuente-titulo);font-weight:800;font-size:1rem;letter-spacing:0.06em;text-transform:uppercase;padding:16px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 -2px 12px rgba(0,0,0,0.3)";
       sticky.innerHTML = "📱 Contactar vía WhatsApp";
