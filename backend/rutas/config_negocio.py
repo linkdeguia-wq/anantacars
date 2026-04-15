@@ -31,6 +31,9 @@ class ConfigUpdate(BaseModel):
     chat_codigo: Optional[str] = None
     analytics_id: Optional[str] = None
     telefono: Optional[str] = None
+    direccion: Optional[str] = None
+    ciudad: Optional[str] = None
+    horario: Optional[str] = None
     resenas_place_id: Optional[str] = None
 
 

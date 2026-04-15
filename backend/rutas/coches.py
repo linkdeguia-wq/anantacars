@@ -51,6 +51,7 @@ class CocheEditar(BaseModel):
     estado: Optional[str] = None
     destacado: Optional[bool] = None
     etiqueta_dgt: Optional[str] = None
+    historial_km: Optional[str] = None
     foto_portada: Optional[str] = None
 
 

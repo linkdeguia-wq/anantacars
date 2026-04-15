@@ -146,6 +146,8 @@
     .precio-badge { display:inline-flex;align-items:center;gap:5px;
       font-family:var(--fuente-titulo);font-size:0.68rem;font-weight:700;
       letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;margin-left:4px; }
+  
+    .fotos-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.65);color:#fff;font-size:0.65rem;font-weight:600;padding:3px 8px;border-radius:2px;z-index:2;backdrop-filter:blur(4px)}
   </style>
 </head>
 <body>
@@ -158,7 +160,7 @@
       </span>
       <a id="btn-comparar-header" class="btn-comparar-header" href="#">⚖ Comparar (<span id="num-comparar">0</span>)</a>
       <button class="btn-tema" id="btn-tema" onclick="toggleTema()" title="Cambiar tema">🌙</button>
-      <a href="https://wa.me/34600000000" target="_blank" class="btn-wa-header">📞 Contacto</a>
+      <a href="https://wa.me/34600000000" target="_blank" class="btn-wa-header" style="background:#fff;color:#111">📞 Contacto</a>
     </nav>
   </header>
 
@@ -251,5 +253,17 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+
+  // Footer dinámico desde config
+  (async () => {
+    try {
+      const r = await fetch(`${API}/api/config`); // API definida en catalogo.js
+      const c = await r.json();
+      if (c.direccion) document.getElementById("footer-direccion").textContent = "📍 " + c.direccion;
+      if (c.horario)   document.getElementById("footer-horario").textContent   = "🕐 " + c.horario;
+      if (c.whatsapp)  document.getElementById("footer-wa").href = `https://wa.me/${c.whatsapp}`;
+      if (c.telefono)  document.getElementById("footer-tel").innerHTML = `📞 <a href="tel:+${c.telefono}" style="color:var(--gris-texto)">+34 ${c.telefono.replace(/^34/,'')}</a>`;
+    } catch {}
+  })();
 </body>
 </html>

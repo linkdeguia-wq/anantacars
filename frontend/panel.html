@@ -271,6 +271,7 @@
         <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
         <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
+        <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
         <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
         <button class="btn-subir" id="btn-crear" onclick="crearCoche()">Publicar vehículo</button>
         <div class="msg msg-ok" id="msg-crear-ok">✅ Vehículo publicado correctamente</div>
@@ -314,6 +315,9 @@
           <div class="config-campo"><label>Teléfono visible</label><input type="text" id="cfg-telefono" placeholder="688644229"/></div>
           <div class="config-campo"><label>Dominio web</label><input type="text" id="cfg-dominio" placeholder="https://anantacars.vercel.app"/></div>
           <div class="config-campo"><label>Google Analytics ID</label><input type="text" id="cfg-analytics" placeholder="G-XXXXXXXXXX"/></div>
+          <div class="config-campo"><label>Ciudad</label><input type="text" id="cfg-ciudad" placeholder="Madrid"/></div>
+          <div class="config-campo" style="grid-column:1/-1"><label>Dirección</label><input type="text" id="cfg-direccion" placeholder="Calle Ejemplo 12, 28001 Madrid"/></div>
+          <div class="config-campo" style="grid-column:1/-1"><label>Horario de atención</label><input type="text" id="cfg-horario" placeholder="Lun–Vie 9:00–19:00 · Sáb 10:00–14:00"/></div>
         </div>
       </div>
 
@@ -378,6 +382,7 @@
     <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="e-descripcion"></textarea></div>
     <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="e-notas"/></div>
     <div class="form-campo-full"><label>Vídeo YouTube</label><input type="text" id="e-video"/></div>
+    <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="e-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
     <div class="toggle-row"><input type="checkbox" id="e-destacado"/><label for="e-destacado">Marcar como destacado ⭐</label></div>
 
     <div class="modal-seccion">

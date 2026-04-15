@@ -116,6 +116,7 @@ async function crearCoche() {
       descripcion:      document.getElementById("n-descripcion").value.trim() || null,
       notas_internas:   document.getElementById("n-notas").value.trim() || null,
       video_youtube:    document.getElementById("n-video").value.trim() || null,
+      historial_km:     document.getElementById("n-historial-km")?.value.trim() || null,
       etiqueta_dgt:     document.getElementById("n-etiqueta")?.value || null,
     };
 
@@ -261,6 +262,7 @@ async function abrirEditar(id) {
     document.getElementById("e-descripcion").value     = c.descripcion || "";
     document.getElementById("e-notas").value           = c.notas_internas || "";
     document.getElementById("e-video").value           = c.video_youtube || "";
+    if (document.getElementById("e-historial-km")) document.getElementById("e-historial-km").value = c.historial_km || "";
     document.getElementById("e-destacado").checked     = c.destacado || false;
     if (document.getElementById("e-etiqueta")) document.getElementById("e-etiqueta").value = c.etiqueta_dgt || "";
     document.getElementById("btn-ver-ficha").href      = `/coches/${c.marca}-${c.modelo}-${c.anio}-id${id}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
@@ -364,6 +366,7 @@ async function guardarEdicion() {
     descripcion:     document.getElementById("e-descripcion").value.trim() || null,
     notas_internas:  document.getElementById("e-notas").value.trim() || null,
     video_youtube:   document.getElementById("e-video").value.trim() || null,
+    historial_km:    document.getElementById("e-historial-km")?.value.trim() || null,
     etiqueta_dgt:    document.getElementById("e-etiqueta")?.value || null,
     destacado:       document.getElementById("e-destacado").checked,
   };
@@ -468,6 +471,9 @@ async function cargarConfig() {
     document.getElementById("cfg-nombre").value        = cfg.nombre_negocio || "";
     document.getElementById("cfg-whatsapp").value      = cfg.whatsapp || "";
     document.getElementById("cfg-telefono").value      = cfg.telefono || "";
+    if (document.getElementById("cfg-ciudad"))    document.getElementById("cfg-ciudad").value    = cfg.ciudad || "";
+    if (document.getElementById("cfg-direccion")) document.getElementById("cfg-direccion").value = cfg.direccion || "";
+    if (document.getElementById("cfg-horario"))   document.getElementById("cfg-horario").value   = cfg.horario || "";
     document.getElementById("cfg-dominio").value       = cfg.dominio || "";
     document.getElementById("cfg-analytics").value     = cfg.analytics_id || "";
     document.getElementById("cfg-tin").value           = cfg.calc_tin || 6.99;
@@ -497,6 +503,9 @@ async function guardarConfig() {
     nombre_negocio:    document.getElementById("cfg-nombre").value.trim() || null,
     whatsapp:          document.getElementById("cfg-whatsapp").value.trim() || null,
     telefono:          document.getElementById("cfg-telefono").value.trim() || null,
+    ciudad:            document.getElementById("cfg-ciudad")?.value.trim() || null,
+    direccion:         document.getElementById("cfg-direccion")?.value.trim() || null,
+    horario:           document.getElementById("cfg-horario")?.value.trim() || null,
     dominio:           document.getElementById("cfg-dominio").value.trim() || null,
     analytics_id:      document.getElementById("cfg-analytics").value.trim() || null,
     calc_tin:          parseFloat(document.getElementById("cfg-tin").value) || null,

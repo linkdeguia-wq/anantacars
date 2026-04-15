@@ -70,6 +70,7 @@ function renderTarjeta(c) {
 
   // URL limpia
   const slug = `${c.marca}-${c.modelo}-${c.anio}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
+  const ciudadTag = cfg.ciudad ? `<span class="dato">📍 ${cfg.ciudad}</span>` : "";
 
   return `
     <div class="tarjeta" onclick="irFicha(event, ${c.id}, '${slug}')">
@@ -77,6 +78,7 @@ function renderTarjeta(c) {
         ${foto}
         ${estadoBadge(c.estado)}
         ${c.destacado ? '<span class="destacado-badge">⭐ Destacado</span>' : ""}
+        ${c.foto_portada ? '<span class="fotos-badge">📷 Ver fotos</span>' : ""}
         ${c.precio_anterior ? '<span class="oferta-badge">🔥 Bajada de precio</span>' : ""}
       </div>
       <div class="tarjeta-info">
@@ -91,6 +93,7 @@ function renderTarjeta(c) {
           ${c.cv ? `<span class="dato">💨 ${c.cv} CV</span>` : ""}
           <span class="dato">⚙️ ${c.caja}</span>
           ${etiquetaDGT(c.etiqueta_dgt)}
+          ${ciudadTag}
         </div>
         <div class="tarjeta-footer">
           <span class="tarjeta-precio">${precioHTML}<span id="badge-${c.id}" class="precio-badge" style="display:none"></span></span>
