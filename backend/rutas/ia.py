@@ -31,8 +31,9 @@ async def obtener_coletilla() -> str:
                 params={"select": "coletilla_descripcion", "id": "eq.1"}
             )
         data = resp.json()
-        if data and data[0].get("coletilla_descripcion"):
-            return data[0]["coletilla_descripcion"]
+        val = data[0].get("coletilla_descripcion") if data else None
+        if val and val.strip():
+            return val.strip()
     except Exception:
         pass
     return default

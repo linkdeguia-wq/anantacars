@@ -418,6 +418,18 @@
     
 
     <div class="modal-seccion">
+      <p class="modal-seccion-titulo">🤖 Generar descripción con IA</p>
+      <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);display:block;margin-bottom:5px">Notas opcionales para la IA</label>
+          <input type="text" id="e-ia-extras" placeholder="Opcional: destaca techo panorámico, omite el rayón..." style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.82rem;padding:8px 10px;border-radius:var(--radio);width:100%"/>
+        </div>
+        <button class="btn-secundario-panel" id="btn-e-desc" onclick="generarDescripcionEditar()">✨ Generar descripción</button>
+      </div>
+      <p id="e-desc-msg" style="font-size:0.75rem;margin-top:8px;min-height:16px"></p>
+    </div>
+
+    <div class="modal-seccion">
       <p class="modal-seccion-titulo">📷 Fotos — hover para acciones · arrastra para reordenar</p>
       <div class="fotos-grid" id="fotos-actuales"></div>
       <div class="opciones-foto">
