@@ -219,7 +219,7 @@ async function cargarFicha() {
           <div class="form-contacto" id="form-contacto-wrap">
             <p class="form-contacto-titulo">✉️ Enviar consulta</p>
             <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="Tu nombre" autocapitalize="sentences"/>
-            <input class="form-contacto-input" id="fc-telefono" type="tel" placeholder="Tu teléfono o email"/>
+            <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email" inputmode="email"/>
             <textarea class="form-contacto-input" id="fc-mensaje" rows="3" placeholder="¿Tienes alguna pregunta sobre este vehículo?">${c.marca} ${c.modelo} ${c.anio} — me interesa más información.</textarea>
             <button class="btn-enviar-consulta" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">Enviar consulta →</button>
             <p class="form-contacto-msg" id="fc-msg"></p>
@@ -227,14 +227,15 @@ async function cargarFicha() {
           <!-- BOTONES CONTACTO -->
           <a class="btn-whatsapp" href="https://wa.me/${waNum}?text=${waMsg}" target="_blank">📱 WhatsApp</a>
           <a class="btn-llamar" href="tel:+${cfgGlobal.telefono || '34688644229'}">
-            📞 Llamar
-            <span class="btn-llamar-num">${cfgGlobal.telefono ? cfgGlobal.telefono.replace('34','') : '688 644 229'}</span>
+            <span>📞 Llamar</span>
+            <span class="btn-llamar-num">${cfgGlobal.telefono ? cfgGlobal.telefono.replace(/^34/,'') : '688 644 229'}</span>
           </a>
           ` : `<p style="color:var(--gris-texto);font-size:0.9rem;margin-bottom:16px">Este vehículo ya ha sido vendido.</p>`}
 
           <div class="sidebar-compartir">
-            <a class="btn-compartir" href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank">📤 Compartir</a>
-            <button class="btn-compartir" onclick="copiarEnlace()">🔗 Copiar link</button>
+            <a class="btn-compartir" href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank">💬 WhatsApp</a>
+            <a class="btn-compartir" href="mailto:?subject=${shareTitle}&body=Mira este vehículo: ${shareUrl}" target="_blank">📧 Email</a>
+            <button class="btn-compartir" onclick="copiarEnlace()">🔗 Link</button>
           </div>
           <p class="sidebar-aviso">Precio al contado. Consulta financiación.</p>
 
