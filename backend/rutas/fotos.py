@@ -39,24 +39,55 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
         ratio = ANCHO_MAX_FOTO / img.width
         img = img.resize((ANCHO_MAX_FOTO, int(img.height * ratio)), Image.LANCZOS)
 
-    # 2. Marca de agua con logo
+    # 2. Marca de agua con logo + texto
     if marca_agua:
         try:
             logo_wa = Image.open(LOGO_WA_PATH).convert("RGBA")
-            # Escalar logo al 18% del ancho de la foto
-            wa_w = max(80, int(img.width * 0.18))
+            # Escalar logo al 22% del ancho de la foto
+            wa_w = max(100, int(img.width * 0.22))
             ratio_wa = wa_w / logo_wa.width
             wa_h = int(logo_wa.height * ratio_wa)
             logo_wa = logo_wa.resize((wa_w, wa_h), Image.LANCZOS)
 
-            # Posición: esquina inferior derecha con margen
-            margen = int(img.width * 0.025)
-            x = img.width - wa_w - margen
-            y = img.height - wa_h - margen
+            # Añadir texto "Ananta Cars" debajo del logo
+            font_size = max(14, int(wa_w * 0.18))
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
 
-            # Pegar con transparencia
+            # Calcular tamaño del texto
+            tmp_draw = ImageDraw.Draw(Image.new("RGBA", (1,1)))
+            tb = tmp_draw.textbbox((0,0), "Ananta Cars", font=font)
+            txt_w, txt_h = tb[2]-tb[0], tb[3]-tb[1]
+
+            # Contenedor total: logo + padding + texto
+            pad = 8
+            total_w = max(wa_w, txt_w) + pad * 2
+            total_h = wa_h + txt_h + pad * 3
+
+            # Fondo semitransparente
+            container = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 0))
+            bg = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 130))
+            container = Image.alpha_composite(container, bg)
+
+            # Pegar logo centrado
+            logo_x = (total_w - wa_w) // 2
+            container.paste(logo_wa, (logo_x, pad), logo_wa)
+
+            # Texto centrado debajo
+            draw = ImageDraw.Draw(container)
+            txt_x = (total_w - txt_w) // 2
+            txt_y = wa_h + pad * 2
+            draw.text((txt_x, txt_y), "Ananta Cars", fill=(255, 255, 255, 200), font=font)
+
+            # Posición: esquina inferior derecha
+            margen = int(img.width * 0.025)
+            x = img.width - total_w - margen
+            y = img.height - total_h - margen
+
             base = img.convert("RGBA")
-            base.paste(logo_wa, (x, y), logo_wa)
+            base.paste(container, (x, y), container)
             img = base.convert("RGB")
 
         except Exception:

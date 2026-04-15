@@ -3,14 +3,14 @@
 function etiquetaDGT(etiqueta) {
   if (!etiqueta) return "";
   const map = {
-    "0":   { cls: "etiqueta-0",   txt: "🟢 0" },
-    "eco": { cls: "etiqueta-eco", txt: "🔵 ECO" },
-    "c":   { cls: "etiqueta-c",   txt: "🟡 C" },
-    "b":   { cls: "etiqueta-b",   txt: "⚫ B" },
+    "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
+    "eco": { cls:"dgt-eco", circulo:"ECO", txt:"ECO" },
+    "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
+    "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
   };
   const e = map[etiqueta.toLowerCase()];
   if (!e) return "";
-  return `<span class="etiqueta-badge ${e.cls}">${e.txt}</span>`;
+  return `<span class="etiqueta-badge"><span class="dgt-badge ${e.cls}"><span class="dgt-circle">${e.circulo}</span>${e.txt}</span></span>`;
 }
 
 // ── CUOTA MENSUAL estimada (TIN 7%, 60 meses, 10% entrada) ───────────────────

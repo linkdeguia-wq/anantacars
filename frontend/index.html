@@ -85,7 +85,7 @@
     .btn-comparar-tarjeta{background:transparent;border:1px solid var(--gris-linea);color:var(--gris-texto);font-size:0.65rem;padding:3px 8px;border-radius:2px;cursor:pointer;transition:all 0.2s;font-family:var(--fuente-titulo);letter-spacing:0.06em;text-transform:uppercase}
     .btn-comparar-tarjeta:hover{border-color:var(--blanco);color:var(--blanco)}
     .btn-comparar-tarjeta.seleccionado{background:var(--rojo);border-color:var(--rojo);color:#fff}
-    .tarjeta-nombre{font-family:var(--fuente-titulo);font-size:1.5rem;font-weight:700;line-height:1.1;color:var(--blanco);margin-bottom:12px}
+    .tarjeta-nombre{font-family:var(--fuente-titulo);font-size:1.5rem;font-weight:700;line-height:1.1;color:var(--blanco);margin-bottom:12px;text-transform:uppercase}
     .tarjeta-datos{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px}
     .dato{display:flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--gris-texto)}
     .tarjeta-footer{display:flex;justify-content:space-between;align-items:center;padding-top:14px;border-top:1px solid var(--gris-linea)}
@@ -128,10 +128,17 @@
     .logo-texto { font-family:var(--fuente-titulo); font-size:1.5rem; font-weight:800; letter-spacing:0.04em; color:var(--blanco); }
     @media(max-width:600px) { .logo-img { height:34px; } .logo-texto { font-size:1.2rem; } }
   
-    .etiqueta-0   { background:#00b300; color:#fff; }
-    .etiqueta-eco { background:#0066cc; color:#fff; }
-    .etiqueta-c   { background:#e6b800; color:#000; }
-    .etiqueta-b   { background:#333;    color:#fff; }
+    /* ETIQUETAS DGT REALES */
+    .dgt-badge { display:inline-flex; align-items:center; gap:5px; font-family:Arial,sans-serif; font-size:0.72rem; font-weight:900; padding:2px 8px 2px 3px; border-radius:3px; letter-spacing:0.04em; text-transform:uppercase; border:1.5px solid rgba(0,0,0,0.2) }
+    .dgt-circle { width:18px; height:18px; border-radius:50%; border:2px solid rgba(0,0,0,0.25); display:inline-flex; align-items:center; justify-content:center; font-size:0.6rem; font-weight:900; flex-shrink:0 }
+    .dgt-0   { background:#00a550; color:#fff }
+    .dgt-0 .dgt-circle   { background:#fff; color:#00a550 }
+    .dgt-eco { background:#00aacc; color:#fff }
+    .dgt-eco .dgt-circle { background:#fff; color:#00aacc; font-size:0.45rem }
+    .dgt-c   { background:#f5c400; color:#222 }
+    .dgt-c .dgt-circle   { background:#fff; color:#f5c400 }
+    .dgt-b   { background:#2d2d2d; color:#fff }
+    .dgt-b .dgt-circle   { background:#fff; color:#2d2d2d }
     .etiqueta-badge { position:absolute;top:12px;left:50%;transform:translateX(-50%);
       font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:800;
       letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:2px;z-index:3;

@@ -56,14 +56,14 @@ async function enviarConsulta(vehiculo, cocheId) {
 function etiquetaDGTHtml(etiqueta) {
   if (!etiqueta) return "";
   const map = {
-    "0":   { cls: "etiqueta-0",   txt: "🟢 0 Emisiones" },
-    "eco": { cls: "etiqueta-eco", txt: "🔵 ECO" },
-    "c":   { cls: "etiqueta-c",   txt: "🟡 Etiqueta C" },
-    "b":   { cls: "etiqueta-b",   txt: "⚫ Etiqueta B" },
+    "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
+    "eco": { cls:"dgt-eco", circulo:"ECO", txt:"ECO" },
+    "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
+    "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
   };
   const e = map[etiqueta.toLowerCase()];
   if (!e) return "";
-  return `<div class="dato-fila"><span class="dato-fila-label">Etiqueta DGT</span><span class="dato-fila-valor"><span style="background:${e.cls.includes('0')?'#00b300':e.cls.includes('eco')?'#0066cc':e.cls.includes('c')?'#e6b800':'#333'};color:${e.cls.includes('c')?'#000':'#fff'};padding:2px 10px;border-radius:2px;font-size:0.9rem">${e.txt}</span></span></div>`;
+  return \`<div class="dato-fila"><span class="dato-fila-label">Etiqueta DGT</span><span class="dato-fila-valor"><span class="dgt-badge \${e.cls}"><span class="dgt-circle">\${e.circulo}</span>\${e.txt}</span></span></div>\`;
 }
 
 // ── FORMATEAR DESCRIPCIÓN ────────────────────────────────────────────────────
