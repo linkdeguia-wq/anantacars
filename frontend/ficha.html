@@ -12,9 +12,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
   <style>
     :root{--negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-medio:#2c2c2c;--gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--blanco-suave:#d0cfc8;--rojo:#e8311a;--rojo-hover:#c4280f;--fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;--radio:4px;--transicion:0.2s ease}
-    [data-theme="light"]{--negro:#f0f0ec;--carbon:#e8e8e4;--gris-oscuro:#ddddd8;--gris-medio:#d0d0cb;--gris-linea:#ccc;--gris-texto:#666;--blanco:#1a1a1a;--blanco-suave:#333}
+    [data-theme="light"]{--negro:#f0ede8;--carbon:#e6e2dc;--gris-oscuro:#d8d4ce;--gris-medio:#ccc8c2;--gris-linea:#b8b4ae;--gris-texto:#555;--blanco:#111;--blanco-suave:#2a2a2a}
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300;transition:background 0.3s,color 0.3s}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:400;transition:background 0.3s,color 0.3s}
     header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
     [data-theme="light"] header{background:rgba(240,240,236,0.96)}
     .logo{font-family:var(--fuente-titulo);font-size:1.7rem;font-weight:800;color:var(--blanco);text-decoration:none}
@@ -129,6 +129,21 @@
     .etiqueta-eco { background:#0066cc; color:#fff; }
     .etiqueta-c   { background:#e6b800; color:#000; }
     .etiqueta-b   { background:#333;    color:#fff; }
+  
+    /* FORMULARIO CONTACTO */
+    .form-contacto { background:var(--gris-oscuro); border:1px solid var(--gris-linea); border-radius:var(--radio); padding:16px; margin-bottom:12px }
+    .form-contacto-titulo { font-family:var(--fuente-titulo); font-size:0.72rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--gris-texto); margin-bottom:10px }
+    .form-contacto-input { width:100%; background:var(--negro); border:1px solid var(--gris-linea); color:var(--blanco); font-family:var(--fuente-cuerpo); font-size:0.88rem; padding:9px 11px; border-radius:var(--radio); margin-bottom:8px; resize:vertical }
+    .form-contacto-input:focus { outline:none; border-color:var(--rojo) }
+    .btn-enviar-consulta { width:100%; background:var(--rojo); color:#fff; font-family:var(--fuente-titulo); font-weight:800; font-size:0.88rem; letter-spacing:0.08em; text-transform:uppercase; padding:11px; border:none; border-radius:var(--radio); cursor:pointer; transition:opacity 0.2s }
+    .btn-enviar-consulta:hover { opacity:0.88 }
+    .btn-enviar-consulta:disabled { opacity:0.5; cursor:not-allowed }
+    .form-contacto-msg { font-size:0.78rem; margin-top:8px; min-height:18px; text-align:center }
+    /* BOTÓN LLAMAR */
+    .btn-llamar { display:flex; align-items:center; justify-content:space-between; width:100%; background:transparent; color:var(--blanco); font-family:var(--fuente-titulo); font-weight:700; font-size:0.9rem; letter-spacing:0.06em; text-transform:uppercase; padding:12px 16px; border:1px solid var(--gris-linea); border-radius:var(--radio); text-align:center; text-decoration:none; transition:all var(--transicion); margin-bottom:10px }
+    .btn-llamar:hover { border-color:var(--blanco) }
+    .btn-llamar-num { font-weight:400; font-size:0.88rem; color:var(--gris-texto); letter-spacing:0.04em; text-transform:none }
+    @media(max-width:600px) { .btn-llamar-num { display:none } }
   </style>
 </head>
 <body>

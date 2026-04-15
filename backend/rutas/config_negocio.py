@@ -30,6 +30,7 @@ class ConfigUpdate(BaseModel):
     garantia_texto: Optional[str] = None
     chat_codigo: Optional[str] = None
     analytics_id: Optional[str] = None
+    telefono: Optional[str] = None
     resenas_place_id: Optional[str] = None
 
 

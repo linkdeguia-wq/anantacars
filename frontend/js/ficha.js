@@ -1,4 +1,58 @@
 
+// ── FORMULARIO CONTACTO WEB3FORMS ─────────────────────────────────────────────
+const W3F_KEY = "72cf4bcd-025f-4f7e-95d7-0f5554625ab4";
+
+async function enviarConsulta(vehiculo, cocheId) {
+  const nombre   = document.getElementById("fc-nombre")?.value.trim();
+  const telefono = document.getElementById("fc-telefono")?.value.trim();
+  const mensaje  = document.getElementById("fc-mensaje")?.value.trim();
+  const msgEl    = document.getElementById("fc-msg");
+  const btn      = document.querySelector(".btn-enviar-consulta");
+
+  if (!nombre || !telefono) {
+    msgEl.textContent = "Por favor rellena tu nombre y teléfono.";
+    msgEl.style.color = "#ff8f8f";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  try {
+    const resp = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        access_key: W3F_KEY,
+        subject: `Consulta sobre ${vehiculo} — Ananta Cars`,
+        name: nombre,
+        phone: telefono,
+        message: mensaje,
+        vehicle: vehiculo,
+        vehicle_url: window.location.href,
+        from_name: "Ananta Cars Web",
+      }),
+    });
+    const data = await resp.json();
+    if (data.success) {
+      msgEl.textContent = "✅ Consulta enviada. Te contactamos pronto.";
+      msgEl.style.color = "#7fffaa";
+      document.getElementById("fc-nombre").value   = "";
+      document.getElementById("fc-telefono").value = "";
+      document.getElementById("fc-mensaje").value  = "";
+    } else {
+      throw new Error();
+    }
+  } catch {
+    msgEl.textContent = "❌ Error al enviar. Usa WhatsApp o llámanos.";
+    msgEl.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar consulta →";
+  }
+}
+
+
 function etiquetaDGTHtml(etiqueta) {
   if (!etiqueta) return "";
   const map = {
@@ -161,15 +215,27 @@ async function cargarFicha() {
           ${c.precio_anterior ? `<div class="sidebar-precio-anterior">${formatPrecio(c.precio_anterior)}</div><div class="sidebar-rebajado">🔥 PRECIO REBAJADO</div>` : ""}
 
           ${c.estado !== "vendido" ? `
-          <a class="btn-whatsapp" href="https://wa.me/${waNum}?text=${waMsg}" target="_blank">📱 Contactar por WhatsApp</a>
-          <a class="btn-secundario" href="tel:+${waNum}">📞 Llamar</a>
+          <!-- FORMULARIO CONTACTO -->
+          <div class="form-contacto" id="form-contacto-wrap">
+            <p class="form-contacto-titulo">✉️ Enviar consulta</p>
+            <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="Tu nombre" autocapitalize="sentences"/>
+            <input class="form-contacto-input" id="fc-telefono" type="tel" placeholder="Tu teléfono o email"/>
+            <textarea class="form-contacto-input" id="fc-mensaje" rows="3" placeholder="¿Tienes alguna pregunta sobre este vehículo?">${c.marca} ${c.modelo} ${c.anio} — me interesa más información.</textarea>
+            <button class="btn-enviar-consulta" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">Enviar consulta →</button>
+            <p class="form-contacto-msg" id="fc-msg"></p>
+          </div>
+          <!-- BOTONES CONTACTO -->
+          <a class="btn-whatsapp" href="https://wa.me/${waNum}?text=${waMsg}" target="_blank">📱 WhatsApp</a>
+          <a class="btn-llamar" href="tel:+${cfgGlobal.telefono || '34688644229'}">
+            📞 Llamar
+            <span class="btn-llamar-num">${cfgGlobal.telefono ? cfgGlobal.telefono.replace('34','') : '688 644 229'}</span>
+          </a>
           ` : `<p style="color:var(--gris-texto);font-size:0.9rem;margin-bottom:16px">Este vehículo ya ha sido vendido.</p>`}
 
           <div class="sidebar-compartir">
-            <a class="btn-compartir" href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank">📤 WhatsApp</a>
+            <a class="btn-compartir" href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank">📤 Compartir</a>
             <button class="btn-compartir" onclick="copiarEnlace()">🔗 Copiar link</button>
           </div>
-
           <p class="sidebar-aviso">Precio al contado. Consulta financiación.</p>
 
           ${alertasActivas ? `

@@ -467,6 +467,7 @@ async function cargarConfig() {
     document.getElementById("cfg-chat").checked        = cfg.modulo_chat || false;
     document.getElementById("cfg-nombre").value        = cfg.nombre_negocio || "";
     document.getElementById("cfg-whatsapp").value      = cfg.whatsapp || "";
+    document.getElementById("cfg-telefono").value      = cfg.telefono || "";
     document.getElementById("cfg-dominio").value       = cfg.dominio || "";
     document.getElementById("cfg-analytics").value     = cfg.analytics_id || "";
     document.getElementById("cfg-tin").value           = cfg.calc_tin || 6.99;
@@ -495,6 +496,7 @@ async function guardarConfig() {
   const payload = {
     nombre_negocio:    document.getElementById("cfg-nombre").value.trim() || null,
     whatsapp:          document.getElementById("cfg-whatsapp").value.trim() || null,
+    telefono:          document.getElementById("cfg-telefono").value.trim() || null,
     dominio:           document.getElementById("cfg-dominio").value.trim() || null,
     analytics_id:      document.getElementById("cfg-analytics").value.trim() || null,
     calc_tin:          parseFloat(document.getElementById("cfg-tin").value) || null,
