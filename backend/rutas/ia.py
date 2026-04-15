@@ -15,7 +15,6 @@ from rutas.auth import verificar_token
 
 router = APIRouter()
 
-GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
 def requiere_admin(authorization: str = Header(...)):
@@ -96,18 +95,53 @@ Reglas:
         {"inline_data": {"mime_type": mime, "data": b64}},
     ])
 
-    # Limpiar respuesta y parsear JSON
+    # Limpiar respuesta y parsear JSON — robusto
     texto = texto.strip()
-    if texto.startswith("```"):
-        texto = texto.split("```")[1]
-        if texto.startswith("json"):
-            texto = texto[4:]
-    texto = texto.strip()
-
+    
+    # Quitar bloques markdown ```json ... ```
+    if "```" in texto:
+        partes = texto.split("```")
+        for parte in partes:
+            if parte.startswith("json"):
+                texto = parte[4:].strip()
+                break
+            elif "{" in parte:
+                texto = parte.strip()
+                break
+    
+    # Extraer solo el JSON si hay texto extra alrededor
+    inicio = texto.find("{")
+    fin    = texto.rfind("}") + 1
+    if inicio >= 0 and fin > inicio:
+        texto = texto[inicio:fin]
+    
+    # Intentar parsear — si falla, extraer campos manualmente
     try:
         datos = json.loads(texto)
         return {"ok": True, "datos": datos}
     except json.JSONDecodeError:
+        # Extracción manual con regex como fallback
+        import re
+        datos = {}
+        patrones = {
+            "marca":       r'"marca"\s*:\s*"([^"]*)"',
+            "modelo":      r'"modelo"\s*:\s*"([^"]*)"',
+            "color":       r'"color"\s*:\s*"([^"]*)"',
+            "combustible": r'"combustible"\s*:\s*"([^"]*)"',
+            "carroceria":  r'"carroceria"\s*:\s*"([^"]*)"',
+            "anio":        r'"anio"\s*:\s*(\d{4})',
+            "cv":          r'"cv"\s*:\s*(\d+)',
+        }
+        for campo, patron in patrones.items():
+            m = re.search(patron, texto)
+            if m:
+                val = m.group(1)
+                datos[campo] = int(val) if campo in ("anio", "cv") else val
+            else:
+                datos[campo] = None
+        
+        if datos.get("marca") or datos.get("modelo"):
+            return {"ok": True, "datos": datos}
         raise HTTPException(status_code=500, detail=f"No se pudo parsear respuesta: {texto[:200]}")
 
 
