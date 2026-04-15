@@ -1,28 +1,4 @@
 
-// ── REDES SOCIALES ────────────────────────────────────────────────────────────
-function mostrarRedesSociales(cfg) {
-  const redesMap = {
-    instagram: { icon:"📸", label:"Instagram", url: u => `https://instagram.com/${u}` },
-    tiktok:    { icon:"🎵", label:"TikTok",    url: u => `https://tiktok.com/@${u}` },
-    facebook:  { icon:"📘", label:"Facebook",  url: u => `https://facebook.com/${u}` },
-    youtube:   { icon:"▶️",  label:"YouTube",   url: u => `https://youtube.com/@${u}` },
-  };
-  const activas = Object.entries(redesMap).filter(([k]) => cfg[k]);
-  if (!activas.length) return;
-
-  const footer = document.querySelector("footer");
-  if (!footer) return;
-
-  const div = document.createElement("div");
-  div.className = "redes-footer";
-  div.innerHTML = activas.map(([k, r]) =>
-    `<a href="${r.url(cfg[k])}" target="_blank" rel="noopener" class="red-social-btn" title="${r.label}">
-      ${r.icon} <span style="font-size:0.75rem;font-family:var(--fuente-cuerpo)">@${cfg[k]}</span>
-    </a>`
-  ).join("");
-
-  footer.appendChild(div);
-}
 
 
 function etiquetaDGTInline(etiqueta) {
@@ -203,7 +179,7 @@ async function cargarFicha() {
     const alertasActivas = cfgGlobal.modulo_alertas !== false;
 
     // Redes sociales en footer
-    mostrarRedesSociales(cfgGlobal);
+    renderRedesFooter(cfgGlobal, document.querySelector('footer .footer-col, footer'));
 
     // SEO — título y meta tags
     document.title = `${c.marca} ${c.modelo} ${c.anio} — ${formatPrecio(c.precio)} | Ananta Cars`;
