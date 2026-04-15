@@ -103,7 +103,11 @@ async function generarDescripcion() {
     msg.textContent = "✅ Descripción generada — revísala y edítala si quieres";
     msg.style.color = "#7fffaa";
   } catch(e) {
-    msg.textContent = "❌ Error: " + e.message; msg.style.color = "#ff8f8f";
+    const m = e.message || "";
+    if (m.includes("429")) msg.textContent = "⏳ Demasiadas peticiones. Espera 30 segundos e inténtalo de nuevo.";
+    else if (m.includes("503")) msg.textContent = "⚠️ Servicio ocupado. Inténtalo en 10 segundos.";
+    else msg.textContent = "❌ Error al generar. Inténtalo de nuevo.";
+    msg.style.color = "#ff8f8f";
   } finally {
     btn.disabled = false; btn.textContent = "✨ Generar descripción";
   }
@@ -136,8 +140,12 @@ async function generarDescripcionEditar() {
     if (!data.ok) throw new Error();
     document.getElementById("e-descripcion").value = data.descripcion;
     msg.textContent = "✅ Listo — edítala si quieres"; msg.style.color = "#7fffaa";
-  } catch {
-    msg.textContent = "❌ Error al generar"; msg.style.color = "#ff8f8f";
+  } catch(e) {
+    const m = (e.message || "");
+    if (m.includes("429")) msg.textContent = "⏳ Espera 30 segundos e inténtalo.";
+    else if (m.includes("503")) msg.textContent = "⚠️ Inténtalo en 10 segundos.";
+    else msg.textContent = "❌ Error al generar. Inténtalo de nuevo.";
+    msg.style.color = "#ff8f8f";
   }
 }
 

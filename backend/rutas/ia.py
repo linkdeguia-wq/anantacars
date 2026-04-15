@@ -63,8 +63,12 @@ async def llamar_gemini(partes: list) -> str:
             json=payload,
         )
 
+    if resp.status_code == 429:
+        raise HTTPException(status_code=429, detail="Límite de peticiones Gemini alcanzado. Espera 30 segundos e inténtalo de nuevo.")
+    if resp.status_code == 503:
+        raise HTTPException(status_code=503, detail="Servicio de IA no disponible. Inténtalo en 10 segundos.")
     if resp.status_code != 200:
-        raise HTTPException(status_code=500, detail=f"Error Gemini: {resp.text[:200]}")
+        raise HTTPException(status_code=500, detail=f"Error Gemini ({resp.status_code}). Inténtalo de nuevo.")
 
     data = resp.json()
     try:
@@ -224,11 +228,16 @@ INSTRUCCIONES:
 - NO repitas datos técnicos visibles en la ficha (km, año, combustible)
 - NO uses palabras como: fantástico, increíble, espectacular, perfecto, ideal, oportunidad única
 - NO uses asteriscos ni markdown
-- NO añadas coletilla final — ya está incluida abajo
-- Devuelve SOLO el párrafo descriptivo, sin título ni etiquetas
+- NO añadas ningún texto de cierre ni coletilla — eso se añade automáticamente
+- Devuelve SOLO el párrafo descriptivo, sin título ni etiquetas"""
 
-Al final del párrafo, añade exactamente este texto sin modificarlo:
-{coletilla}"""
-
-    texto = await llamar_gemini([{"text": prompt}])
-    return {"ok": True, "descripcion": texto.strip()}
+    descripcion = await llamar_gemini([{"text": prompt}])
+    descripcion = descripcion.strip()
+    
+    # Asegurar que termina en punto
+    if descripcion and not descripcion.endswith("."):
+        descripcion = descripcion.rstrip(".,;:") + "."
+    
+    # Añadir coletilla en Python — nunca se corta, siempre aparece
+    resultado = f"{descripcion}\n\n{coletilla}"
+    return {"ok": True, "descripcion": resultado}
