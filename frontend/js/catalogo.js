@@ -73,12 +73,12 @@ function renderTarjeta(c) {
   const ciudadTag = cfg.ciudad ? `<span class="dato">📍 ${cfg.ciudad}</span>` : "";
 
   return `
-    <div class="tarjeta" onclick="irFicha(event, ${c.id}, '${slug}')">
+    <div class="${c.destacado ? 'tarjeta tarjeta-destacada' : 'tarjeta'}" onclick="irFicha(event, ${c.id}, '${slug}')">
       <div class="tarjeta-foto">
         ${foto}
         ${estadoBadge(c.estado)}
         ${c.destacado ? '<span class="destacado-badge">⭐ Destacado</span>' : ""}
-        ${c.foto_portada ? '<span class="fotos-badge">📷 Ver fotos</span>' : ""}
+        ${c.foto_portada ? `<span class="fotos-badge" id="fotos-count-${c.id}">📷</span>` : ""}
         ${c.precio_anterior ? '<span class="oferta-badge">🔥 Bajada de precio</span>' : ""}
       </div>
       <div class="tarjeta-info">
@@ -134,7 +134,7 @@ async function buscar(reset = true) {
   const km         = document.getElementById("f-km").value;
   const estado     = document.getElementById("f-estado").value;
 
-  const params = new URLSearchParams({ pagina: paginaActual, por_pagina: 12 });
+  const params = new URLSearchParams({ pagina: paginaActual, por_pagina: 12, orden: "destacado.desc,creado_at.desc" });
   if (marca)       { params.set("marca", marca);             filtrosActivos.marca = marca; }
   if (combustible) { params.set("combustible", combustible); filtrosActivos.combustible = combustible; }
   if (carroceria)  { params.set("carroceria", carroceria);   filtrosActivos.carroceria = carroceria; }
@@ -194,8 +194,8 @@ async function buscar(reset = true) {
     }
 
     contador.innerHTML = `<strong>${total}</strong> vehículo${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`;
-    // Cargar badges de precio en segundo plano
-    coches.forEach(c => cargarBadgePrecio(c.id));
+    // Cargar badges de precio y contador fotos en segundo plano
+    coches.forEach(c => { cargarBadgePrecio(c.id); if (c.foto_portada) cargarContadorFotos(c.id); });
     paginaActual++;
 
   } catch (err) {
@@ -325,5 +325,15 @@ async function cargarBadgePrecio(cocheId) {
     el.style.background = data.color;
     el.style.color = data.text_color;
     el.style.display = "inline-flex";
+  } catch {}
+}
+
+// ── CONTADOR FOTOS ────────────────────────────────────────────────────────────
+async function cargarContadorFotos(cocheId) {
+  try {
+    const resp = await fetch(`${API}/api/fotos/${cocheId}`);
+    const fotos = await resp.json();
+    const el = document.getElementById(`fotos-count-${cocheId}`);
+    if (el && fotos.length) el.textContent = `📷 ${fotos.length} foto${fotos.length > 1 ? "s" : ""}`;
   } catch {}
 }
