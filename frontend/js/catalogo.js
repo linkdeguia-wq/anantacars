@@ -1,5 +1,5 @@
 
-// ── ETIQUETA DGT ──────────────────────────────────────────────────────────────
+
 function etiquetaDGT(etiqueta) {
   if (!etiqueta) return "";
   const map = {
@@ -8,9 +8,9 @@ function etiquetaDGT(etiqueta) {
     "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
     "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
   };
-  const e = map[etiqueta.toLowerCase()];
+  const e = map[(etiqueta||"").toLowerCase()];
   if (!e) return "";
-  return `<span class="etiqueta-badge"><span class="dgt-badge ${e.cls}"><span class="dgt-circle">${e.circulo}</span>${e.txt}</span></span>`;
+  return `<span class="dato"><span class="dgt-badge ${e.cls}"><span class="dgt-circle">${e.circulo}</span>${e.txt}</span></span>`;
 }
 
 // ── CUOTA MENSUAL estimada (TIN 7%, 60 meses, 10% entrada) ───────────────────
@@ -78,7 +78,6 @@ function renderTarjeta(c) {
         ${estadoBadge(c.estado)}
         ${c.destacado ? '<span class="destacado-badge">⭐ Destacado</span>' : ""}
         ${c.precio_anterior ? '<span class="oferta-badge">🔥 Bajada de precio</span>' : ""}
-        ${etiquetaDGT(c.etiqueta_dgt)}
       </div>
       <div class="tarjeta-info">
         <div class="tarjeta-header">
@@ -91,6 +90,7 @@ function renderTarjeta(c) {
           <span class="dato">⛽ ${c.combustible}</span>
           ${c.cv ? `<span class="dato">💨 ${c.cv} CV</span>` : ""}
           <span class="dato">⚙️ ${c.caja}</span>
+          ${etiquetaDGT(c.etiqueta_dgt)}
         </div>
         <div class="tarjeta-footer">
           <span class="tarjeta-precio">${precioHTML}<span id="badge-${c.id}" class="precio-badge" style="display:none"></span></span>

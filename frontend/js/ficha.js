@@ -61,9 +61,9 @@ function etiquetaDGTHtml(etiqueta) {
     "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
     "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
   };
-  const e = map[etiqueta.toLowerCase()];
+  const e = map[(etiqueta||"").toLowerCase()];
   if (!e) return "";
-  return \`<div class="dato-fila"><span class="dato-fila-label">Etiqueta DGT</span><span class="dato-fila-valor"><span class="dgt-badge \${e.cls}"><span class="dgt-circle">\${e.circulo}</span>\${e.txt}</span></span></div>\`;
+  return `<div class="dato-fila"><span class="dato-fila-label">Etiqueta DGT</span><span class="dato-fila-valor"><span class="dgt-badge ${e.cls}"><span class="dgt-circle">${e.circulo}</span>${e.txt}</span></span></div>`;
 }
 
 // ── FORMATEAR DESCRIPCIÓN ────────────────────────────────────────────────────
