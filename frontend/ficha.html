@@ -159,7 +159,7 @@
 </head>
 <body>
 <header>
-  <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto" style="color:var(--blanco)">ANANTA<span style="color:var(--rojo)">.</span>CARS</span></a>
+  <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto" style="color:var(--blanco)">ANANTA<span style="color:var(--blanco)">.</span>CARS</span></a>
   <div class="header-right">
     <a href="index.html" class="btn-volver">← Catálogo</a>
     <button class="btn-tema" id="btn-tema" onclick="toggleTema()">🌙</button>
@@ -186,7 +186,7 @@
 
 <script src="/js/ficha.js"></script>
 <script>
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  // SW solo en index
   function toggleTema() {
     const html = document.documentElement;
     const tema = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';

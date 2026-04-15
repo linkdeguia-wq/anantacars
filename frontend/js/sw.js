@@ -1,5 +1,5 @@
 // Service Worker — Ananta Cars PWA
-const CACHE = "anantacars-v1";
+const CACHE = "anantacars-v3";
 const STATIC = ["/", "/index.html", "/ficha.html", "/panel.html", "/js/catalogo.js", "/js/ficha.js", "/js/panel.js"];
 
 self.addEventListener("install", e => {

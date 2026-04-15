@@ -148,11 +148,19 @@
       letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;margin-left:4px; }
   
     .fotos-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.65);color:#fff;font-size:0.65rem;font-weight:600;padding:3px 8px;border-radius:2px;z-index:2;backdrop-filter:blur(4px)}
+  
+    footer{padding:32px 5vw;border-top:1px solid var(--gris-linea);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+    .footer-col p{font-size:0.8rem;color:var(--gris-texto);margin-top:6px}
+    .footer-col a{color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
+    .footer-col a:hover{color:var(--blanco)}
+    .footer-col-center{text-align:center}
+    .footer-col-right{text-align:right}
+    @media(max-width:600px){footer{grid-template-columns:1fr}.footer-col-center,.footer-col-right{text-align:left}}
   </style>
 </head>
 <body>
   <header>
-    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto" style="color:var(--blanco)">ANANTA<span style="color:var(--rojo)">.</span>CARS</span></a>
+    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto" style="color:var(--blanco)">ANANTA<span style="color:var(--blanco)">.</span>CARS</span></a>
     <nav>
       <span class="nav-links">
         <a href="#catalogo">Catálogo</a>
@@ -214,10 +222,20 @@
     <button class="btn-ir-comparar" onclick="irAComparar()">Comparar →</button>
   </div>
 
-  <footer>
-    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
-    <p>© 2025 Ananta Cars · <a href="como-comprar.html">Cómo comprar</a></p>
-    <p>Contacto: <a href="https://wa.me/34600000000" style="color:var(--rojo)">Contacto</a></p>
+    <footer>
+    <div class="footer-col">
+      <div class="footer-logo">ANANTA<span>.</span>CARS</div>
+      <p id="footer-direccion"></p>
+      <p id="footer-horario"></p>
+    </div>
+    <div class="footer-col footer-col-center">
+      <p>© 2025 Ananta Cars</p>
+      <p><a href="/como-comprar">Cómo comprar</a> · <a href="/politica-privacidad">Privacidad</a></p>
+    </div>
+    <div class="footer-col footer-col-right">
+      <p><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo)">WhatsApp</a></p>
+      <p id="footer-tel"></p>
+    </div>
   </footer>
 
   <script src="js/catalogo.js"></script>
