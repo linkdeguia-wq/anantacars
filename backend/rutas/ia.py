@@ -34,7 +34,7 @@ async def llamar_gemini(partes: list) -> str:
         "contents": [{"parts": partes}],
         "generationConfig": {
             "temperature": 0.3,
-            "maxOutputTokens": 512,
+            "maxOutputTokens": 800,
         }
     }
 
@@ -173,33 +173,31 @@ async def generar_descripcion(
 
     precio_txt = f"{int(datos.precio):,}€".replace(",", ".") if datos.precio else "consultar"
 
-    prompt = f"""Eres un redactor experto en venta de coches de segunda mano en España.
-Escribe una descripción profesional y atractiva para este vehículo en venta.
+    prompt = f"""Eres un redactor experto en venta de coches de segunda mano en España para un concesionario profesional.
 
-DATOS DEL VEHÍCULO:
-- Marca y modelo: {datos.marca} {datos.modelo}
-- Año: {datos.anio}
+Escribe una descripción de venta para este vehículo:
+
+DATOS:
+- Vehículo: {datos.marca} {datos.modelo} {datos.anio}
 - Kilómetros: {datos.km:,} km
-- Combustible: {datos.combustible}
-- Cambio: {datos.caja}
+- Combustible: {datos.combustible} | Cambio: {datos.caja}
 {f"- Potencia: {datos.cv} CV" if datos.cv else ""}
 {f"- Color: {datos.color}" if datos.color else ""}
 {f"- Carrocería: {datos.carroceria}" if datos.carroceria else ""}
 {f"- Precio: {precio_txt}" if datos.precio else ""}
-{f"- Notas del vendedor: {datos.extras}" if datos.extras else ""}
+{f"- Información adicional del vendedor: {datos.extras}" if datos.extras else ""}
 
-INSTRUCCIONES:
-- Escribe exactamente entre 60 y 90 palabras, NO más
-- Termina siempre con un punto final
-- Nunca dejes frases incompletas
-- Tono profesional pero cercano, en español de España
-- Destaca los puntos fuertes del vehículo
-- Menciona que está revisado y con documentación en orden
-- NO uses asteriscos ni markdown
-- NO repitas datos que ya están en las fichas técnicas (km, combustible, etc.)
-- Termina con una llamada a la acción breve
-- Si hay notas del vendedor con cosas a omitir, no las menciones
-- Solo devuelve el texto de la descripción, sin título ni etiquetas"""
+INSTRUCCIONES ESTRICTAS:
+- Longitud: entre 100 y 140 palabras exactamente
+- Idioma: español de España, tono profesional y cercano
+- Estructura: 2 párrafos. Primero describe el vehículo y sus puntos fuertes. Segundo transmite confianza (revisado, documentación en orden) y llama a la acción.
+- NO repitas datos técnicos que ya están en la ficha (km, combustible, año) — el comprador ya los ve
+- NO uses superlativos vacíos como "fantástico", "increíble", "espectacular"
+- NO uses asteriscos, emojis ni markdown
+- SÍ puedes mencionar el modelo y marca
+- Si hay información adicional del vendedor, incorpórala de forma natural
+- Termina siempre con frase de contacto breve
+- Devuelve SOLO el texto, sin título ni etiquetas"""
 
     texto = await llamar_gemini([{"text": prompt}])
     return {"ok": True, "descripcion": texto.strip()}
