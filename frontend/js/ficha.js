@@ -246,7 +246,7 @@ async function cargarFicha() {
             <p class="form-contacto-titulo">✉️ Enviar consulta</p>
             <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="¿Con quién hablamos?" autocapitalize="sentences"/>
             <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email (ej: nombre@gmail.com)" inputmode="email"/>
-            <textarea class="form-contacto-input" id="fc-mensaje" rows="5">Hola, me interesa el ${c.marca} ${c.modelo} ${c.anio} en color ${c.color || "no especificado"} por ${new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(c.precio)}.\n\nAnuncio: ${window.location.href}\n\nMi teléfono (opcional): </textarea>
+            <textarea class="form-contacto-input" id="fc-mensaje" rows="5" id="fc-mensaje"></textarea>
             <div style="display:flex;gap:8px;margin-top:4px">
             <button class="btn-enviar-consulta" style="flex:1" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">📧 Enviar por email</button>
             <button class="btn-enviar-consulta" style="flex:1;background:#25d366;color:#000" onclick="enviarPorWhatsApp('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">💬 Por WhatsApp</button>
@@ -277,6 +277,14 @@ async function cargarFicha() {
         </div>
       </div>`;
 
+    // Rellenar mensaje predefinido
+    setTimeout(() => {
+      const ta = document.getElementById("fc-mensaje");
+      if (ta) {
+        const precio = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(c.precio);
+        ta.value = "Hola, me interesa el " + c.marca + " " + c.modelo + " " + c.anio + " en color " + (c.color || "no especificado") + " por " + precio + ".\n\nAnuncio: " + window.location.href + "\n\nMi teléfono (opcional): ";
+      }
+    }, 100);
     // Registrar visita
     registrarVisita(c.id);
     // Sticky WA en móvil
