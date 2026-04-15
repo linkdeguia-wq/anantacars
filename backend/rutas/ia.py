@@ -34,7 +34,7 @@ async def llamar_gemini(partes: list) -> str:
         "contents": [{"parts": partes}],
         "generationConfig": {
             "temperature": 0.3,
-            "maxOutputTokens": 1024,
+            "maxOutputTokens": 512,
         }
     }
 
@@ -189,7 +189,9 @@ DATOS DEL VEHÍCULO:
 {f"- Notas del vendedor: {datos.extras}" if datos.extras else ""}
 
 INSTRUCCIONES:
-- Escribe entre 80 y 130 palabras
+- Escribe exactamente entre 60 y 90 palabras, NO más
+- Termina siempre con un punto final
+- Nunca dejes frases incompletas
 - Tono profesional pero cercano, en español de España
 - Destaca los puntos fuertes del vehículo
 - Menciona que está revisado y con documentación en orden
