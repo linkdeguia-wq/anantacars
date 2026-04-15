@@ -123,9 +123,10 @@
 
     @media(max-width:600px){header{padding:0 4vw}nav .nav-links{display:none}.hero{padding:48px 4vw 40px}.grid-coches{grid-template-columns:1fr}}
   
-    .logo { display:flex; align-items:center; }
+    .logo { display:flex; align-items:center; gap:10px; text-decoration:none; }
     .logo-img { height:44px; width:auto; object-fit:contain; }
-    @media(max-width:600px) { .logo-img { height:36px; } }
+    .logo-texto { font-family:var(--fuente-titulo); font-size:1.5rem; font-weight:800; letter-spacing:0.04em; color:var(--blanco); }
+    @media(max-width:600px) { .logo-img { height:34px; } .logo-texto { font-size:1.2rem; } }
   
     .etiqueta-0   { background:#00b300; color:#fff; }
     .etiqueta-eco { background:#0066cc; color:#fff; }
@@ -142,7 +143,7 @@
 </head>
 <body>
   <header>
-    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/></a>
+    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto">ANANTA<span style="color:var(--rojo)">.</span>CARS</span></a>
     <nav>
       <span class="nav-links">
         <a href="#catalogo">Catálogo</a>

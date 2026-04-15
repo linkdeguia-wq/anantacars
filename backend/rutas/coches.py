@@ -89,16 +89,16 @@ async def listar_coches(
     orden: Optional[str] = Query("creado_at.desc"),
     pagina: Optional[int] = Query(1),
     por_pagina: Optional[int] = Query(12),
+    etiqueta: Optional[str] = Query(None),
 ):
     params = {"select": "*", "order": orden}
-    if marca:       params["marca"]       = f"ilike.*{marca}*"
-    if combustible: params["combustible"] = f"eq.{combustible}"
-    if carroceria:  params["carroceria"]  = f"eq.{carroceria}"
-    if estado:      params["estado"]      = f"eq.{estado}"
-    if precio_max:  params["precio"]      = f"lte.{precio_max}"
-    etiqueta: Optional[str] = Query(None)
+    if marca:       params["marca"]        = f"ilike.*{marca}*"
+    if combustible: params["combustible"]  = f"eq.{combustible}"
+    if carroceria:  params["carroceria"]   = f"eq.{carroceria}"
+    if estado:      params["estado"]       = f"eq.{estado}"
+    if precio_max:  params["precio"]       = f"lte.{precio_max}"
+    if km_max:      params["km"]           = f"lte.{km_max}"
     if etiqueta:    params["etiqueta_dgt"] = f"eq.{etiqueta}"
-    if km_max:      params["km"]          = f"lte.{km_max}"
 
     # Paginación
     offset = (pagina - 1) * por_pagina
