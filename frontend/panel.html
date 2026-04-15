@@ -160,6 +160,8 @@
     .toast.error{background:#3a1a1a;color:#ff8f8f;border-color:#6b1a1a}
 
     @media(max-width:600px){.coche-precio{display:none}.coche-acciones{gap:4px}}
+  
+    .textarea-autosize { min-height:80px; overflow:hidden; resize:none; }
   </style>
 </head>
 <body>
@@ -268,7 +270,7 @@
             <select id="n-etiqueta"><option value="">Sin etiqueta</option><option value="0">🔵 0 Emisiones</option><option value="eco">🔵🟢 ECO</option><option value="c">🟢 C</option><option value="b">🟡 B</option></select>
           </div>
         </div>
-        <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" rows="6" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
+        <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" rows="4" class="textarea-autosize" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
         <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
         <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
@@ -407,32 +409,13 @@
         <select id="e-etiqueta"><option value="">Sin etiqueta</option><option value="0">🔵 0 Emisiones</option><option value="eco">🔵🟢 ECO</option><option value="c">🟢 C</option><option value="b">🟡 B</option></select>
       </div>
     </div>
-    <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="e-descripcion"></textarea></div>
+    <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="e-descripcion" class="textarea-autosize"></textarea></div>
     <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="e-notas"/></div>
     <div class="form-campo-full"><label>Vídeo YouTube</label><input type="text" id="e-video"/></div>
     <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="e-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
     <div class="toggle-row"><input type="checkbox" id="e-destacado"/><label for="e-destacado">Marcar como destacado ⭐</label></div>
 
-    <!-- IA en editar -->
-    <div class="modal-seccion">
-      <p class="modal-seccion-titulo">🤖 Asistente IA</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <div style="flex:1;min-width:180px">
-          <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);display:block;margin-bottom:5px">Escanear foto</label>
-          <div style="display:flex;gap:6px">
-            <input type="file" id="e-ia-foto-scan" accept="image/*" style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.78rem;padding:6px 8px;border-radius:var(--radio);flex:1"/>
-            <button class="btn-accion" onclick="escanearCocheEditar()">🔍</button>
-          </div>
-          <p id="e-scan-msg" style="font-size:0.72rem;margin-top:4px;min-height:14px"></p>
-        </div>
-        <div style="flex:1;min-width:180px">
-          <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);display:block;margin-bottom:5px">Generar descripción</label>
-          <input type="text" id="e-ia-extras" placeholder="Notas para la IA..." style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.78rem;padding:7px 8px;border-radius:var(--radio);width:100%;margin-bottom:5px"/>
-          <button class="btn-accion" onclick="generarDescripcionEditar()">✨ Generar</button>
-          <p id="e-desc-msg" style="font-size:0.72rem;margin-top:4px;min-height:14px"></p>
-        </div>
-      </div>
-    </div>
+    
 
     <div class="modal-seccion">
       <p class="modal-seccion-titulo">📷 Fotos — hover para acciones · arrastra para reordenar</p>
@@ -490,6 +473,30 @@ document.addEventListener('paste', function(e) {
     }, 0);
   }
 });
+</script>
+
+<script>
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight + 8) + 'px';
+}
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.textarea-autosize').forEach(function(ta) {
+    ta.addEventListener('input', function() { autoResizeTextarea(this); });
+    autoResizeTextarea(ta);
+  });
+});
+// Observer para cuando se rellena por IA
+const origDesc = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value');
+if (origDesc) {
+  Object.defineProperty(HTMLTextAreaElement.prototype, 'value', {
+    set: function(val) {
+      origDesc.set.call(this, val);
+      if (this.classList.contains('textarea-autosize')) autoResizeTextarea(this);
+    },
+    get: origDesc.get
+  });
+}
 </script>
 </body>
 </html>
