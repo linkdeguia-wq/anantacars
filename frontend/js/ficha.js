@@ -259,16 +259,16 @@ async function cargarFicha() {
           <p class="ficha-anio">${c.anio} · ${c.carroceria}${c.color ? ` · ${c.color}` : ""}</p>
 
           <div class="ficha-specs">
-            <div class="spec-item"><span class="spec-icon">⏱</span><span class="spec-val">${formatKm(c.km)}</span><span class="spec-label">Kilómetros</span></div>
-            <div class="spec-item"><span class="spec-icon">⛽</span><span class="spec-val">${c.combustible.charAt(0).toUpperCase()+c.combustible.slice(1)}</span><span class="spec-label">Combustible</span></div>
-            <div class="spec-item"><span class="spec-icon">⚙️</span><span class="spec-val">${c.caja.charAt(0).toUpperCase()+c.caja.slice(1)}</span><span class="spec-label">Cambio</span></div>
-            ${c.cv ? `<div class="spec-item"><span class="spec-icon">💨</span><span class="spec-val">${c.cv} CV</span><span class="spec-label">Potencia</span></div>` : ""}
-            ${c.puertas ? `<div class="spec-item"><span class="spec-icon">🚪</span><span class="spec-val">${c.puertas}</span><span class="spec-label">Puertas</span></div>` : ""}
-            ${c.plazas ? `<div class="spec-item"><span class="spec-icon">👥</span><span class="spec-val">${c.plazas}</span><span class="spec-label">Plazas</span></div>` : ""}
-            ${c.propietarios ? `<div class="spec-item"><span class="spec-icon">👤</span><span class="spec-val">${c.propietarios === 1 ? "1 dueño" : c.propietarios+" dueños"}</span><span class="spec-label">Propietarios</span></div>` : ""}
-            ${c.consumo ? `<div class="spec-item"><span class="spec-icon">🔋</span><span class="spec-val">${c.consumo}</span><span class="spec-label">Consumo</span></div>` : ""}
-            ${c.itv_hasta ? `<div class="spec-item"><span class="spec-icon">✅</span><span class="spec-val">${c.itv_hasta}</span><span class="spec-label">ITV hasta</span></div>` : ""}
-            ${c.garantia_meses ? `<div class="spec-item spec-item-highlight"><span class="spec-icon">🛡️</span><span class="spec-val">${c.garantia_meses} meses</span><span class="spec-label">Garantía</span></div>` : ""}
+            <div class="spec-item"><span class="spec-val">${formatKm(c.km)}</span><span class="spec-label">Kilómetros</span></div>
+            <div class="spec-item"><span class="spec-val">${c.combustible.charAt(0).toUpperCase()+c.combustible.slice(1)}</span><span class="spec-label">Combustible</span></div>
+            <div class="spec-item"><span class="spec-val">${c.caja.charAt(0).toUpperCase()+c.caja.slice(1)}</span><span class="spec-label">Cambio</span></div>
+            ${c.cv ? `<div class="spec-item"><span class="spec-val">${c.cv} CV</span><span class="spec-label">Potencia</span></div>` : ""}
+            ${c.puertas ? `<div class="spec-item"><span class="spec-val">${c.puertas} puertas</span><span class="spec-label">Carrocería</span></div>` : ""}
+            ${c.plazas ? `<div class="spec-item"><span class="spec-val">${c.plazas} plazas</span><span class="spec-label">Capacidad</span></div>` : ""}
+            ${c.propietarios ? `<div class="spec-item"><span class="spec-val">${c.propietarios === 1 ? "1 dueño" : c.propietarios+" dueños"}</span><span class="spec-label">Propietarios</span></div>` : ""}
+            ${c.consumo ? `<div class="spec-item"><span class="spec-val">${c.consumo}</span><span class="spec-label">Consumo</span></div>` : ""}
+            ${c.itv_hasta ? `<div class="spec-item"><span class="spec-val">${c.itv_hasta}</span><span class="spec-label">ITV hasta</span></div>` : ""}
+            ${c.garantia_meses ? `<div class="spec-item spec-item-highlight"><span class="spec-val">${c.garantia_meses} meses</span><span class="spec-label">Garantía incluida</span></div>` : ""}
             ${c.etiqueta_dgt ? `<div class="spec-item">${etiquetaDGTInline(c.etiqueta_dgt)}</div>` : ""}
           </div>
 
