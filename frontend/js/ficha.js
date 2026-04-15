@@ -1,4 +1,18 @@
 
+// ── ENVIAR FORMULARIO POR WHATSAPP ────────────────────────────────────────────
+function enviarPorWhatsApp(vehiculo, cocheId) {
+  const nombre   = document.getElementById("fc-nombre")?.value.trim();
+  const email    = document.getElementById("fc-telefono")?.value.trim();
+  const mensaje  = document.getElementById("fc-mensaje")?.value.trim();
+  const waNum    = cfgGlobal.whatsapp || "34688644229";
+  const url      = window.location.href;
+
+  const texto = `Hola, soy ${nombre || "un interesado"}.\n\n${mensaje || `Quiero información del ${vehiculo}.`}\n\n${email ? `Mi email: ${email}` : ""}\n\nVehículo: ${url}`;
+
+  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(texto)}`, "_blank");
+}
+
+
 // ── FORMULARIO CONTACTO WEB3FORMS ─────────────────────────────────────────────
 const W3F_KEY = "72cf4bcd-025f-4f7e-95d7-0f5554625ab4";
 
@@ -10,7 +24,14 @@ async function enviarConsulta(vehiculo, cocheId) {
   const btn      = document.querySelector(".btn-enviar-consulta");
 
   if (!nombre || !telefono) {
-    msgEl.textContent = "Por favor rellena tu nombre y teléfono.";
+    msgEl.textContent = "Por favor rellena tu nombre y email.";
+    msgEl.style.color = "#ff8f8f";
+    return;
+  }
+  // Validar formato email
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(telefono)) {
+    msgEl.textContent = "Por favor introduce un email válido.";
     msgEl.style.color = "#ff8f8f";
     return;
   }
@@ -35,11 +56,15 @@ async function enviarConsulta(vehiculo, cocheId) {
     });
     const data = await resp.json();
     if (data.success) {
-      msgEl.textContent = "✅ Consulta enviada. Te contactamos pronto.";
-      msgEl.style.color = "#7fffaa";
-      document.getElementById("fc-nombre").value   = "";
-      document.getElementById("fc-telefono").value = "";
-      document.getElementById("fc-mensaje").value  = "";
+      const wrap = document.getElementById("form-contacto-wrap");
+      if (wrap) {
+        wrap.innerHTML = `
+          <div style="text-align:center;padding:20px 10px">
+            <div style="font-size:2rem;margin-bottom:8px">✅</div>
+            <div style="font-family:var(--fuente-titulo);font-size:1rem;font-weight:700;color:#7fffaa;margin-bottom:6px">¡Consulta enviada!</div>
+            <div style="font-size:0.82rem;color:var(--gris-texto)">Te responderemos lo antes posible.</div>
+          </div>`;
+      }
     } else {
       throw new Error();
     }
@@ -218,24 +243,26 @@ async function cargarFicha() {
           <!-- FORMULARIO CONTACTO -->
           <div class="form-contacto" id="form-contacto-wrap">
             <p class="form-contacto-titulo">✉️ Enviar consulta</p>
-            <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="Tu nombre" autocapitalize="sentences"/>
-            <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email" inputmode="email"/>
-            <textarea class="form-contacto-input" id="fc-mensaje" rows="3" placeholder="¿Tienes alguna pregunta sobre este vehículo?">${c.marca} ${c.modelo} ${c.anio} — me interesa más información.</textarea>
-            <button class="btn-enviar-consulta" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">Enviar consulta →</button>
+            <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="¿Con quién hablamos?" autocapitalize="sentences"/>
+            <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email (ej: nombre@gmail.com)" inputmode="email"/>
+            <textarea class="form-contacto-input" id="fc-mensaje" rows="4">Hola, quiero información del vehículo ${c.marca} ${c.modelo} (${c.anio}), concretamente sobre el color y el precio final.\n\nMi número de teléfono es: </textarea>
+            <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn-enviar-consulta" style="flex:1" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">📧 Enviar por email</button>
+            <button class="btn-enviar-consulta" style="flex:1;background:#25d366;color:#000" onclick="enviarPorWhatsApp('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">💬 Por WhatsApp</button>
+          </div>
             <p class="form-contacto-msg" id="fc-msg"></p>
           </div>
           <!-- BOTONES CONTACTO -->
-          <a class="btn-whatsapp" href="https://wa.me/${waNum}?text=${waMsg}" target="_blank">📱 WhatsApp</a>
+          <a class="btn-whatsapp" href="https://wa.me/${waNum}?text=${waMsg}" target="_blank">📱 Contactar vía WhatsApp</a>
           <a class="btn-llamar" href="tel:+${cfgGlobal.telefono || '34688644229'}">
             <span>📞 Llamar</span>
-            <span class="btn-llamar-num">${cfgGlobal.telefono ? cfgGlobal.telefono.replace(/^34/,'') : '688 644 229'}</span>
+            <span class="btn-llamar-num">+34 ${cfgGlobal.telefono ? cfgGlobal.telefono.replace(/^34/,'') : '688 644 229'}</span>
           </a>
           ` : `<p style="color:var(--gris-texto);font-size:0.9rem;margin-bottom:16px">Este vehículo ya ha sido vendido.</p>`}
 
           <div class="sidebar-compartir">
-            <a class="btn-compartir" href="https://wa.me/?text=${shareTitle}%20${shareUrl}" target="_blank">💬 WhatsApp</a>
-            <a class="btn-compartir" href="mailto:?subject=${shareTitle}&body=Mira este vehículo: ${shareUrl}" target="_blank">📧 Email</a>
-            <button class="btn-compartir" onclick="copiarEnlace()">🔗 Link</button>
+            <a class="btn-compartir" href="mailto:?subject=${shareTitle}&body=Mira este vehículo: ${shareUrl}" target="_blank">📧 Compartir por email</a>
+            <button class="btn-compartir" onclick="copiarEnlace()">🔗 Copiar link</button>
           </div>
           <p class="sidebar-aviso">Precio al contado. Consulta financiación.</p>
 
