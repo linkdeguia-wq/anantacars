@@ -267,6 +267,12 @@ async function crearCoche() {
       descripcion:      document.getElementById("n-descripcion").value.trim() || null,
       notas_internas:   document.getElementById("n-notas").value.trim() || null,
       video_youtube:    document.getElementById("n-video").value.trim() || null,
+      puertas:          parseInt(document.getElementById("n-puertas")?.value) || null,
+      plazas:           parseInt(document.getElementById("n-plazas")?.value) || null,
+      propietarios:     parseInt(document.getElementById("n-propietarios")?.value) || null,
+      itv_hasta:        document.getElementById("n-itv")?.value.trim() || null,
+      consumo:          document.getElementById("n-consumo")?.value.trim() || null,
+      garantia_meses:   parseInt(document.getElementById("n-garantia")?.value) || null,
       historial_km:     document.getElementById("n-historial-km")?.value.trim() || null,
       etiqueta_dgt:     document.getElementById("n-etiqueta")?.value || null,
     };
@@ -414,6 +420,12 @@ async function abrirEditar(id) {
     document.getElementById("e-notas").value           = c.notas_internas || "";
     document.getElementById("e-video").value           = c.video_youtube || "";
     if (document.getElementById("e-historial-km")) document.getElementById("e-historial-km").value = c.historial_km || "";
+    if (document.getElementById("e-puertas"))     document.getElementById("e-puertas").value     = c.puertas || "";
+    if (document.getElementById("e-plazas"))      document.getElementById("e-plazas").value      = c.plazas || "";
+    if (document.getElementById("e-propietarios"))document.getElementById("e-propietarios").value= c.propietarios || "";
+    if (document.getElementById("e-itv"))         document.getElementById("e-itv").value         = c.itv_hasta || "";
+    if (document.getElementById("e-consumo"))     document.getElementById("e-consumo").value     = c.consumo || "";
+    if (document.getElementById("e-garantia"))    document.getElementById("e-garantia").value    = c.garantia_meses || "";
     document.getElementById("e-destacado").checked     = c.destacado || false;
     if (document.getElementById("e-etiqueta")) document.getElementById("e-etiqueta").value = c.etiqueta_dgt || "";
     document.getElementById("btn-ver-ficha").href      = `/coches/${c.marca}-${c.modelo}-${c.anio}-id${id}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
@@ -517,6 +529,12 @@ async function guardarEdicion() {
     descripcion:     document.getElementById("e-descripcion").value.trim() || null,
     notas_internas:  document.getElementById("e-notas").value.trim() || null,
     video_youtube:   document.getElementById("e-video").value.trim() || null,
+    puertas:         parseInt(document.getElementById("e-puertas")?.value) || null,
+    plazas:          parseInt(document.getElementById("e-plazas")?.value) || null,
+    propietarios:    parseInt(document.getElementById("e-propietarios")?.value) || null,
+    itv_hasta:       document.getElementById("e-itv")?.value.trim() || null,
+    consumo:         document.getElementById("e-consumo")?.value.trim() || null,
+    garantia_meses:  parseInt(document.getElementById("e-garantia")?.value) || null,
     historial_km:    document.getElementById("e-historial-km")?.value.trim() || null,
     etiqueta_dgt:    document.getElementById("e-etiqueta")?.value || null,
     destacado:       document.getElementById("e-destacado").checked,
@@ -655,6 +673,10 @@ async function guardarConfig() {
     whatsapp:          document.getElementById("cfg-whatsapp").value.trim() || null,
     telefono:          document.getElementById("cfg-telefono").value.trim() || null,
     coletilla_descripcion: document.getElementById("cfg-coletilla")?.value.trim() || null,
+    instagram: document.getElementById("cfg-instagram")?.value.trim() || null,
+    tiktok:    document.getElementById("cfg-tiktok")?.value.trim() || null,
+    facebook:  document.getElementById("cfg-facebook")?.value.trim() || null,
+    youtube:   document.getElementById("cfg-youtube")?.value.trim() || null,
     ciudad:            document.getElementById("cfg-ciudad")?.value.trim() || null,
     direccion:         document.getElementById("cfg-direccion")?.value.trim() || null,
     horario:           document.getElementById("cfg-horario")?.value.trim() || null,

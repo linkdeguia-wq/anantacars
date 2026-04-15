@@ -1,4 +1,41 @@
 
+// ── REDES SOCIALES ────────────────────────────────────────────────────────────
+function mostrarRedesSociales(cfg) {
+  const redes = [
+    { key:"instagram", icon:"📸", label:"Instagram" },
+    { key:"tiktok",    icon:"🎵", label:"TikTok" },
+    { key:"facebook",  icon:"📘", label:"Facebook" },
+    { key:"youtube",   icon:"▶️",  label:"YouTube" },
+  ];
+  const activas = redes.filter(r => cfg[r.key]);
+  if (!activas.length) return;
+
+  const footer = document.querySelector("footer");
+  if (!footer) return;
+
+  const div = document.createElement("div");
+  div.className = "redes-footer";
+  div.innerHTML = activas.map(r =>
+    `<a href="${cfg[r.key]}" target="_blank" rel="noopener" class="red-social-btn" title="${r.label}">${r.icon}</a>`
+  ).join("");
+
+  footer.appendChild(div);
+}
+
+
+function etiquetaDGTInline(etiqueta) {
+  const map = {
+    "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
+    "eco": { cls:"dgt-eco", circulo:"ECO", txt:"ECO" },
+    "c":   { cls:"dgt-c",   circulo:"C",   txt:"C" },
+    "b":   { cls:"dgt-b",   circulo:"B",   txt:"B" },
+  };
+  const e = map[(etiqueta||"").toLowerCase()];
+  if (!e) return "";
+  return `<span class="spec-icon"><span class="dgt-badge ${e.cls}" style="font-size:0.65rem"><span class="dgt-circle" style="width:14px;height:14px">${e.circulo}</span>${e.txt}</span></span><span class="spec-val" style="display:none">.</span><span class="spec-label">Etiqueta DGT</span>`;
+}
+
+
 // ── ENVIAR FORMULARIO POR WHATSAPP ────────────────────────────────────────────
 function enviarPorWhatsApp(vehiculo, cocheId) {
   const nombre   = document.getElementById("fc-nombre")?.value.trim();
@@ -163,6 +200,9 @@ async function cargarFicha() {
     const calcActiva     = cfgGlobal.modulo_calculadora !== false;
     const alertasActivas = cfgGlobal.modulo_alertas !== false;
 
+    // Redes sociales en footer
+    mostrarRedesSociales(cfgGlobal);
+
     // SEO — título y meta tags
     document.title = `${c.marca} ${c.modelo} ${c.anio} — ${formatPrecio(c.precio)} | Ananta Cars`;
     const setMeta = (prop, val, attr="property") => {
@@ -218,12 +258,18 @@ async function cargarFicha() {
           <h1 class="ficha-titulo">${c.modelo}</h1>
           <p class="ficha-anio">${c.anio} · ${c.carroceria}${c.color ? ` · ${c.color}` : ""}</p>
 
-          <div class="ficha-datos">
-            <div class="dato-fila"><span class="dato-fila-label">Kilómetros</span><span class="dato-fila-valor">${formatKm(c.km)}</span></div>
-            <div class="dato-fila"><span class="dato-fila-label">Combustible</span><span class="dato-fila-valor">${c.combustible}</span></div>
-            <div class="dato-fila"><span class="dato-fila-label">Cambio</span><span class="dato-fila-valor">${c.caja}</span></div>
-            ${c.cv ? `<div class="dato-fila"><span class="dato-fila-label">Potencia</span><span class="dato-fila-valor">${c.cv} CV</span></div>` : ""}
-            ${etiquetaDGTHtml(c.etiqueta_dgt)}
+          <div class="ficha-specs">
+            <div class="spec-item"><span class="spec-icon">⏱</span><span class="spec-val">${formatKm(c.km)}</span><span class="spec-label">Kilómetros</span></div>
+            <div class="spec-item"><span class="spec-icon">⛽</span><span class="spec-val">${c.combustible.charAt(0).toUpperCase()+c.combustible.slice(1)}</span><span class="spec-label">Combustible</span></div>
+            <div class="spec-item"><span class="spec-icon">⚙️</span><span class="spec-val">${c.caja.charAt(0).toUpperCase()+c.caja.slice(1)}</span><span class="spec-label">Cambio</span></div>
+            ${c.cv ? `<div class="spec-item"><span class="spec-icon">💨</span><span class="spec-val">${c.cv} CV</span><span class="spec-label">Potencia</span></div>` : ""}
+            ${c.puertas ? `<div class="spec-item"><span class="spec-icon">🚪</span><span class="spec-val">${c.puertas}</span><span class="spec-label">Puertas</span></div>` : ""}
+            ${c.plazas ? `<div class="spec-item"><span class="spec-icon">👥</span><span class="spec-val">${c.plazas}</span><span class="spec-label">Plazas</span></div>` : ""}
+            ${c.propietarios ? `<div class="spec-item"><span class="spec-icon">👤</span><span class="spec-val">${c.propietarios === 1 ? "1 dueño" : c.propietarios+" dueños"}</span><span class="spec-label">Propietarios</span></div>` : ""}
+            ${c.consumo ? `<div class="spec-item"><span class="spec-icon">🔋</span><span class="spec-val">${c.consumo}</span><span class="spec-label">Consumo</span></div>` : ""}
+            ${c.itv_hasta ? `<div class="spec-item"><span class="spec-icon">✅</span><span class="spec-val">${c.itv_hasta}</span><span class="spec-label">ITV hasta</span></div>` : ""}
+            ${c.garantia_meses ? `<div class="spec-item spec-item-highlight"><span class="spec-icon">🛡️</span><span class="spec-val">${c.garantia_meses} meses</span><span class="spec-label">Garantía</span></div>` : ""}
+            ${c.etiqueta_dgt ? `<div class="spec-item">${etiquetaDGTInline(c.etiqueta_dgt)}</div>` : ""}
           </div>
 
           ${c.descripcion ? `<div class="descripcion">${formatDescripcion(c.descripcion)}</div>` : ""}

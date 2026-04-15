@@ -32,6 +32,10 @@ class ConfigUpdate(BaseModel):
     analytics_id: Optional[str] = None
     telefono: Optional[str] = None
     coletilla_descripcion: Optional[str] = None
+    instagram: Optional[str] = None
+    tiktok: Optional[str] = None
+    facebook: Optional[str] = None
+    youtube: Optional[str] = None
     direccion: Optional[str] = None
     ciudad: Optional[str] = None
     horario: Optional[str] = None

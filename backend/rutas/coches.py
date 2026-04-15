@@ -50,6 +50,12 @@ class CocheEditar(BaseModel):
     video_youtube: Optional[str] = None
     estado: Optional[str] = None
     destacado: Optional[bool] = None
+    puertas: Optional[int] = None
+    plazas: Optional[int] = None
+    propietarios: Optional[int] = None
+    itv_hasta: Optional[str] = None
+    consumo: Optional[str] = None
+    garantia_meses: Optional[int] = None
     etiqueta_dgt: Optional[str] = None
     historial_km: Optional[str] = None
     foto_portada: Optional[str] = None

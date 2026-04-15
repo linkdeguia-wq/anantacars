@@ -92,6 +92,7 @@ function renderTarjeta(c) {
           <span class="dato">⛽ ${c.combustible}</span>
           ${c.cv ? `<span class="dato">💨 ${c.cv} CV</span>` : ""}
           <span class="dato">⚙️ ${c.caja}</span>
+          ${c.puertas ? `<span class="dato">🚪 ${c.puertas}p</span>` : ""}
           ${etiquetaDGT(c.etiqueta_dgt)}
           ${ciudadTag}
         </div>

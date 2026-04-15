@@ -262,7 +262,19 @@
             <select id="n-caja"><option value="manual">Manual</option><option value="automatico">Automático</option></select>
           </div>
           <div class="form-campo"><label>CV</label><input type="number" id="n-cv" placeholder="115" min="0"/></div>
-          <div class="form-campo"><label>Carrocería</label>
+          <div class="form-campo"><label>Puertas</label>
+          <select id="n-puertas"><option value="">—</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+        </div>
+        <div class="form-campo"><label>Plazas</label>
+          <select id="n-plazas"><option value="">—</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="7">7</option><option value="9">9</option></select>
+        </div>
+        <div class="form-campo"><label>Propietarios anteriores</label>
+          <select id="n-propietarios"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3 o más</option></select>
+        </div>
+        <div class="form-campo"><label>ITV hasta</label><input type="text" id="n-itv" placeholder="03/2026"/></div>
+        <div class="form-campo"><label>Consumo (l/100km)</label><input type="text" id="n-consumo" placeholder="5.2"/></div>
+        <div class="form-campo"><label>Garantía (meses)</label><input type="number" id="n-garantia" placeholder="6" min="0" max="36"/></div>
+        <div class="form-campo"><label>Carrocería</label>
             <select id="n-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
           </div>
           <div class="form-campo"><label>Color</label><input type="text" id="n-color" placeholder="Blanco perla"/></div>
@@ -344,6 +356,18 @@
       </div>
 
       <div class="seccion">
+        <p class="seccion-titulo">📱 Redes sociales</p>
+        <div class="config-campos">
+          <div class="config-campo"><label>Instagram (URL)</label><input type="text" id="cfg-instagram" placeholder="https://instagram.com/anantacars"/></div>
+          <div class="config-campo"><label>TikTok (URL)</label><input type="text" id="cfg-tiktok" placeholder="https://tiktok.com/@anantacars"/></div>
+          <div class="config-campo"><label>Facebook (URL)</label><input type="text" id="cfg-facebook" placeholder="https://facebook.com/anantacars"/></div>
+          <div class="config-campo"><label>YouTube (URL)</label><input type="text" id="cfg-youtube" placeholder="https://youtube.com/@anantacars"/></div>
+        </div>
+      <div style="display:none">
+        </div>
+      </div>
+
+      <div class="seccion">
         <p class="seccion-titulo">💳 Calculadora de financiación</p>
         <div class="config-campos">
           <div class="config-campo"><label>TIN (%)</label><input type="number" id="cfg-tin" placeholder="6.99" step="0.01" min="0"/></div>
@@ -401,6 +425,30 @@
         <select id="e-caja"><option value="manual">Manual</option><option value="automatico">Automático</option></select>
       </div>
       <div class="form-campo"><label>CV</label><input type="number" id="e-cv" min="0"/></div>
+      <div class="form-campo"><label>Puertas</label>
+          <select id="n-puertas"><option value="">—</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+        </div>
+        <div class="form-campo"><label>Plazas</label>
+          <select id="n-plazas"><option value="">—</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="7">7</option><option value="9">9</option></select>
+        </div>
+        <div class="form-campo"><label>Propietarios anteriores</label>
+          <select id="n-propietarios"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3 o más</option></select>
+        </div>
+        <div class="form-campo"><label>ITV hasta</label><input type="text" id="n-itv" placeholder="03/2026"/></div>
+        <div class="form-campo"><label>Consumo (l/100km)</label><input type="text" id="n-consumo" placeholder="5.2"/></div>
+        <div class="form-campo"><label>Garantía (meses)</label><input type="number" id="n-garantia" placeholder="6" min="0" max="36"/></div>
+        <div class="form-campo"><label>Puertas</label>
+        <select id="e-puertas"><option value="">—</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select>
+      </div>
+      <div class="form-campo"><label>Plazas</label>
+        <select id="e-plazas"><option value="">—</option><option value="2">2</option><option value="4">4</option><option value="5">5</option><option value="7">7</option><option value="9">9</option></select>
+      </div>
+      <div class="form-campo"><label>Propietarios</label>
+        <select id="e-propietarios"><option value="">—</option><option value="1">1</option><option value="2">2</option><option value="3">3+</option></select>
+      </div>
+      <div class="form-campo"><label>ITV hasta</label><input type="text" id="e-itv" placeholder="03/2026"/></div>
+      <div class="form-campo"><label>Consumo</label><input type="text" id="e-consumo" placeholder="5.2 l/100km"/></div>
+      <div class="form-campo"><label>Garantía (meses)</label><input type="number" id="e-garantia" placeholder="6" min="0"/></div>
       <div class="form-campo"><label>Carrocería</label>
         <select id="e-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
       </div>
