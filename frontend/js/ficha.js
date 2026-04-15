@@ -1,3 +1,34 @@
+
+function etiquetaDGTHtml(etiqueta) {
+  if (!etiqueta) return "";
+  const map = {
+    "0":   { cls: "etiqueta-0",   txt: "🟢 0 Emisiones" },
+    "eco": { cls: "etiqueta-eco", txt: "🔵 ECO" },
+    "c":   { cls: "etiqueta-c",   txt: "🟡 Etiqueta C" },
+    "b":   { cls: "etiqueta-b",   txt: "⚫ Etiqueta B" },
+  };
+  const e = map[etiqueta.toLowerCase()];
+  if (!e) return "";
+  return `<div class="dato-fila"><span class="dato-fila-label">Etiqueta DGT</span><span class="dato-fila-valor"><span style="background:${e.cls.includes('0')?'#00b300':e.cls.includes('eco')?'#0066cc':e.cls.includes('c')?'#e6b800':'#333'};color:${e.cls.includes('c')?'#000':'#fff'};padding:2px 10px;border-radius:2px;font-size:0.9rem">${e.txt}</span></span></div>`;
+}
+
+// ── FORMATEAR DESCRIPCIÓN ────────────────────────────────────────────────────
+function formatDescripcion(texto) {
+  return texto
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .split('\n')
+    .map(linea => {
+      linea = linea.trim();
+      if (!linea) return '';
+      // Detectar líneas tipo "- item" o "• item" como lista visual
+      if (linea.match(/^[-•*]\s/)) {
+        return `<span style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--rojo);flex-shrink:0">›</span><span>${linea.slice(2)}</span></span>`;
+      }
+      return `<span style="display:block;margin-bottom:6px">${linea}</span>`;
+    })
+    .join('');
+}
+
 // ficha.js — v3 completo con lightbox, calculadora, URLs limpias, alertas
 const API = "https://anantacars-production.up.railway.app";
 const WA  = "34600000000";
@@ -113,9 +144,10 @@ async function cargarFicha() {
             <div class="dato-fila"><span class="dato-fila-label">Combustible</span><span class="dato-fila-valor">${c.combustible}</span></div>
             <div class="dato-fila"><span class="dato-fila-label">Cambio</span><span class="dato-fila-valor">${c.caja}</span></div>
             ${c.cv ? `<div class="dato-fila"><span class="dato-fila-label">Potencia</span><span class="dato-fila-valor">${c.cv} CV</span></div>` : ""}
+            ${etiquetaDGTHtml(c.etiqueta_dgt)}
           </div>
 
-          ${c.descripcion ? `<p class="descripcion">${c.descripcion}</p>` : ""}
+          ${c.descripcion ? `<div class="descripcion">${formatDescripcion(c.descripcion)}</div>` : ""}
 
           ${calcActiva ? renderCalculadora(c.precio, cfgGlobal) : ""}
 
@@ -152,6 +184,8 @@ async function cargarFicha() {
 
     // Registrar visita
     registrarVisita(c.id);
+    // Badge precio
+    cargarBadgeFicha(c.id);
 
     // Inyectar chat si está configurado
     if (cfgGlobal.modulo_chat && cfgGlobal.chat_codigo) {
@@ -300,3 +334,20 @@ async function registrarVisita(cocheId) {
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 cargarFicha();
+
+
+// ── BADGE PRECIO EN FICHA ─────────────────────────────────────────────────────
+async function cargarBadgeFicha(cocheId) {
+  try {
+    const resp = await fetch(`${API}/api/coches/badge-precio/${cocheId}`);
+    const data = await resp.json();
+    if (!data.badge) return;
+    // Insertar badge junto al precio en sidebar
+    const precioEl = document.querySelector(".sidebar-precio");
+    if (!precioEl) return;
+    const badge = document.createElement("div");
+    badge.style.cssText = `display:inline-flex;align-items:center;gap:6px;font-family:var(--fuente-titulo);font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:5px 12px;border-radius:4px;background:${data.color};color:${data.text_color};margin-bottom:12px`;
+    badge.textContent = data.label;
+    precioEl.after(badge);
+  } catch {}
+}

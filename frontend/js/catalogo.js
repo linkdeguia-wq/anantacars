@@ -1,3 +1,25 @@
+
+// ── ETIQUETA DGT ──────────────────────────────────────────────────────────────
+function etiquetaDGT(etiqueta) {
+  if (!etiqueta) return "";
+  const map = {
+    "0":   { cls: "etiqueta-0",   txt: "🟢 0" },
+    "eco": { cls: "etiqueta-eco", txt: "🔵 ECO" },
+    "c":   { cls: "etiqueta-c",   txt: "🟡 C" },
+    "b":   { cls: "etiqueta-b",   txt: "⚫ B" },
+  };
+  const e = map[etiqueta.toLowerCase()];
+  if (!e) return "";
+  return `<span class="etiqueta-badge ${e.cls}">${e.txt}</span>`;
+}
+
+// ── CUOTA MENSUAL estimada (TIN 7%, 60 meses, 10% entrada) ───────────────────
+function calcCuota(precio, tin = 7, meses = 60, entradaPct = 10) {
+  const capital = precio * (1 - entradaPct / 100);
+  const r = tin / 100 / 12;
+  return capital * (r * Math.pow(1+r, meses)) / (Math.pow(1+r, meses) - 1);
+}
+
 // catalogo.js — v3 con scroll infinito, comparador y carga desde config
 const API = "https://anantacars-production.up.railway.app";
 
@@ -56,6 +78,7 @@ function renderTarjeta(c) {
         ${estadoBadge(c.estado)}
         ${c.destacado ? '<span class="destacado-badge">⭐ Destacado</span>' : ""}
         ${c.precio_anterior ? '<span class="oferta-badge">🔥 Bajada de precio</span>' : ""}
+        ${etiquetaDGT(c.etiqueta_dgt)}
       </div>
       <div class="tarjeta-info">
         <div class="tarjeta-header">
@@ -70,7 +93,7 @@ function renderTarjeta(c) {
           <span class="dato">⚙️ ${c.caja}</span>
         </div>
         <div class="tarjeta-footer">
-          <span class="tarjeta-precio">${precioHTML}</span>
+          <span class="tarjeta-precio">${precioHTML}<span id="badge-${c.id}" class="precio-badge" style="display:none"></span></span>
           <a class="btn-ver" href="/coches/${slug}-id${c.id}" onclick="event.stopPropagation()">Ver ficha →</a>
         </div>
       </div>
@@ -114,6 +137,17 @@ async function buscar(reset = true) {
   if (carroceria)  { params.set("carroceria", carroceria);   filtrosActivos.carroceria = carroceria; }
   if (precio)      { params.set("precio_max", precio);       filtrosActivos.precio_max = precio; }
   if (km)          { params.set("km_max", km);               filtrosActivos.km_max = km; }
+
+  const etiqueta = document.getElementById("f-etiqueta")?.value;
+  if (etiqueta)    { params.set("etiqueta", etiqueta);       filtrosActivos.etiqueta = etiqueta; }
+
+  // Filtro cuota: convertir cuota mensual a precio máximo estimado
+  const cuota = parseFloat(document.getElementById("f-cuota")?.value);
+  if (cuota > 0) {
+    const precioMaxEstimado = Math.round(cuota / calcCuota(1));
+    params.set("precio_max", precioMaxEstimado);
+    filtrosActivos.precio_max = precioMaxEstimado;
+  }
   if (estado)      { params.set("estado", estado);           filtrosActivos.estado = estado; }
 
   try {
@@ -157,6 +191,8 @@ async function buscar(reset = true) {
     }
 
     contador.innerHTML = `<strong>${total}</strong> vehículo${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`;
+    // Cargar badges de precio en segundo plano
+    coches.forEach(c => cargarBadgePrecio(c.id));
     paginaActual++;
 
   } catch (err) {
@@ -183,8 +219,9 @@ function observarScroll() {
 }
 
 function resetFiltros() {
-  ["f-marca","f-precio","f-km"].forEach(id => { document.getElementById(id).value = ""; });
+  ["f-marca","f-precio","f-km","f-cuota"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
   document.getElementById("f-combustible").value = "";
+  const fe = document.getElementById("f-etiqueta"); if(fe) fe.value = "";
   document.getElementById("f-carroceria").value = "";
   document.getElementById("f-estado").value = "disponible";
   buscar();
@@ -271,3 +308,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 document.getElementById("f-marca")?.addEventListener("keydown", e => e.key === "Enter" && buscar());
 document.getElementById("f-precio")?.addEventListener("keydown", e => e.key === "Enter" && buscar());
 document.getElementById("f-km")?.addEventListener("keydown", e => e.key === "Enter" && buscar());
+
+
+// ── BADGE PRECIO (carga lazy) ─────────────────────────────────────────────────
+async function cargarBadgePrecio(cocheId) {
+  try {
+    const resp = await fetch(`${API}/api/coches/badge-precio/${cocheId}`);
+    const data = await resp.json();
+    if (!data.badge) return;
+    const el = document.getElementById(`badge-${cocheId}`);
+    if (!el) return;
+    el.textContent = data.label;
+    el.style.background = data.color;
+    el.style.color = data.text_color;
+    el.style.display = "inline-flex";
+  } catch {}
+}

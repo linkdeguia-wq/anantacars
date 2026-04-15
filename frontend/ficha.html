@@ -119,11 +119,20 @@
     footer p{font-size:0.8rem;color:var(--gris-texto)}
     .footer-logo{font-family:var(--fuente-titulo);font-size:1.2rem;font-weight:800;color:var(--blanco)}
     .footer-logo span{color:var(--rojo)}
+  
+    .logo { display:flex; align-items:center; }
+    .logo-img { height:44px; width:auto; object-fit:contain; }
+    @media(max-width:600px) { .logo-img { height:36px; } }
+  
+    .etiqueta-0   { background:#00b300; color:#fff; }
+    .etiqueta-eco { background:#0066cc; color:#fff; }
+    .etiqueta-c   { background:#e6b800; color:#000; }
+    .etiqueta-b   { background:#333;    color:#fff; }
   </style>
 </head>
 <body>
 <header>
-  <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+  <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/></a>
   <div class="header-right">
     <a href="index.html" class="btn-volver">← Catálogo</a>
     <button class="btn-tema" id="btn-tema" onclick="toggleTema()">🌙</button>

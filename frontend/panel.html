@@ -167,7 +167,7 @@
 <!-- LOGIN -->
 <div id="pantalla-login">
   <div class="login-box">
-    <div class="login-logo">ANANTA<span>.</span>CARS<br/><small style="font-size:0.55em;color:var(--gris-texto);font-weight:300;letter-spacing:0.1em">PANEL DE GESTIÓN</small></div>
+    <div class="login-logo"><img src="/assets/logo.png" alt="Ananta Cars" style="height:60px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto"/><small style="font-size:0.55em;color:var(--gris-texto);font-weight:300;letter-spacing:0.1em">PANEL DE GESTIÓN</small></div>
     <div class="campo"><label>Usuario</label><input type="text" id="l-usuario" placeholder="admin"/></div>
     <div class="campo"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••"/></div>
     <button class="btn-login" onclick="login()">Entrar</button>
@@ -178,7 +178,7 @@
 <!-- PANEL -->
 <div id="pantalla-panel">
   <header>
-    <span class="logo">ANANTA<span>.</span>CARS</span>
+    <a href="/index.html" class="logo" style="text-decoration:none"><img src="/assets/logo.png" alt="Ananta Cars" style="height:40px;object-fit:contain"/></a>
     <div class="header-right">
       <a href="index.html" target="_blank">Ver web →</a>
       <button class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
@@ -264,6 +264,9 @@
             <select id="n-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
           </div>
           <div class="form-campo"><label>Color</label><input type="text" id="n-color" placeholder="Blanco perla"/></div>
+          <div class="form-campo"><label>Etiqueta DGT</label>
+            <select id="n-etiqueta"><option value="">Sin etiqueta</option><option value="0">🟢 0 Emisiones</option><option value="eco">🔵 ECO</option><option value="c">🟡 C</option><option value="b">⚫ B</option></select>
+          </div>
         </div>
         <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="n-descripcion" placeholder="Segundo dueño, ITV pasada, sin golpes..."></textarea></div>
         <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
@@ -367,6 +370,9 @@
         <select id="e-carroceria"><option value="sedan">Sedán</option><option value="suv">SUV</option><option value="familiar">Familiar</option><option value="coupe">Coupé</option><option value="monovolumen">Monovolumen</option><option value="furgon">Furgón</option></select>
       </div>
       <div class="form-campo"><label>Color</label><input type="text" id="e-color"/></div>
+      <div class="form-campo"><label>Etiqueta DGT</label>
+        <select id="e-etiqueta"><option value="">Sin etiqueta</option><option value="0">🟢 0 Emisiones</option><option value="eco">🔵 ECO</option><option value="c">🟡 C</option><option value="b">⚫ B</option></select>
+      </div>
     </div>
     <div class="form-campo-full"><label>Descripción (visible al cliente)</label><textarea id="e-descripcion"></textarea></div>
     <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="e-notas"/></div>
@@ -406,5 +412,29 @@
 <div class="toast" id="toast"></div>
 
 <script src="js/panel.js"></script>
+
+<script>
+// Capitalizar primera letra en todos los inputs de texto al escribir
+document.addEventListener('input', function(e) {
+  const el = e.target;
+  if ((el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA') {
+    const val = el.value;
+    if (val.length === 1) el.value = val.toUpperCase();
+    else if (val.length > 1 && el.selectionStart === 1) {
+      el.value = val.charAt(0).toUpperCase() + val.slice(1);
+    }
+  }
+});
+// Capitalizar al pegar
+document.addEventListener('paste', function(e) {
+  const el = e.target;
+  if ((el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA') {
+    setTimeout(() => {
+      const v = el.value;
+      if (v) el.value = v.charAt(0).toUpperCase() + v.slice(1);
+    }, 0);
+  }
+});
+</script>
 </body>
 </html>

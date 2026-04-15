@@ -1,12 +1,12 @@
 """
-rutas/fotos.py — Subida de fotos con opciones de procesado.
-El usuario puede elegir si redimensionar o mantener original.
+rutas/fotos.py — Subida de fotos con logo como marca de agua.
 """
 
 from fastapi import APIRouter, UploadFile, File, HTTPException, Header, Query
-from typing import List, Optional
+from typing import List
 import httpx
 import io
+import os
 from PIL import Image, ImageDraw, ImageFont
 from config import (
     SUPABASE_URL, HEADERS_SERVICE,
@@ -21,6 +21,9 @@ router = APIRouter()
 URL_STORAGE         = f"{SUPABASE_URL}/storage/v1/object/{BUCKET_FOTOS}"
 URL_STORAGE_PUBLICO = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET_FOTOS}"
 
+# Ruta al logo para marca de agua (se copia junto al código en Railway)
+LOGO_WA_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "logo-watermark.png")
+
 
 def requiere_admin(authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -29,42 +32,52 @@ def requiere_admin(authorization: str = Header(...)):
 
 
 def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: bool = True) -> bytes:
-    """
-    Procesa una foto antes de subirla.
-    redimensionar: si True, ajusta al ancho máximo configurado.
-    marca_agua: si True, añade el nombre del negocio en la esquina.
-    """
     img = Image.open(io.BytesIO(datos_imagen)).convert("RGB")
 
-    # 1. Redimensionar solo si se pide
+    # 1. Redimensionar
     if redimensionar and img.width > ANCHO_MAX_FOTO:
         ratio = ANCHO_MAX_FOTO / img.width
         img = img.resize((ANCHO_MAX_FOTO, int(img.height * ratio)), Image.LANCZOS)
 
-    # 2. Marca de agua
+    # 2. Marca de agua con logo
     if marca_agua:
-        texto = f"  {NOMBRE_NEGOCIO}  "
-        font_size = max(18, img.width // 35)
         try:
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            logo_wa = Image.open(LOGO_WA_PATH).convert("RGBA")
+            # Escalar logo al 18% del ancho de la foto
+            wa_w = max(80, int(img.width * 0.18))
+            ratio_wa = wa_w / logo_wa.width
+            wa_h = int(logo_wa.height * ratio_wa)
+            logo_wa = logo_wa.resize((wa_w, wa_h), Image.LANCZOS)
+
+            # Posición: esquina inferior derecha con margen
+            margen = int(img.width * 0.025)
+            x = img.width - wa_w - margen
+            y = img.height - wa_h - margen
+
+            # Pegar con transparencia
+            base = img.convert("RGBA")
+            base.paste(logo_wa, (x, y), logo_wa)
+            img = base.convert("RGB")
+
         except Exception:
-            font = ImageFont.load_default()
-
-        draw = ImageDraw.Draw(img)
-        bbox = draw.textbbox((0, 0), texto, font=font)
-        tw = bbox[2] - bbox[0]
-        th = bbox[3] - bbox[1]
-        margen = 14
-        x = img.width - tw - margen
-        y = img.height - th - margen
-
-        overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
-        d = ImageDraw.Draw(overlay)
-        d.rectangle([x - 6, y - 4, x + tw + 6, y + th + 4], fill=(0, 0, 0, 120))
-        img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
-
-        draw = ImageDraw.Draw(img)
-        draw.text((x, y), texto, fill=(255, 255, 255), font=font)
+            # Si no encuentra el logo, fallback a texto
+            texto = f"  {NOMBRE_NEGOCIO}  "
+            font_size = max(16, img.width // 40)
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            except Exception:
+                font = ImageFont.load_default()
+            draw = ImageDraw.Draw(img)
+            bbox = draw.textbbox((0, 0), texto, font=font)
+            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+            margen = 14
+            x = img.width - tw - margen
+            y = img.height - th - margen
+            overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+            d = ImageDraw.Draw(overlay)
+            d.rectangle([x-6, y-4, x+tw+6, y+th+4], fill=(0, 0, 0, 110))
+            img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+            ImageDraw.Draw(img).text((x, y), texto, fill=(255, 255, 255), font=font)
 
     # 3. Comprimir
     buffer = io.BytesIO()
@@ -77,13 +90,9 @@ async def subir_fotos(
     coche_id: int,
     fotos: List[UploadFile] = File(...),
     authorization: str = Header(...),
-    redimensionar: bool = Query(True, description="Redimensionar al ancho máximo"),
-    marca_agua: bool = Query(True, description="Añadir marca de agua"),
+    redimensionar: bool = Query(True),
+    marca_agua: bool = Query(True),
 ):
-    """
-    Sube una o varias fotos para un coche.
-    Parámetros opcionales: redimensionar, marca_agua
-    """
     requiere_admin(authorization)
     max_bytes    = MAX_FOTO_MB * 1024 * 1024
     urls_subidas = []
@@ -111,7 +120,6 @@ async def subir_fotos(
             url_publica = f"{URL_STORAGE_PUBLICO}/{nombre_archivo}"
             urls_subidas.append(url_publica)
 
-            # Contar fotos actuales para el orden
             resp_count = await client.get(
                 f"{SUPABASE_URL}/rest/v1/fotos_coches",
                 headers=HEADERS_SERVICE,
@@ -125,7 +133,7 @@ async def subir_fotos(
                 json={"coche_id": coche_id, "url": url_publica, "orden": orden_actual},
             )
 
-        # Actualizar portada si no tiene
+        # Portada automática si no tiene
         if urls_subidas:
             resp_check = await client.get(
                 f"{SUPABASE_URL}/rest/v1/coches",
@@ -146,12 +154,11 @@ async def subir_fotos(
 
 @router.get("/{coche_id}")
 async def listar_fotos(coche_id: int):
-    params = {"select": "*", "coche_id": f"eq.{coche_id}", "order": "orden.asc"}
     async with httpx.AsyncClient() as client:
         resp = await client.get(
             f"{SUPABASE_URL}/rest/v1/fotos_coches",
             headers=HEADERS_SERVICE,
-            params=params,
+            params={"select": "*", "coche_id": f"eq.{coche_id}", "order": "orden.asc"},
         )
     return resp.json() if resp.status_code == 200 else []
 

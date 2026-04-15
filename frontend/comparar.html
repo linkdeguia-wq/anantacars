@@ -31,11 +31,15 @@
     .btn-ficha{display:inline-block;background:var(--rojo);color:#fff;font-family:var(--fuente-titulo);font-weight:700;font-size:0.78rem;letter-spacing:0.1em;text-transform:uppercase;padding:7px 14px;border-radius:var(--radio);text-decoration:none;margin-top:10px;transition:opacity 0.2s}
     .btn-ficha:hover{opacity:0.88}
     #cargando{padding:80px;text-align:center;color:var(--gris-texto)}
+  
+    .logo { display:flex; align-items:center; }
+    .logo-img { height:44px; width:auto; object-fit:contain; }
+    @media(max-width:600px) { .logo-img { height:36px; } }
   </style>
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/></a>
     <a href="index.html" class="btn-volver">← Volver al catálogo</a>
   </header>
   <div class="wrap">

@@ -29,6 +29,7 @@ class CocheNuevo(BaseModel):
     descripcion: Optional[str] = None
     notas_internas: Optional[str] = None
     video_youtube: Optional[str] = None
+    etiqueta_dgt: Optional[str] = None
     estado: str = "disponible"
     destacado: bool = False
 
@@ -49,6 +50,7 @@ class CocheEditar(BaseModel):
     video_youtube: Optional[str] = None
     estado: Optional[str] = None
     destacado: Optional[bool] = None
+    etiqueta_dgt: Optional[str] = None
     foto_portada: Optional[str] = None
 
 
@@ -94,6 +96,8 @@ async def listar_coches(
     if carroceria:  params["carroceria"]  = f"eq.{carroceria}"
     if estado:      params["estado"]      = f"eq.{estado}"
     if precio_max:  params["precio"]      = f"lte.{precio_max}"
+    etiqueta: Optional[str] = Query(None)
+    if etiqueta:    params["etiqueta_dgt"] = f"eq.{etiqueta}"
     if km_max:      params["km"]          = f"lte.{km_max}"
 
     # Paginación
@@ -332,3 +336,45 @@ async def eliminar_coche(coche_id: int, authorization: str = Header(...)):
     if resp.status_code not in (200, 204):
         raise HTTPException(status_code=500, detail="Error al eliminar")
     return {"ok": True, "eliminado": coche_id}
+
+
+# ── BADGE DE PRECIO ────────────────────────────────────────────────────────────
+@router.get("/badge-precio/{coche_id}")
+async def badge_precio(coche_id: int):
+    """
+    Compara el precio del coche contra la media de coches similares
+    (misma marca/modelo, ±3 años) y devuelve un badge.
+    """
+    async with httpx.AsyncClient() as client:
+        # Obtener coche
+        resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE,
+                                params={"select": "precio,marca,modelo,anio,km", "id": f"eq.{coche_id}"})
+        data = resp.json()
+        if not data:
+            return {"badge": None}
+        c = data[0]
+
+        # Buscar coches similares (mismo modelo, ±3 años, disponibles)
+        resp_sim = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params={
+            "select": "precio",
+            "modelo": f"ilike.*{c['modelo']}*",
+            "estado": "eq.disponible",
+            "id": f"neq.{coche_id}",
+        })
+        similares = [x["precio"] for x in resp_sim.json() if x.get("precio") and abs(0) < 999999]
+
+    if len(similares) < 2:
+        return {"badge": None}  # No hay suficientes datos
+
+    media = sum(similares) / len(similares)
+    precio = c["precio"]
+    diff_pct = (media - precio) / media * 100
+
+    if diff_pct >= 12:
+        return {"badge": "super_precio", "label": "🔥 Super precio", "color": "#1a6b3a", "text_color": "#7fffaa", "diff": round(diff_pct)}
+    elif diff_pct >= 5:
+        return {"badge": "buen_precio", "label": "✅ Buen precio", "color": "#1a3a6b", "text_color": "#7fc4ff", "diff": round(diff_pct)}
+    elif diff_pct >= -5:
+        return {"badge": "precio_justo", "label": "⚖️ Precio justo", "color": "#3a3a1a", "text_color": "#fff7aa", "diff": round(diff_pct)}
+    else:
+        return {"badge": None}

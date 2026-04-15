@@ -122,11 +122,27 @@
     .footer-logo span{color:var(--rojo)}
 
     @media(max-width:600px){header{padding:0 4vw}nav .nav-links{display:none}.hero{padding:48px 4vw 40px}.grid-coches{grid-template-columns:1fr}}
+  
+    .logo { display:flex; align-items:center; }
+    .logo-img { height:44px; width:auto; object-fit:contain; }
+    @media(max-width:600px) { .logo-img { height:36px; } }
+  
+    .etiqueta-0   { background:#00b300; color:#fff; }
+    .etiqueta-eco { background:#0066cc; color:#fff; }
+    .etiqueta-c   { background:#e6b800; color:#000; }
+    .etiqueta-b   { background:#333;    color:#fff; }
+    .etiqueta-badge { position:absolute;top:12px;left:50%;transform:translateX(-50%);
+      font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:800;
+      letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:2px;z-index:3;
+      white-space:nowrap; }
+    .precio-badge { display:inline-flex;align-items:center;gap:5px;
+      font-family:var(--fuente-titulo);font-size:0.68rem;font-weight:700;
+      letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;margin-left:4px; }
   </style>
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/></a>
     <nav>
       <span class="nav-links">
         <a href="#catalogo">Catálogo</a>
@@ -161,6 +177,10 @@
       <div class="filtro-grupo"><label>Estado</label>
         <select id="f-estado"><option value="">Todos</option><option value="disponible" selected>Disponibles</option><option value="reservado">Reservados</option><option value="vendido">Vendidos</option></select>
       </div>
+      <div class="filtro-grupo"><label>Etiqueta DGT</label>
+        <select id="f-etiqueta"><option value="">Todas</option><option value="0">🟢 0 Emisiones</option><option value="eco">🔵 ECO</option><option value="c">🟡 C</option><option value="b">⚫ B</option></select>
+      </div>
+      <div class="filtro-grupo"><label>Cuota máx. (€/mes)</label><input type="number" id="f-cuota" placeholder="Ej: 300" min="0"/></div>
       <button class="btn-filtrar" onclick="buscar()">Buscar</button>
       <button class="btn-reset" onclick="resetFiltros()">✕ Limpiar</button>
     </div>
@@ -211,5 +231,17 @@
     document.documentElement.setAttribute('data-theme', temaGuardado);
     document.getElementById('btn-tema').textContent = temaGuardado === 'dark' ? '🌙' : '☀️';
   </script>
+
+<script>
+// Primera letra mayúscula en inputs
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('input[type=text], textarea').forEach(el => {
+    el.addEventListener('input', function() {
+      if (this.value.length === 1) this.value = this.value.toUpperCase();
+    });
+    el.setAttribute('autocapitalize', 'sentences');
+  });
+});
+</script>
 </body>
 </html>

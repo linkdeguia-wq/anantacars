@@ -35,11 +35,15 @@
     footer p{font-size:0.8rem;color:var(--gris-texto)}
     footer .footer-logo{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:800;color:var(--blanco);margin-bottom:8px}
     footer .footer-logo span{color:var(--rojo)}
+  
+    .logo { display:flex; align-items:center; }
+    .logo-img { height:44px; width:auto; object-fit:contain; }
+    @media(max-width:600px) { .logo-img { height:36px; } }
   </style>
 </head>
 <body>
   <header>
-    <a href="index.html" class="logo">ANANTA<span>.</span>CARS</a>
+    <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/></a>
   </header>
 
   <div class="wrap">
