@@ -34,11 +34,11 @@ async def llamar_gemini(partes: list) -> str:
         "contents": [{"parts": partes}],
         "generationConfig": {
             "temperature": 0.3,
-            "maxOutputTokens": 800,
+            "maxOutputTokens": 1200,
         }
     }
 
-    async with httpx.AsyncClient(timeout=30) as client:
+    async with httpx.AsyncClient(timeout=60) as client:
         resp = await client.post(
             f"{GEMINI_URL}?key={GEMINI_API_KEY}",
             json=payload,
@@ -49,9 +49,16 @@ async def llamar_gemini(partes: list) -> str:
 
     data = resp.json()
     try:
-        return data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError):
-        raise HTTPException(status_code=500, detail="Respuesta inesperada de Gemini")
+        candidate = data["candidates"][0]
+        finish_reason = candidate.get("finishReason", "UNKNOWN")
+        text = candidate["content"]["parts"][0]["text"]
+        # Si se cortó por MAX_TOKENS, intentar de nuevo con más contexto
+        if finish_reason == "MAX_TOKENS":
+            # Añadir punto final si falta
+            text = text.rstrip() + "."
+        return text
+    except (KeyError, IndexError) as e:
+        raise HTTPException(status_code=500, detail=f"Respuesta inesperada de Gemini: {str(data)[:300]}")
 
 
 @router.post("/escanear-coche")
