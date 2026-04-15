@@ -277,7 +277,7 @@
         <!-- IA BUTTONS -->
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding:16px;background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio)">
           <p style="width:100%;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:8px">🤖 Asistente IA</p>
-          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px">
+          <div style="display:none;flex-direction:column;gap:6px;flex:1;min-width:200px">
             <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)">Escanear foto del coche</label>
             <div style="display:flex;gap:8px">
               <input type="file" id="ia-foto-scan" accept="image/*" style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.82rem;padding:7px 10px;border-radius:var(--radio);flex:1"/>
@@ -354,6 +354,14 @@
         <p class="seccion-titulo">🛡️ Sello de garantía</p>
         <div class="config-campos">
           <div class="config-campo"><label>Texto del sello</label><input type="text" id="cfg-garantia-txt" placeholder="Garantía 6 meses incluida"/></div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">✍️ Coletilla de descripción IA</p>
+        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:12px">Texto fijo que se añade al final de todas las descripciones generadas por IA.</p>
+        <div class="config-campo" style="grid-column:1/-1">
+          <textarea id="cfg-coletilla" rows="4" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:10px;border-radius:var(--radio);width:100%;resize:vertical" placeholder="En Ananta Cars garantizamos total transparencia..."></textarea>
         </div>
       </div>
 

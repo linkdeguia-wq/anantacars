@@ -646,6 +646,7 @@ async function guardarConfig() {
     nombre_negocio:    document.getElementById("cfg-nombre").value.trim() || null,
     whatsapp:          document.getElementById("cfg-whatsapp").value.trim() || null,
     telefono:          document.getElementById("cfg-telefono").value.trim() || null,
+    coletilla_descripcion: document.getElementById("cfg-coletilla")?.value.trim() || null,
     ciudad:            document.getElementById("cfg-ciudad")?.value.trim() || null,
     direccion:         document.getElementById("cfg-direccion")?.value.trim() || null,
     horario:           document.getElementById("cfg-horario")?.value.trim() || null,

@@ -10,7 +10,7 @@ from typing import Optional
 import base64
 import httpx
 import json
-from config import GEMINI_API_KEY, GEMINI_MODEL, ENTORNO
+from config import GEMINI_API_KEY, GEMINI_MODEL, ENTORNO, SUPABASE_URL, HEADERS_SERVICE
 from rutas.auth import verificar_token
 
 router = APIRouter()
@@ -18,6 +18,24 @@ router = APIRouter()
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 
+
+
+async def obtener_coletilla() -> str:
+    """Obtiene la coletilla configurada desde Supabase."""
+    default = "En Ananta Cars garantizamos total transparencia. Todos nuestros vehículos pasan revisión mecánica antes de la venta, con documentación en regla y garantía incluida. ¿Te interesa? Pásate a verlo o contáctanos sin compromiso."
+    try:
+        async with httpx.AsyncClient(timeout=5) as client:
+            resp = await client.get(
+                f"{SUPABASE_URL}/rest/v1/configuracion_negocio",
+                headers=HEADERS_SERVICE,
+                params={"select": "coletilla_descripcion", "id": "eq.1"}
+            )
+        data = resp.json()
+        if data and data[0].get("coletilla_descripcion"):
+            return data[0]["coletilla_descripcion"]
+    except Exception:
+        pass
+    return default
 
 def requiere_admin(authorization: str = Header(...)):
     if not authorization.startswith("Bearer "):
@@ -180,11 +198,13 @@ async def generar_descripcion(
 
     precio_txt = f"{int(datos.precio):,}€".replace(",", ".") if datos.precio else "consultar"
 
-    prompt = f"""Eres un redactor experto en venta de coches de segunda mano en España para un concesionario profesional.
+    coletilla = await obtener_coletilla()
 
-Escribe una descripción de venta para este vehículo:
+    prompt = f"""Eres un redactor para un concesionario de coches de segunda mano en España.
 
-DATOS:
+Escribe la descripción de venta para este vehículo. Serán principalmente coches utilitarios y de uso diario.
+
+DATOS DEL VEHÍCULO:
 - Vehículo: {datos.marca} {datos.modelo} {datos.anio}
 - Kilómetros: {datos.km:,} km
 - Combustible: {datos.combustible} | Cambio: {datos.caja}
@@ -192,19 +212,22 @@ DATOS:
 {f"- Color: {datos.color}" if datos.color else ""}
 {f"- Carrocería: {datos.carroceria}" if datos.carroceria else ""}
 {f"- Precio: {precio_txt}" if datos.precio else ""}
-{f"- Información adicional del vendedor: {datos.extras}" if datos.extras else ""}
+{f"- Notas del vendedor: {datos.extras}" if datos.extras else ""}
 
-INSTRUCCIONES ESTRICTAS:
-- Longitud: entre 100 y 140 palabras exactamente
-- Idioma: español de España, tono profesional y cercano
-- Estructura: 2 párrafos. Primero describe el vehículo y sus puntos fuertes. Segundo transmite confianza (revisado, documentación en orden) y llama a la acción.
-- NO repitas datos técnicos que ya están en la ficha (km, combustible, año) — el comprador ya los ve
-- NO uses superlativos vacíos como "fantástico", "increíble", "espectacular"
-- NO uses asteriscos, emojis ni markdown
-- SÍ puedes mencionar el modelo y marca
-- Si hay información adicional del vendedor, incorpórala de forma natural
-- Termina siempre con frase de contacto breve
-- Devuelve SOLO el texto, sin título ni etiquetas"""
+INSTRUCCIONES:
+- Escribe UN solo párrafo de entre 60 y 80 palabras
+- Tono natural y directo, sin exageraciones ni superlativos vacíos
+- Describe el vehículo de forma honesta y adaptada a lo que es: un utilitario práctico
+- Destaca puntos fuertes reales según los datos (potencia si es alta, bajo consumo si es diésel, espacio si es familiar, etc.)
+- Si hay notas del vendedor, incorpóralas de forma natural
+- NO repitas datos técnicos visibles en la ficha (km, año, combustible)
+- NO uses palabras como: fantástico, increíble, espectacular, perfecto, ideal, oportunidad única
+- NO uses asteriscos ni markdown
+- NO añadas coletilla final — ya está incluida abajo
+- Devuelve SOLO el párrafo descriptivo, sin título ni etiquetas
+
+Al final del párrafo, añade exactamente este texto sin modificarlo:
+{coletilla}"""
 
     texto = await llamar_gemini([{"text": prompt}])
     return {"ok": True, "descripcion": texto.strip()}
