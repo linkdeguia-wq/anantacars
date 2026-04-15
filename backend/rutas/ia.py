@@ -15,6 +15,8 @@ from rutas.auth import verificar_token
 
 router = APIRouter()
 
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
+
 
 
 def requiere_admin(authorization: str = Header(...)):
