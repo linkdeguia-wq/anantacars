@@ -5,8 +5,8 @@ function etiquetaDGT(etiqueta) {
   const map = {
     "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
     "eco": { cls:"dgt-eco", circulo:"ECO", txt:"ECO" },
-    "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
-    "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
+    "c":   { cls:"dgt-c",   circulo:"C",   txt:"C" },
+    "b":   { cls:"dgt-b",   circulo:"B",   txt:"B" },
   };
   const e = map[(etiqueta||"").toLowerCase()];
   if (!e) return "";

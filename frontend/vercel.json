@@ -1,7 +1,7 @@
 {
   "rewrites": [
     { "source": "/coches/:slug", "destination": "/ficha.html" },
-    { "source": "/como-funciona", "destination": "/como-funciona.html" },
+    { "source": "/como-comprar", "destination": "/como-comprar.html" },
     { "source": "/comparar", "destination": "/comparar.html" }
   ],
   "headers": [

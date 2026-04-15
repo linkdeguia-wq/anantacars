@@ -83,8 +83,8 @@ function etiquetaDGTHtml(etiqueta) {
   const map = {
     "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
     "eco": { cls:"dgt-eco", circulo:"ECO", txt:"ECO" },
-    "c":   { cls:"dgt-c",   circulo:"C",   txt:"Etiqueta C" },
-    "b":   { cls:"dgt-b",   circulo:"B",   txt:"Etiqueta B" },
+    "c":   { cls:"dgt-c",   circulo:"C",   txt:"C" },
+    "b":   { cls:"dgt-b",   circulo:"B",   txt:"B" },
   };
   const e = map[(etiqueta||"").toLowerCase()];
   if (!e) return "";
@@ -245,7 +245,7 @@ async function cargarFicha() {
             <p class="form-contacto-titulo">✉️ Enviar consulta</p>
             <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="¿Con quién hablamos?" autocapitalize="sentences"/>
             <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email (ej: nombre@gmail.com)" inputmode="email"/>
-            <textarea class="form-contacto-input" id="fc-mensaje" rows="4">Hola, quiero información del vehículo ${c.marca} ${c.modelo} (${c.anio}), concretamente sobre el color y el precio final.\n\nMi número de teléfono es: </textarea>
+            <textarea class="form-contacto-input" id="fc-mensaje" rows="5">Hola, me interesa el ${c.marca} ${c.modelo} ${c.anio} en color ${c.color || "no especificado"} por ${new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(c.precio)}.\n\nAnuncio: ${window.location.href}\n\nMi teléfono (opcional): </textarea>
             <div style="display:flex;gap:8px;margin-top:4px">
             <button class="btn-enviar-consulta" style="flex:1" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">📧 Enviar por email</button>
             <button class="btn-enviar-consulta" style="flex:1;background:#25d366;color:#000" onclick="enviarPorWhatsApp('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">💬 Por WhatsApp</button>
