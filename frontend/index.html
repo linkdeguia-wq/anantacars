@@ -287,12 +287,23 @@ document.addEventListener('DOMContentLoaded', function() {
       if (c.whatsapp)  document.getElementById("footer-wa").href = "https://wa.me/" + c.whatsapp;
       if (c.telefono)  document.getElementById("footer-tel").innerHTML = '📞 <a href="tel:+' + c.telefono + '" style="color:var(--gris-texto)">+34 ' + c.telefono.replace(/^34/,'') + '</a>';
       // Redes sociales en footer
-      const redes = [{k:"instagram",i:"📸"},{k:"tiktok",i:"🎵"},{k:"facebook",i:"📘"},{k:"youtube",i:"▶️"}];
-      const activas = redes.filter(r => c[r.k]);
+      const redesMap = {
+        instagram: { icon:"📸", url: u => `https://instagram.com/${u}` },
+        tiktok:    { icon:"🎵", url: u => `https://tiktok.com/@${u}` },
+        facebook:  { icon:"📘", url: u => `https://facebook.com/${u}` },
+        youtube:   { icon:"▶️",  url: u => `https://youtube.com/@${u}` },
+      };
+      const activas = Object.entries(redesMap).filter(([k]) => c[k]);
       if (activas.length) {
         const redesDiv = document.createElement("div");
-        redesDiv.style.cssText = "display:flex;gap:12px;margin-top:10px";
-        redesDiv.innerHTML = activas.map(r => `<a href="${c[r.k]}" target="_blank" style="font-size:1.4rem;opacity:0.7;text-decoration:none;transition:opacity 0.2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">${r.i}</a>`).join("");
+        redesDiv.style.cssText = "display:flex;flex-wrap:wrap;gap:10px;margin-top:12px";
+        redesDiv.innerHTML = activas.map(([k, r]) =>
+          `<a href="${r.url(c[k])}" target="_blank" rel="noopener"
+              style="display:flex;align-items:center;gap:5px;text-decoration:none;color:var(--gris-texto);font-size:0.78rem;transition:color 0.2s"
+              onmouseover="this.style.color='var(--blanco)'" onmouseout="this.style.color='var(--gris-texto)'">
+            <span style="font-size:1rem">${r.icon}</span>@${c[k]}
+           </a>`
+        ).join("");
         document.querySelector(".footer-col").appendChild(redesDiv);
       }
     } catch(e) {}

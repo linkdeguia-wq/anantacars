@@ -1,13 +1,13 @@
 
 // ── REDES SOCIALES ────────────────────────────────────────────────────────────
 function mostrarRedesSociales(cfg) {
-  const redes = [
-    { key:"instagram", icon:"📸", label:"Instagram" },
-    { key:"tiktok",    icon:"🎵", label:"TikTok" },
-    { key:"facebook",  icon:"📘", label:"Facebook" },
-    { key:"youtube",   icon:"▶️",  label:"YouTube" },
-  ];
-  const activas = redes.filter(r => cfg[r.key]);
+  const redesMap = {
+    instagram: { icon:"📸", label:"Instagram", url: u => `https://instagram.com/${u}` },
+    tiktok:    { icon:"🎵", label:"TikTok",    url: u => `https://tiktok.com/@${u}` },
+    facebook:  { icon:"📘", label:"Facebook",  url: u => `https://facebook.com/${u}` },
+    youtube:   { icon:"▶️",  label:"YouTube",   url: u => `https://youtube.com/@${u}` },
+  };
+  const activas = Object.entries(redesMap).filter(([k]) => cfg[k]);
   if (!activas.length) return;
 
   const footer = document.querySelector("footer");
@@ -15,8 +15,10 @@ function mostrarRedesSociales(cfg) {
 
   const div = document.createElement("div");
   div.className = "redes-footer";
-  div.innerHTML = activas.map(r =>
-    `<a href="${cfg[r.key]}" target="_blank" rel="noopener" class="red-social-btn" title="${r.label}">${r.icon}</a>`
+  div.innerHTML = activas.map(([k, r]) =>
+    `<a href="${r.url(cfg[k])}" target="_blank" rel="noopener" class="red-social-btn" title="${r.label}">
+      ${r.icon} <span style="font-size:0.75rem;font-family:var(--fuente-cuerpo)">@${cfg[k]}</span>
+    </a>`
   ).join("");
 
   footer.appendChild(div);
