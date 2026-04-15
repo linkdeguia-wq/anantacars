@@ -273,6 +273,26 @@
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
         <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
         <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
+
+        <!-- IA BUTTONS -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding:16px;background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio)">
+          <p style="width:100%;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:8px">🤖 Asistente IA</p>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px">
+            <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)">Escanear foto del coche</label>
+            <div style="display:flex;gap:8px">
+              <input type="file" id="ia-foto-scan" accept="image/*" style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.82rem;padding:7px 10px;border-radius:var(--radio);flex:1"/>
+              <button class="btn-secundario-panel" id="btn-scan" onclick="escanearCoche()">🔍 Escanear</button>
+            </div>
+            <p id="scan-msg" style="font-size:0.75rem;min-height:16px"></p>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px">
+            <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto)">Generar descripción con IA</label>
+            <input type="text" id="ia-extras" placeholder="Ej: destaca el techo panorámico, omite el rayón..." style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.82rem;padding:8px 10px;border-radius:var(--radio)"/>
+            <button class="btn-secundario-panel" id="btn-desc" onclick="generarDescripcion()">✨ Generar descripción</button>
+            <p id="desc-msg" style="font-size:0.75rem;min-height:16px"></p>
+          </div>
+        </div>
+
         <button class="btn-subir" id="btn-crear" onclick="crearCoche()">Publicar vehículo</button>
         <div class="msg msg-ok" id="msg-crear-ok">✅ Vehículo publicado correctamente</div>
         <div class="msg msg-err" id="msg-crear-err"></div>
@@ -384,6 +404,27 @@
     <div class="form-campo-full"><label>Vídeo YouTube</label><input type="text" id="e-video"/></div>
     <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="e-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
     <div class="toggle-row"><input type="checkbox" id="e-destacado"/><label for="e-destacado">Marcar como destacado ⭐</label></div>
+
+    <!-- IA en editar -->
+    <div class="modal-seccion">
+      <p class="modal-seccion-titulo">🤖 Asistente IA</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:180px">
+          <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);display:block;margin-bottom:5px">Escanear foto</label>
+          <div style="display:flex;gap:6px">
+            <input type="file" id="e-ia-foto-scan" accept="image/*" style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.78rem;padding:6px 8px;border-radius:var(--radio);flex:1"/>
+            <button class="btn-accion" onclick="escanearCocheEditar()">🔍</button>
+          </div>
+          <p id="e-scan-msg" style="font-size:0.72rem;margin-top:4px;min-height:14px"></p>
+        </div>
+        <div style="flex:1;min-width:180px">
+          <label style="font-size:0.65rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);display:block;margin-bottom:5px">Generar descripción</label>
+          <input type="text" id="e-ia-extras" placeholder="Notas para la IA..." style="background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.78rem;padding:7px 8px;border-radius:var(--radio);width:100%;margin-bottom:5px"/>
+          <button class="btn-accion" onclick="generarDescripcionEditar()">✨ Generar</button>
+          <p id="e-desc-msg" style="font-size:0.72rem;margin-top:4px;min-height:14px"></p>
+        </div>
+      </div>
+    </div>
 
     <div class="modal-seccion">
       <p class="modal-seccion-titulo">📷 Fotos — hover para acciones · arrastra para reordenar</p>

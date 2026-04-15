@@ -11,7 +11,7 @@ import httpx
 import os
 
 from rutas import coches, fotos, auth, redes, alertas
-from rutas import config_negocio
+from rutas import config_negocio, ia
 
 app = FastAPI(
     title=f"{NOMBRE_NEGOCIO} API",
@@ -34,6 +34,7 @@ app.include_router(auth.router,           prefix="/api/auth",     tags=["Auth"])
 app.include_router(redes.router,          prefix="/api/redes",    tags=["Redes"])
 app.include_router(alertas.router,        prefix="/api/alertas",  tags=["Alertas"])
 app.include_router(config_negocio.router, prefix="/api/config",   tags=["Configuración"])
+app.include_router(ia.router,           prefix="/api/ia",      tags=["IA"])
 
 
 @app.get("/")

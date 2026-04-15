@@ -1,3 +1,146 @@
+
+// ── IA — ESCANEAR COCHE ───────────────────────────────────────────────────────
+async function escanearCoche() {
+  const input = document.getElementById("ia-foto-scan");
+  const msg   = document.getElementById("scan-msg");
+  const btn   = document.getElementById("btn-scan");
+  if (!input?.files[0]) { msg.textContent = "Selecciona una foto primero"; msg.style.color = "#ff8f8f"; return; }
+
+  btn.disabled = true; btn.textContent = "Analizando...";
+  msg.textContent = "⏳ Gemini analizando la imagen..."; msg.style.color = "var(--gris-texto)";
+
+  try {
+    const formData = new FormData();
+    formData.append("foto", input.files[0]);
+    const resp = await fetch(`${API}/api/ia/escanear-coche`, {
+      method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: formData,
+    });
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.detail || "Error");
+
+    const d = data.datos;
+    if (d.marca)      { const el = document.getElementById("n-marca");      if (el) el.value = d.marca; }
+    if (d.modelo)     { const el = document.getElementById("n-modelo");     if (el) el.value = d.modelo; }
+    if (d.anio)       { const el = document.getElementById("n-anio");       if (el) el.value = d.anio; }
+    if (d.color)      { const el = document.getElementById("n-color");      if (el) el.value = d.color; }
+    if (d.combustible){ const el = document.getElementById("n-combustible"); if (el) el.value = d.combustible; }
+    if (d.carroceria) { const el = document.getElementById("n-carroceria"); if (el) el.value = d.carroceria; }
+    if (d.cv)         { const el = document.getElementById("n-cv");         if (el) el.value = d.cv; }
+
+    const rellenos = Object.values(d).filter(v => v !== null).length;
+    msg.textContent = `✅ ${rellenos} campos rellenados automáticamente`;
+    msg.style.color = "#7fffaa";
+  } catch(e) {
+    msg.textContent = "❌ Error al analizar: " + e.message;
+    msg.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false; btn.textContent = "🔍 Escanear";
+  }
+}
+
+async function escanearCocheEditar() {
+  const input = document.getElementById("e-ia-foto-scan");
+  const msg   = document.getElementById("e-scan-msg");
+  if (!input?.files[0]) { msg.textContent = "Selecciona una foto"; msg.style.color = "#ff8f8f"; return; }
+
+  msg.textContent = "⏳ Analizando..."; msg.style.color = "var(--gris-texto)";
+  try {
+    const formData = new FormData();
+    formData.append("foto", input.files[0]);
+    const resp = await fetch(`${API}/api/ia/escanear-coche`, {
+      method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: formData,
+    });
+    const data = await resp.json();
+    if (!data.ok) throw new Error();
+    const d = data.datos;
+    if (d.marca)      document.getElementById("e-marca").value      = d.marca;
+    if (d.modelo)     document.getElementById("e-modelo").value     = d.modelo;
+    if (d.anio)       document.getElementById("e-anio").value       = d.anio;
+    if (d.color)      document.getElementById("e-color").value      = d.color;
+    if (d.combustible)document.getElementById("e-combustible").value= d.combustible;
+    if (d.carroceria) document.getElementById("e-carroceria").value = d.carroceria;
+    if (d.cv)         document.getElementById("e-cv").value         = d.cv;
+    msg.textContent = "✅ Campos rellenados"; msg.style.color = "#7fffaa";
+  } catch {
+    msg.textContent = "❌ Error al analizar"; msg.style.color = "#ff8f8f";
+  }
+}
+
+// ── IA — GENERAR DESCRIPCIÓN ──────────────────────────────────────────────────
+async function generarDescripcion() {
+  const msg = document.getElementById("desc-msg");
+  const btn = document.getElementById("btn-desc");
+
+  const payload = {
+    marca:       document.getElementById("n-marca")?.value.trim(),
+    modelo:      document.getElementById("n-modelo")?.value.trim(),
+    anio:        parseInt(document.getElementById("n-anio")?.value) || new Date().getFullYear(),
+    km:          parseInt(document.getElementById("n-km")?.value) || 0,
+    combustible: document.getElementById("n-combustible")?.value || "gasolina",
+    caja:        document.getElementById("n-caja")?.value || "manual",
+    cv:          parseInt(document.getElementById("n-cv")?.value) || null,
+    color:       document.getElementById("n-color")?.value.trim() || null,
+    carroceria:  document.getElementById("n-carroceria")?.value || null,
+    precio:      parseFloat(document.getElementById("n-precio")?.value) || null,
+    extras:      document.getElementById("ia-extras")?.value.trim() || null,
+  };
+
+  if (!payload.marca || !payload.modelo) {
+    msg.textContent = "Rellena al menos marca y modelo primero"; msg.style.color = "#ff8f8f"; return;
+  }
+
+  btn.disabled = true; btn.textContent = "Generando...";
+  msg.textContent = "✨ Generando descripción profesional..."; msg.style.color = "var(--gris-texto)";
+
+  try {
+    const resp = await fetch(`${API}/api/ia/generar-descripcion`, {
+      method: "POST", headers: authHeaders(), body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (!data.ok) throw new Error(data.detail || "Error");
+    const ta = document.getElementById("n-descripcion");
+    if (ta) ta.value = data.descripcion;
+    msg.textContent = "✅ Descripción generada — revísala y edítala si quieres";
+    msg.style.color = "#7fffaa";
+  } catch(e) {
+    msg.textContent = "❌ Error: " + e.message; msg.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false; btn.textContent = "✨ Generar descripción";
+  }
+}
+
+async function generarDescripcionEditar() {
+  const msg = document.getElementById("e-desc-msg");
+  const payload = {
+    marca:       document.getElementById("e-marca")?.value.trim(),
+    modelo:      document.getElementById("e-modelo")?.value.trim(),
+    anio:        parseInt(document.getElementById("e-anio")?.value) || new Date().getFullYear(),
+    km:          parseInt(document.getElementById("e-km")?.value) || 0,
+    combustible: document.getElementById("e-combustible")?.value || "gasolina",
+    caja:        document.getElementById("e-caja")?.value || "manual",
+    cv:          parseInt(document.getElementById("e-cv")?.value) || null,
+    color:       document.getElementById("e-color")?.value.trim() || null,
+    carroceria:  document.getElementById("e-carroceria")?.value || null,
+    precio:      parseFloat(document.getElementById("e-precio")?.value) || null,
+    extras:      document.getElementById("e-ia-extras")?.value.trim() || null,
+  };
+  if (!payload.marca || !payload.modelo) {
+    msg.textContent = "Rellena marca y modelo"; msg.style.color = "#ff8f8f"; return;
+  }
+  msg.textContent = "✨ Generando..."; msg.style.color = "var(--gris-texto)";
+  try {
+    const resp = await fetch(`${API}/api/ia/generar-descripcion`, {
+      method: "POST", headers: authHeaders(), body: JSON.stringify(payload),
+    });
+    const data = await resp.json();
+    if (!data.ok) throw new Error();
+    document.getElementById("e-descripcion").value = data.descripcion;
+    msg.textContent = "✅ Listo — edítala si quieres"; msg.style.color = "#7fffaa";
+  } catch {
+    msg.textContent = "❌ Error al generar"; msg.style.color = "#ff8f8f";
+  }
+}
+
 // panel.js — v5 completo con dashboard, config, historial, exportar PDF
 const API = "https://anantacars-production.up.railway.app";
 
