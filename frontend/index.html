@@ -272,8 +272,8 @@
       <p style="margin-top:4px"><a href="/como-comprar">Cómo comprar</a> · <a href="/politica-privacidad">Privacidad</a></p>
     </div>
     <div class="footer-col footer-col-right" id="footer-contacto-redes">
-      <p style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo);white-space:nowrap">Contacto</a></p>
-      <span id="footer-tel" style="font-size:0.8rem;color:var(--gris-texto)"></span>
+      <p id="footer-redes-wrap" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"></p>
+      
     </div>
   </footer></div>
 
@@ -321,31 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
       const c = await r.json();
       if (c.direccion) document.getElementById("footer-direccion").textContent = "📍 " + c.direccion;
       if (c.horario)   document.getElementById("footer-horario").textContent   = "🕐 " + c.horario;
-      if (c.whatsapp)  document.getElementById("footer-wa").href = "https://wa.me/" + c.whatsapp;
-      if (c.telefono) { const telEl = document.getElementById('footer-tel'); if(telEl) telEl.innerHTML = '· <a href="tel:+' + c.telefono + '" style="color:var(--gris-texto)">+34 ' + c.telefono.replace(/^34/,'') + '</a>'; }
+      
+      
       // Redes sociales en footer
-      // Redes como iconos pequeños junto a WhatsApp
-      const keys = ["instagram","tiktok","facebook","youtube"];
-      const activas = keys.filter(k => c[k]);
-      if (activas.length) {
-        const waEl = document.getElementById("footer-wa");
-        if (waEl) {
-          const redesInline = document.createElement("span");
-          redesInline.style.cssText = "display:inline-flex;align-items:center;gap:8px;margin-left:12px";
-          redesInline.innerHTML = activas.map(k => {
-            const r = REDES_SVG[k];
-            const url = REDES_URL[k](c[k]);
-            return `<a href="${url}" target="_blank" rel="noopener" title="@${c[k]}"
-              style="color:var(--gris-texto);display:flex;align-items:center;transition:color 0.2s"
-              onmouseover="this.style.color='${r.color}'" onmouseout="this.style.color='var(--gris-texto)'">${r.svg}</a>`;
-          }).join("");
-          waEl.parentNode.style.display = "flex";
-          waEl.parentNode.style.alignItems = "center";
-          waEl.parentNode.style.gap = "0";
-          waEl.parentNode.style.flexWrap = "wrap";
-          waEl.parentNode.appendChild(redesInline);
-        }
-      }
     } catch(e) {}
   })();
   </script>
