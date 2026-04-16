@@ -97,7 +97,13 @@ function renderTarjeta(c) {
           ${ciudadTag}
         </div>
         <div class="tarjeta-footer">
-          <span class="tarjeta-precio">${precioHTML}<span id="badge-${c.id}" class="precio-badge" style="display:none"></span></span>
+          <div>
+            <div class="tarjeta-precio">${formatPrecio(c.precio)}</div>
+            ${c.precio_anterior ? `<div style="display:flex;align-items:center;gap:6px;margin-top:3px">
+              <span style="font-size:0.8rem;color:var(--gris-texto);text-decoration:line-through">${formatPrecio(c.precio_anterior)}</span>
+              <span class="precio-rebajado-tag">🔥 Rebajado</span>
+            </div>` : ""}
+          </div>
           <a class="btn-ver" href="/coches/${slug}-id${c.id}" onclick="event.stopPropagation()">Ver ficha →</a>
         </div>
       </div>
