@@ -1,4 +1,56 @@
 
+// ── OPTIMIZAR FOTO EN NAVEGADOR ───────────────────────────────────────────────
+async function optimizarFoto(file, maxWidth = 1920, quality = 0.88) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let w = img.width;
+        let h = img.height;
+
+        // Redimensionar solo si es mayor que maxWidth
+        if (w > maxWidth) {
+          h = Math.round(h * maxWidth / w);
+          w = maxWidth;
+        }
+
+        canvas.width  = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // Convertir a blob JPEG — esto elimina metadatos EXIF automáticamente
+        canvas.toBlob((blob) => {
+          const optimizada = new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), {
+            type: "image/jpeg",
+            lastModified: Date.now(),
+          });
+          console.log(`Optimizada: ${(file.size/1024/1024).toFixed(2)}MB → ${(optimizada.size/1024/1024).toFixed(2)}MB`);
+          resolve(optimizada);
+        }, "image/jpeg", quality);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function procesarFotos(archivos, optimizar = true) {
+  if (!optimizar) return Array.from(archivos);
+  const procesadas = [];
+  for (const file of archivos) {
+    if (file.type.startsWith("image/")) {
+      procesadas.push(await optimizarFoto(file));
+    } else {
+      procesadas.push(file);
+    }
+  }
+  return procesadas;
+}
+
+
 // ── IA — ESCANEAR COCHE ───────────────────────────────────────────────────────
 async function escanearCoche() {
   const input = document.getElementById("ia-foto-scan");
@@ -283,9 +335,11 @@ async function crearCoche() {
     if (!respCoche.ok) throw new Error();
     const coche = await respCoche.json();
 
-    const archivos = document.getElementById("n-fotos").files;
-    if (archivos.length > 0) {
-      btn.textContent = `Subiendo ${archivos.length} foto(s)...`;
+    const archivosRaw = document.getElementById("n-fotos").files;
+    if (archivosRaw.length > 0) {
+      btn.textContent = `Subiendo ${archivosRaw.length} foto(s)...`;
+      const optimizar = document.getElementById("n-opt-optimizar")?.checked !== false;
+      const archivos = await procesarFotos(archivosRaw, optimizar);
       const formData = new FormData();
       for (const f of archivos) formData.append("fotos", f);
       await fetch(`${API}/api/fotos/subir/${coche.id}?redimensionar=true&marca_agua=true`, {
@@ -570,8 +624,10 @@ async function subirFotosEditar() {
   btn.disabled = true; btn.textContent = "Subiendo...";
 
   try {
+    const optimizar = document.getElementById("opt-optimizar")?.checked !== false;
+    const fotosOptimizadas = await procesarFotos(input.files, optimizar);
     const formData = new FormData();
-    for (const f of input.files) formData.append("fotos", f);
+    for (const f of fotosOptimizadas) formData.append("fotos", f);
     const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=${redimensionar}&marca_agua=${marcaAgua}`, {
       method:"POST", headers:{"Authorization": `Bearer ${getToken()}`}, body: formData,
     });

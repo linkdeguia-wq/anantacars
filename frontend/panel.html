@@ -287,6 +287,10 @@
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
         <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
         <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--gris-texto);cursor:pointer;margin-top:6px">
+          <input type="checkbox" id="n-opt-optimizar" checked style="accent-color:var(--rojo)"/>
+          Optimizar tamaño en navegador antes de subir (quita metadatos, reduce peso sin pérdida visual)
+        </label>
 
         <!-- IA BUTTONS -->
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding:16px;background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio)">
@@ -472,6 +476,7 @@
       <div class="opciones-foto">
         <label><input type="checkbox" id="opt-redimensionar" checked/> Redimensionar automáticamente</label>
         <label><input type="checkbox" id="opt-marcaagua" checked/> Añadir marca de agua</label>
+        <label><input type="checkbox" id="opt-optimizar" checked/> Optimizar tamaño en navegador</label>
       </div>
       <div class="subir-row">
         <input type="file" id="e-fotos-nuevas" accept="image/*" multiple/>
