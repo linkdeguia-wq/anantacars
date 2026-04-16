@@ -78,8 +78,8 @@
     .estado-disponible{background:#1a6b3a;color:#7fffaa}
     .estado-reservado{background:#6b4c1a;color:#ffd97f}
     .estado-vendido{background:#3a1a1a;color:#ff8f8f}
-    .destacado-badge{position:absolute;top:12px;right:12px;background:#f5c400;color:#111;font-family:var(--fuente-titulo);font-size:0.68rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:2px;z-index:2;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
-    .oferta-badge{position:absolute;bottom:12px;right:12px;background:#b45309;color:#fef3c7;font-family:var(--fuente-titulo);font-size:0.65rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;z-index:2}
+    
+    
     .tarjeta-info{padding:18px 20px 20px}
     .tarjeta-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
     .tarjeta-marca{font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--rojo)}
@@ -148,7 +148,7 @@
       font-family:var(--fuente-titulo);font-size:0.68rem;font-weight:700;
       letter-spacing:0.08em;text-transform:uppercase;padding:3px 9px;border-radius:2px;margin-left:4px; }
   
-    .fotos-badge{position:absolute;bottom:12px;left:12px;background:rgba(0,0,0,0.65);color:#fff;font-size:0.65rem;font-weight:600;padding:3px 8px;border-radius:2px;z-index:2;backdrop-filter:blur(4px)}
+    
   
     footer{padding:32px 5vw;border-top:1px solid var(--gris-linea);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
     .footer-col p{font-size:0.8rem;color:var(--gris-texto);margin-top:6px}
@@ -159,6 +159,19 @@
     @media(max-width:600px){footer{grid-template-columns:1fr}.footer-col-center,.footer-col-right{text-align:left}}
   
     .redes-footer{display:flex;gap:12px;margin-top:10px}
+  
+    /* BADGES LIMPIOS */
+    
+    
+    /* BADGE PRECIO REBAJADO en datos */
+    .precio-rebajado-tag{display:inline-flex;align-items:center;gap:4px;
+      background:#92400e;color:#fef3c7;font-family:var(--fuente-titulo);
+      font-size:0.6rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+      padding:2px 7px;border-radius:2px;margin-left:6px;vertical-align:middle}
+    /* DATOS FIJOS 4 celdas */
+    .tarjeta-datos{display:grid;grid-template-columns:1fr 1fr;gap:4px 0;margin-bottom:14px}
+    .dato{display:flex;align-items:center;gap:5px;font-size:0.78rem;color:var(--gris-texto);
+      min-height:22px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
   </style>
 </head>
 <body>
