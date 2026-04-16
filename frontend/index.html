@@ -115,7 +115,7 @@
     .btn-limpiar-comparar{background:transparent;color:var(--gris-texto);font-family:var(--fuente-titulo);font-size:0.78rem;letter-spacing:0.08em;text-transform:uppercase;padding:8px 14px;border:1px solid var(--gris-linea);border-radius:var(--radio);cursor:pointer;transition:all 0.2s}
     .btn-limpiar-comparar:hover{color:var(--blanco);border-color:var(--blanco)}
 
-    footer{padding:40px 5vw;border-top:1px solid var(--gris-linea);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
+    footer{padding:28px 5vw;border-top:1px solid var(--gris-linea);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;max-width:1200px;margin:0 auto;width:100%}
     footer p{font-size:0.8rem;color:var(--gris-texto)}
     footer a{color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
     footer a:hover{color:var(--blanco)}
@@ -150,7 +150,7 @@
   
     
   
-    footer{padding:32px 5vw;border-top:1px solid var(--gris-linea);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start}
+    footer{padding:28px 5vw;border-top:1px solid var(--gris-linea);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:start;max-width:1200px;margin:0 auto;width:100%}
     .footer-col p{font-size:0.8rem;color:var(--gris-texto);margin-top:6px}
     .footer-col a{color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
     .footer-col a:hover{color:var(--blanco)}
@@ -185,6 +185,16 @@
   
     .destacado-badge{position:absolute;top:10px;right:10px;z-index:3;
       font-size:0.9rem;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.6))}
+  
+    .footer-wrap{border-top:1px solid var(--gris-linea)}
+    footer{max-width:1100px;margin:0 auto;padding:28px 5vw;display:grid;
+      grid-template-columns:1.2fr 1fr 1fr;gap:24px;align-items:start;border-top:none}
+    footer p{font-size:0.8rem;color:var(--gris-texto);margin-top:5px}
+    footer a{color:var(--gris-texto);text-decoration:none;transition:color 0.2s}
+    footer a:hover{color:var(--blanco)}
+    .footer-col-center{text-align:center}
+    .footer-col-right{text-align:right}
+    @media(max-width:600px){footer{grid-template-columns:1fr}.footer-col-center,.footer-col-right{text-align:left}}
   </style>
 </head>
 <body>
@@ -251,7 +261,7 @@
     <button class="btn-ir-comparar" onclick="irAComparar()">Comparar →</button>
   </div>
 
-    <footer>
+    <div class="footer-wrap"><footer>
     <div class="footer-col">
       <div class="footer-logo">ANANTA<span>.</span>CARS</div>
       <p id="footer-direccion"></p>
@@ -259,13 +269,13 @@
     </div>
     <div class="footer-col footer-col-center">
       <p>© 2025 Ananta Cars</p>
-      <p><a href="/como-comprar">Cómo comprar</a> · <a href="/politica-privacidad">Privacidad</a></p>
+      <p style="margin-top:4px"><a href="/como-comprar">Cómo comprar</a> · <a href="/politica-privacidad">Privacidad</a></p>
     </div>
-    <div class="footer-col footer-col-right">
-      <p><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo)">WhatsApp</a></p>
+    <div class="footer-col footer-col-right" id="footer-contacto-redes">
+      <p><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo)">📱 WhatsApp</a></p>
       <p id="footer-tel"></p>
     </div>
-  </footer>
+  </footer></div>
 
   <script src="/js/redes.js"></script>
   <script src="/js/catalogo.js"></script>
@@ -314,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (c.whatsapp)  document.getElementById("footer-wa").href = "https://wa.me/" + c.whatsapp;
       if (c.telefono)  document.getElementById("footer-tel").innerHTML = '📞 <a href="tel:+' + c.telefono + '" style="color:var(--gris-texto)">+34 ' + c.telefono.replace(/^34/,'') + '</a>';
       // Redes sociales en footer
-      renderRedesFooter(c, document.querySelector('.footer-col'));
+      renderRedesFooter(c, document.getElementById('footer-contacto-redes'));
     } catch(e) {}
   })();
   </script>
