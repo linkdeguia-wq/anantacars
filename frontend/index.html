@@ -272,8 +272,8 @@
       <p style="margin-top:4px"><a href="/como-comprar">Cómo comprar</a> · <a href="/politica-privacidad">Privacidad</a></p>
     </div>
     <div class="footer-col footer-col-right" id="footer-contacto-redes">
-      <p><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo)">📱 WhatsApp</a></p>
-      <p id="footer-tel"></p>
+      <p style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><a id="footer-wa" href="https://wa.me/34688644229" style="color:var(--rojo);white-space:nowrap">Contacto</a></p>
+      <span id="footer-tel" style="font-size:0.8rem;color:var(--gris-texto)"></span>
     </div>
   </footer></div>
 
@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (c.direccion) document.getElementById("footer-direccion").textContent = "📍 " + c.direccion;
       if (c.horario)   document.getElementById("footer-horario").textContent   = "🕐 " + c.horario;
       if (c.whatsapp)  document.getElementById("footer-wa").href = "https://wa.me/" + c.whatsapp;
-      if (c.telefono)  document.getElementById("footer-tel").innerHTML = '📞 <a href="tel:+' + c.telefono + '" style="color:var(--gris-texto)">+34 ' + c.telefono.replace(/^34/,'') + '</a>';
+      if (c.telefono) { const telEl = document.getElementById('footer-tel'); if(telEl) telEl.innerHTML = '· <a href="tel:+' + c.telefono + '" style="color:var(--gris-texto)">+34 ' + c.telefono.replace(/^34/,'') + '</a>'; }
       // Redes sociales en footer
       // Redes como iconos pequeños junto a WhatsApp
       const keys = ["instagram","tiktok","facebook","youtube"];
