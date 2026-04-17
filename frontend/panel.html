@@ -403,6 +403,33 @@
         </div>
       </div>
 
+      <div class="seccion">
+        <p class="seccion-titulo">🖼️ Imagen de fondo del hero</p>
+        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Foto de portada de la página de inicio. Se comprime automáticamente (dos pasadas: navegador + servidor). Sin imagen se muestra el fondo oscuro con diseño por defecto.</p>
+
+        <!-- Preview imagen actual -->
+        <div id="hero-preview-wrap" style="display:none;margin-bottom:14px">
+          <div style="position:relative;border-radius:var(--radio);overflow:hidden;border:1px solid var(--gris-linea)">
+            <img id="hero-preview" style="width:100%;max-height:180px;object-fit:cover;display:block"/>
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,10,10,0.85) 0%,rgba(10,10,10,0.4) 100%);pointer-events:none"></div>
+            <div style="position:absolute;top:10px;left:12px;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Preview</div>
+          </div>
+          <button onclick="eliminarHeroImagen()" style="margin-top:8px;background:transparent;color:#ff8f8f;border:1px solid #3a1a1a;font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:var(--radio);cursor:pointer">🗑 Quitar imagen</button>
+        </div>
+
+        <!-- Placeholder sin imagen -->
+        <div id="hero-placeholder" style="background:var(--gris-oscuro);border:1px dashed var(--gris-linea);border-radius:var(--radio);padding:20px;text-align:center;margin-bottom:14px;font-size:0.78rem;color:var(--gris-texto)">
+          Sin imagen — fondo oscuro con diseño por defecto
+        </div>
+
+        <!-- Subida -->
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <input type="file" id="hero-img-input" accept="image/*" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:7px 10px;border-radius:var(--radio);font-size:0.82rem;flex:1;min-width:0"/>
+          <button id="btn-subir-hero" onclick="subirImagenHero()" class="btn-subir" style="margin-top:0;padding:9px 20px;white-space:nowrap">Subir imagen</button>
+        </div>
+        <p id="hero-msg" style="font-size:0.75rem;margin-top:8px;min-height:16px"></p>
+      </div>
+
       <button class="btn-subir" onclick="guardarConfig()">Guardar configuración</button>
       <div class="msg msg-ok" id="msg-cfg-ok">✅ Configuración guardada</div>
       <div class="msg msg-err" id="msg-cfg-err">❌ Error al guardar</div>

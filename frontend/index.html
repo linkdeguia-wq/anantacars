@@ -41,15 +41,45 @@
     .btn-wa-header{background:#25d366;color:#000;font-family:var(--fuente-titulo);font-weight:700;font-size:0.82rem;letter-spacing:0.06em;text-transform:uppercase;padding:7px 16px;border-radius:var(--radio);text-decoration:none;margin-left:1rem;transition:opacity var(--transicion)}
     .btn-wa-header:hover{opacity:0.88}
 
-    /* ── HERO COMPACTO ── */
-    .hero{padding:22px 5vw 20px;border-bottom:1px solid var(--gris-linea);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-    .hero-left{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
-    .hero-label{font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--rojo)}
-    .hero h1{font-family:var(--fuente-titulo);font-size:clamp(1.4rem,3vw,2rem);font-weight:800;line-height:1;color:var(--blanco);white-space:nowrap}
+    /* ── HERO ── */
+    .hero{
+      padding:52px 5vw 48px;
+      border-bottom:1px solid var(--gris-linea);
+      position:relative;overflow:hidden;
+      background-color:var(--carbon);
+      background-size:cover;background-position:center;
+      display:flex;flex-direction:column;justify-content:center;gap:20px;
+      min-height:200px;
+    }
+    /* Overlay oscuro — activo siempre, más intenso sin imagen */
+    .hero::before{
+      content:'';position:absolute;inset:0;z-index:0;
+      background:linear-gradient(105deg,rgba(10,10,10,0.97) 0%,rgba(10,10,10,0.88) 55%,rgba(10,10,10,0.55) 100%);
+      transition:background 0.4s;
+    }
+    /* Sin imagen: overlay sutil + decoración roja lateral */
+    .hero:not(.con-imagen)::after{
+      content:'';position:absolute;top:0;right:0;bottom:0;width:4px;
+      background:linear-gradient(180deg,transparent,var(--rojo) 40%,var(--rojo) 60%,transparent);
+      opacity:0.4;
+    }
+    .hero > *{position:relative;z-index:1}
+    .hero-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .hero-label{font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--rojo);margin-bottom:10px}
+    .hero h1{font-family:var(--fuente-titulo);font-size:clamp(2.2rem,5.5vw,3.8rem);font-weight:800;line-height:0.96;color:var(--blanco);max-width:600px}
     .hero h1 em{color:var(--rojo);font-style:normal}
+    .hero-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+    .hero-stats{display:flex;gap:24px;flex-wrap:wrap}
+    .hero-stat{display:flex;align-items:center;gap:7px;font-size:0.78rem;color:var(--gris-texto)}
+    .hero-stat-dot{width:6px;height:6px;border-radius:50%;background:var(--rojo);flex-shrink:0}
     .hero-links{display:flex;gap:16px;flex-wrap:wrap}
     .hero-link{color:var(--gris-texto);font-size:0.78rem;text-decoration:none;letter-spacing:0.06em;transition:color 0.2s;border-bottom:1px solid var(--gris-linea);padding-bottom:2px;white-space:nowrap}
     .hero-link:hover{color:var(--blanco);border-color:var(--blanco)}
+    @media(max-width:600px){
+      .hero{padding:36px 4vw 32px;min-height:160px}
+      .hero h1{font-size:clamp(2rem,8vw,2.8rem)}
+      .hero-stats{gap:14px}
+    }
 
     /* ── FILTROS ── */
     .filtros-wrap{padding:16px 5vw;border-bottom:1px solid var(--gris-linea);background:var(--carbon)}
@@ -193,14 +223,23 @@
     </nav>
   </header>
 
-  <section class="hero">
-    <div class="hero-left">
-      <p class="hero-label">Compraventa · Vehículos de ocasión</p>
-      <h1>Tu próximo <em>coche</em> te espera.</h1>
+  <section class="hero" id="hero">
+    <div class="hero-top">
+      <div>
+        <p class="hero-label">Compraventa · Vehículos de ocasión</p>
+        <h1>Tu próximo<br/><em>coche</em> te espera.</h1>
+      </div>
     </div>
-    <div class="hero-links">
-      <a href="como-comprar.html" class="hero-link">¿Cómo comprar? →</a>
-      <a href="#catalogo" class="hero-link">Ver catálogo →</a>
+    <div class="hero-bottom">
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="hero-stat-dot"></span><span id="hero-num-coches">Vehículos disponibles</span></div>
+        <div class="hero-stat"><span class="hero-stat-dot"></span><span>Revisados y documentados</span></div>
+        <div class="hero-stat"><span class="hero-stat-dot"></span><span>Financiación disponible</span></div>
+      </div>
+      <div class="hero-links">
+        <a href="como-comprar.html" class="hero-link">¿Cómo comprar? →</a>
+        <a href="#catalogo" class="hero-link">Ver catálogo →</a>
+      </div>
     </div>
   </section>
 
@@ -300,6 +339,26 @@
         const waHeader = document.querySelector('.btn-wa-header');
         if (waHeader && c.whatsapp) waHeader.href = `https://wa.me/${c.whatsapp}`;
         renderRedesFooter(c, document.getElementById("footer-wa"));
+        // Imagen de fondo del hero (campo hero_imagen en configuracion_negocio)
+        const hero = document.getElementById("hero");
+        if (c.hero_imagen && hero) {
+          hero.style.backgroundImage = `url('${c.hero_imagen}')`;
+          hero.classList.add("con-imagen");
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <script>
+    // Contador de coches en hero
+    (async () => {
+      try {
+        const API = "https://anantacars-production.up.railway.app";
+        const r = await fetch(API + "/api/coches?estado=disponible&por_pagina=1");
+        const d = await r.json();
+        const total = d.total || 0;
+        if (total > 0) {
+          document.getElementById("hero-num-coches").textContent = total + " vehículo" + (total !== 1 ? "s" : "") + " disponible" + (total !== 1 ? "s" : "");
+        }
       } catch(e) {}
     })();
   </script>

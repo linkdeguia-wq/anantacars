@@ -706,6 +706,7 @@ async function cargarConfig() {
     document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
     document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
     document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
+    mostrarHeroPreview(cfg.hero_imagen || null);
   } catch { toast("Error al cargar configuración", true); }
 }
 
@@ -764,7 +765,86 @@ async function guardarConfig() {
 }
 
 
-// ── EXPORTAR PDF ──────────────────────────────────────────────────────────────
+// ── IMAGEN HERO ───────────────────────────────────────────────────────────────
+function mostrarHeroPreview(url) {
+  const wrap        = document.getElementById("hero-preview-wrap");
+  const img         = document.getElementById("hero-preview");
+  const placeholder = document.getElementById("hero-placeholder");
+  if (!wrap) return;
+  if (url) {
+    img.src = url + "?t=" + Date.now(); // cache bust para ver el cambio al instante
+    wrap.style.display = "block";
+    placeholder.style.display = "none";
+  } else {
+    wrap.style.display = "none";
+    placeholder.style.display = "block";
+  }
+}
+
+async function subirImagenHero() {
+  const input = document.getElementById("hero-img-input");
+  const btn   = document.getElementById("btn-subir-hero");
+  const msg   = document.getElementById("hero-msg");
+
+  if (!input?.files[0]) {
+    msg.textContent = "Selecciona una imagen primero";
+    msg.style.color = "#ff8f8f";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Subiendo...";
+  msg.textContent = "⏳ Comprimiendo y subiendo...";
+  msg.style.color = "var(--gris-texto)";
+
+  try {
+    // Compresión cliente: max 1920px, calidad 0.85 — igual que fotos de coches
+    const comprimida = await optimizarFoto(input.files[0], 1920, 0.85);
+
+    const formData = new FormData();
+    formData.append("archivo", comprimida, "hero.jpg");
+
+    const resp = await fetch(`${API}/api/config/hero-imagen`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${getToken()}` },
+      body: formData,
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.detail || `Error ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    mostrarHeroPreview(data.url);
+    input.value = "";
+    msg.textContent = "✅ Imagen subida — ya se ve en la web";
+    msg.style.color = "#7fffaa";
+    toast("✅ Imagen del hero actualizada");
+  } catch(e) {
+    msg.textContent = "❌ " + (e.message || "Error al subir. Inténtalo de nuevo.");
+    msg.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Subir imagen";
+  }
+}
+
+async function eliminarHeroImagen() {
+  if (!confirm("¿Quitar la imagen de fondo del hero? Volverá al diseño oscuro por defecto.")) return;
+  try {
+    const resp = await fetch(`${API}/api/config/hero-imagen`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    if (!resp.ok) throw new Error();
+    mostrarHeroPreview(null);
+    document.getElementById("hero-msg").textContent = "Imagen eliminada — fondo oscuro activo";
+    document.getElementById("hero-msg").style.color = "var(--gris-texto)";
+    toast("Imagen del hero eliminada");
+  } catch { toast("Error al eliminar imagen", true); }
+}
+
 async function exportarPDF() {
   toast("Generando PDF...");
   try {
