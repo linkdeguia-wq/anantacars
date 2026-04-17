@@ -68,6 +68,8 @@ class ConfigUpdate(BaseModel):
     wa_opacidad: Optional[float] = None   # 0.0 – 1.0
     wa_tamano:   Optional[float] = None   # 0.10 – 0.70 (fracción del ancho)
     wa_tipo:     Optional[str]   = None   # "logo" | "texto"
+    # Mantenimiento
+    modo_mantenimiento: Optional[bool] = None
 
 
 def requiere_admin(authorization: str = Header(...)):

@@ -9,6 +9,13 @@
   window._cfg = fetch(`${API}/api/config`)
     .then(r => r.json())
     .then(c => {
+      // ── Modo mantenimiento ─────────────────────────────────────────────────
+      // No redirigir si ya estamos en mantenimiento o en el panel
+      const esPaginas = ["/mantenimiento", "/panel"].every(p => !window.location.pathname.startsWith(p));
+      if (c.modo_mantenimiento && esPaginas) {
+        window.location.href = "/mantenimiento";
+        return c;
+      }
       _aplicarColor(c.color_acento);
       _aplicarLogo(c.logo_url);
       _aplicarFavicon(c.favicon_url);

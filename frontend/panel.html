@@ -355,6 +355,16 @@
 
     <!-- TAB: CONFIGURACIÓN -->
     <div class="tab-panel" id="tab-config">
+      <!-- MODO MANTENIMIENTO — destacado arriba -->
+      <div class="seccion" id="seccion-mantenimiento" style="border-color:var(--rojo)">
+        <p class="seccion-titulo" style="justify-content:space-between">
+          🔧 Modo mantenimiento
+          <label class="toggle-switch"><input type="checkbox" id="cfg-mantenimiento" onchange="guardarToggle('modo_mantenimiento', this.checked);actualizarMantenimientoBadge(this.checked)"/><span class="toggle-slider"></span></label>
+        </p>
+        <p style="font-size:0.8rem;color:var(--gris-texto);margin-bottom:0" id="mant-estado-txt">La web está <strong style="color:#7fffaa">activa</strong> y visible para todos.</p>
+        <p style="font-size:0.75rem;color:var(--gris-texto);margin-top:6px">Al activar, los visitantes ven una página de mantenimiento con tu nombre, dirección y teléfono. El panel sigue accesible.</p>
+      </div>
+
       <div class="seccion">
         <p class="seccion-titulo">⚙️ Módulos activos</p>
         <div class="config-grid">

@@ -147,15 +147,13 @@
     <p>Para cualquier consulta sobre privacidad o para ejercer tus derechos, escríbenos a <span class="placeholder">[EMAIL DE CONTACTO]</span> o utiliza el formulario de contacto de la web.</p>
   </div>
 
-  <footer>
-    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
-    <p>© 2025 Ananta Cars · <a href="/index.html">Inicio</a> · <a href="/como-comprar">Cómo comprar</a></p>
-  </footer>
+  <div id="footer-root"></div>
 
   <script>
     // Fecha actual localizada
     document.getElementById("fecha-actual").textContent =
       new Date().toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
   </script>
+  <script src="/js/footer.js"></script>
 </body>
 </html>

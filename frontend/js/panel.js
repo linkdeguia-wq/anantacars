@@ -834,6 +834,12 @@ async function cargarConfig() {
     document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
     document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
     document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
+    // Mantenimiento
+    const mant = cfg.modo_mantenimiento || false;
+    if (document.getElementById("cfg-mantenimiento")) {
+      document.getElementById("cfg-mantenimiento").checked = mant;
+      actualizarMantenimientoBadge(mant);
+    }
   } catch { toast("Error al cargar configuración", true); }
 }
 
@@ -937,4 +943,18 @@ async function exportarPDF() {
       </body></html>`);
     win.document.close();
   } catch { toast("Error al generar PDF", true); }
+}
+
+// ── MODO MANTENIMIENTO ────────────────────────────────────────────────────────
+function actualizarMantenimientoBadge(activo) {
+  const txt = document.getElementById("mant-estado-txt");
+  const sec = document.getElementById("seccion-mantenimiento");
+  if (!txt) return;
+  if (activo) {
+    txt.innerHTML = 'La web está <strong style="color:#ff8f8f">en mantenimiento</strong> — los visitantes no pueden acceder.';
+    if (sec) sec.style.background = "rgba(232,49,26,0.06)";
+  } else {
+    txt.innerHTML = 'La web está <strong style="color:#7fffaa">activa</strong> y visible para todos.';
+    if (sec) sec.style.background = "";
+  }
 }
