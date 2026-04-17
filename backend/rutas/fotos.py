@@ -39,78 +39,75 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
         ratio = ANCHO_MAX_FOTO / img.width
         img = img.resize((ANCHO_MAX_FOTO, int(img.height * ratio)), Image.LANCZOS)
 
-    # 2. Marca de agua con logo + texto
+    # 2. Marca de agua centrada, muy transparente, estilo coches.net
     if marca_agua:
         try:
             logo_wa = Image.open(LOGO_WA_PATH).convert("RGBA")
-            # Escalar logo al 22% del ancho de la foto
-            wa_w = max(100, int(img.width * 0.22))
+
+            # 35% del ancho — al estar centrado puede ser más generoso
+            wa_w = max(140, int(img.width * 0.35))
             ratio_wa = wa_w / logo_wa.width
             wa_h = int(logo_wa.height * ratio_wa)
             logo_wa = logo_wa.resize((wa_w, wa_h), Image.LANCZOS)
 
-            # Añadir texto "Ananta Cars" debajo del logo
-            font_size = max(14, int(wa_w * 0.18))
-            try:
-                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-            except:
-                font = ImageFont.load_default()
-
-            # Calcular tamaño del texto
-            tmp_draw = ImageDraw.Draw(Image.new("RGBA", (1,1)))
-            tb = tmp_draw.textbbox((0,0), "Ananta Cars", font=font)
-            txt_w, txt_h = tb[2]-tb[0], tb[3]-tb[1]
-
-            # Contenedor total: logo + padding + texto
-            pad = 8
-            total_w = max(wa_w, txt_w) + pad * 2
-            total_h = wa_h + txt_h + pad * 3
-
-            # Fondo semitransparente
-            container = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 0))
-            bg = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 130))
-            container = Image.alpha_composite(container, bg)
-
-            # Pegar logo centrado
-            logo_x = (total_w - wa_w) // 2
-            container.paste(logo_wa, (logo_x, pad), logo_wa)
-
-            # Texto centrado debajo
-            draw = ImageDraw.Draw(container)
-            txt_x = (total_w - txt_w) // 2
-            txt_y = wa_h + pad * 2
-            draw.text((txt_x, txt_y), "Ananta Cars", fill=(255, 255, 255, 200), font=font)
-
-            # Posición: esquina inferior derecha
-            margen = int(img.width * 0.025)
-            x = img.width - total_w - margen
-            y = img.height - total_h - margen
-
-            base = img.convert("RGBA")
-            base.paste(container, (x, y), container)
-            img = base.convert("RGB")
-
-        except Exception:
-            # Si no encuentra el logo, fallback a texto
-            texto = f"  {NOMBRE_NEGOCIO}  "
-            font_size = max(16, img.width // 40)
+            # Texto debajo del logo
+            font_size = max(18, int(wa_w * 0.14))
             try:
                 font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
             except Exception:
                 font = ImageFont.load_default()
-            draw = ImageDraw.Draw(img)
-            bbox = draw.textbbox((0, 0), texto, font=font)
-            tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
-            margen = 14
-            x = img.width - tw - margen
-            y = img.height - th - margen
-            overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
-            d = ImageDraw.Draw(overlay)
-            d.rectangle([x-6, y-4, x+tw+6, y+th+4], fill=(0, 0, 0, 110))
-            img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
-            ImageDraw.Draw(img).text((x, y), texto, fill=(255, 255, 255), font=font)
 
-    # 3. Comprimir en WebP — mismo calidad visual, ~30% menos peso que JPEG
+            tmp_draw = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
+            tb = tmp_draw.textbbox((0, 0), NOMBRE_NEGOCIO, font=font)
+            txt_w, txt_h = tb[2] - tb[0], tb[3] - tb[1]
+
+            gap = int(font_size * 0.5)
+            total_w = max(wa_w, txt_w)
+            total_h = wa_h + gap + txt_h
+
+            # Lienzo del watermark, completamente transparente
+            wm = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 0))
+
+            # Logo con solo 30% de opacidad
+            logo_rgba = logo_wa.copy()
+            r, g, b, a = logo_rgba.split()
+            a = a.point(lambda v: int(v * 0.30))
+            logo_rgba = Image.merge("RGBA", (r, g, b, a))
+            logo_x = (total_w - wa_w) // 2
+            wm.paste(logo_rgba, (logo_x, 0), logo_rgba)
+
+            # Nombre del negocio: blanco casi invisible (alpha 55/255)
+            draw_wm = ImageDraw.Draw(wm)
+            txt_x = (total_w - txt_w) // 2
+            draw_wm.text((txt_x, wa_h + gap), NOMBRE_NEGOCIO, fill=(255, 255, 255, 55), font=font)
+
+            # Centrar en la imagen
+            base = img.convert("RGBA")
+            x = (img.width  - total_w) // 2
+            y = (img.height - total_h) // 2
+            base.paste(wm, (x, y), wm)
+            img = base.convert("RGB")
+
+        except Exception:
+            # Fallback: solo texto centrado, muy transparente
+            try:
+                font_size = max(18, img.width // 30)
+                try:
+                    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+                except Exception:
+                    font = ImageFont.load_default()
+                overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
+                d = ImageDraw.Draw(overlay)
+                tb = d.textbbox((0, 0), NOMBRE_NEGOCIO, font=font)
+                tw, th = tb[2] - tb[0], tb[3] - tb[1]
+                x = (img.width  - tw) // 2
+                y = (img.height - th) // 2
+                d.text((x, y), NOMBRE_NEGOCIO, fill=(255, 255, 255, 45), font=font)
+                img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
+            except Exception:
+                pass
+
+    # 3. Comprimir
     buffer = io.BytesIO()
     img.save(buffer, format="WEBP", quality=CALIDAD_COMPRESION, method=4)
     return buffer.getvalue()
