@@ -145,10 +145,14 @@ function formatPrecio(n) { return new Intl.NumberFormat("es-ES",{style:"currency
 function formatKm(n) { return new Intl.NumberFormat("es-ES").format(n) + " km"; }
 function estadoClase(e) { return {disponible:"estado-disponible",reservado:"estado-reservado",vendido:"estado-vendido"}[e]||"estado-disponible"; }
 function estadoTxt(e) { return {disponible:"Disponible",reservado:"Reservado",vendido:"Vendido"}[e]||e; }
-function youtubeEmbed(url) {
+function youtubeId(url) {
   if (!url) return null;
   const m = url.match(/(?:v=|youtu\.be\/)([^&\s]+)/);
-  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+  return m ? m[1] : null;
+}
+function youtubeEmbed(url) {
+  const id = youtubeId(url);
+  return id ? `https://www.youtube.com/embed/${id}` : null;
 }
 
 // Extraer ID de URL limpia o query param
@@ -181,6 +185,9 @@ async function cargarFicha() {
     cfgGlobal   = await respCfg.json().catch(() => ({}));
 
     fotosGlobal = fotos;
+    // Añadir vídeo al final de la galería si existe
+    const _ytId = youtubeId(c.video_youtube);
+    if (_ytId) fotosGlobal = [...fotos, { tipo: "video", videoId: _ytId, url: `https://img.youtube.com/vi/${_ytId}/maxresdefault.jpg` }];
 
     const waNum = cfgGlobal.whatsapp || WA;
     const garantiaActiva = cfgGlobal.garantia_activa;
@@ -217,8 +224,16 @@ async function cargarFicha() {
     const shareUrl    = encodeURIComponent(window.location.href);
     const shareTitle  = encodeURIComponent(`${c.marca} ${c.modelo} ${c.anio} — ${formatPrecio(c.precio)}`);
 
-    const miniaturasHTML = fotos.length > 1
-      ? fotos.map((f,i) => `<div class="miniatura ${i===0?"activa":""}" data-idx="${i}" onclick="cambiarFoto(${i})"><img src="${f.url}" alt="Foto ${i+1}" loading="lazy"/></div>`).join("")
+    const miniaturasHTML = fotosGlobal.length > 1
+      ? fotosGlobal.map((f,i) => {
+          if (f.tipo === "video") {
+            return `<div class="miniatura miniatura-video" data-idx="${i}" onclick="cambiarFoto(${i})">
+              <img src="https://img.youtube.com/vi/${f.videoId}/mqdefault.jpg" alt="Vídeo" loading="lazy"/>
+              <div class="miniatura-play">▶</div>
+            </div>`;
+          }
+          return `<div class="miniatura ${i===0?"activa":""}" data-idx="${i}" onclick="cambiarFoto(${i})"><img src="${f.url}" alt="Foto ${i+1}" loading="lazy"/></div>`;
+        }).join("")
       : "";
 
     wrap.innerHTML = `
@@ -355,18 +370,41 @@ async function cargarFicha() {
 function cambiarFoto(idx) {
   if (!fotosGlobal.length) return;
   fotoActualIdx = ((idx % fotosGlobal.length) + fotosGlobal.length) % fotosGlobal.length;
-  const url = fotosGlobal[fotoActualIdx]?.url;
-  if (!url) return;
-  const img = document.getElementById("foto-main");
-  const bg  = document.getElementById("foto-bg");
-  if (img) img.src = url;
-  if (bg)  bg.style.backgroundImage = `url('${url}')`;
+  const item = fotosGlobal[fotoActualIdx];
+  if (!item) return;
+
+  const img  = document.getElementById("foto-main");
+  const bg   = document.getElementById("foto-bg");
+  const wrap = document.getElementById("foto-principal-wrap");
+
+  // Eliminar iframe anterior si existe
+  document.getElementById("yt-iframe")?.remove();
+
+  if (item.tipo === "video") {
+    // Mostrar vídeo — reemplazar imagen por iframe
+    if (img) img.style.display = "none";
+    if (bg)  bg.style.backgroundImage = `url('${item.url}')`;
+    const iframe = document.createElement("iframe");
+    iframe.id = "yt-iframe";
+    iframe.src = `https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0&modestbranding=1`;
+    iframe.allow = "autoplay; encrypted-media; fullscreen";
+    iframe.allowFullscreen = true;
+    iframe.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;z-index:3";
+    iframe.onclick = e => e.stopPropagation();
+    wrap.appendChild(iframe);
+  } else {
+    // Mostrar foto normal
+    if (img) { img.src = item.url; img.style.display = ""; }
+    if (bg)  bg.style.backgroundImage = `url('${item.url}')`;
+  }
+
   document.querySelectorAll(".miniatura").forEach((m,i) => m.classList.toggle("activa", i === fotoActualIdx));
 }
 
 // ── LIGHTBOX ──────────────────────────────────────────────────────────────────
 function abrirLightbox(idx) {
   if (!fotosGlobal.length) return;
+  if (fotosGlobal[idx]?.tipo === "video") return; // vídeo se gestiona con iframe, no lightbox
   fotoActualIdx = idx;
   document.getElementById("lightbox-img").src = fotosGlobal[idx].url;
   document.getElementById("lightbox-counter").textContent = `${idx + 1} / ${fotosGlobal.length}`;
