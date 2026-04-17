@@ -187,7 +187,9 @@ async function cargarFicha() {
     fotosGlobal = fotos;
     // Añadir vídeo al final de la galería si existe
     const _ytId = youtubeId(c.video_youtube);
-    if (_ytId) fotosGlobal = [{ tipo: "video", videoId: _ytId, url: `https://img.youtube.com/vi/${_ytId}/maxresdefault.jpg` }, ...fotos];
+    // Usar foto de portada del coche como thumbnail del vídeo (YouTube maxres falla a menudo)
+    const _ytPortada = fotos[0]?.url || null;
+    if (_ytId) fotosGlobal = [{ tipo: "video", videoId: _ytId, url: _ytPortada }, ...fotos];
 
     const waNum = cfgGlobal.whatsapp || WA;
     const garantiaActiva = cfgGlobal.garantia_activa;
@@ -229,9 +231,10 @@ async function cargarFicha() {
     const miniaturasHTML = fotosGlobal.length > 1
       ? fotosGlobal.map((f,i) => {
           if (f.tipo === "video") {
+            const thumb = f.url || "";
             return `<div class="miniatura miniatura-video" data-idx="${i}" onclick="cambiarFoto(${i})">
-              <img src="https://img.youtube.com/vi/${f.videoId}/mqdefault.jpg" alt="Vídeo" loading="lazy"/>
-              <div class="miniatura-play">▶</div>
+              ${thumb ? `<img src="${thumb}" alt="Vídeo" loading="lazy"/>` : `<div style="width:100%;height:100%;background:#111"></div>`}
+              <div class="miniatura-play"><div class="yt-logo-mini">▶</div></div>
             </div>`;
           }
           return `<div class="miniatura ${i===0?"activa":""}" data-idx="${i}" onclick="cambiarFoto(${i})"><img src="${f.url}" alt="Foto ${i+1}" loading="lazy"/></div>`;
@@ -245,7 +248,7 @@ async function cargarFicha() {
           ${fotoPortada
             ? `<div class="foto-bg-principal" style="background-image:url('${fotoPortada}')" id="foto-bg"></div>
                <img src="${fotoPortada}" alt="${esPrimeroVideo ? "Vídeo" : c.marca + " " + c.modelo}" id="foto-main" style="${esPrimeroVideo ? "opacity:0.82" : ""}"/>
-               ${esPrimeroVideo ? '<div class="yt-play-overlay" onclick="event.stopPropagation();cambiarFoto(0)"><div class="yt-play-btn">▶</div></div>' : ""}`
+               ${esPrimeroVideo ? '<div class="yt-play-overlay" onclick="event.stopPropagation();cambiarFoto(0)"><div class="yt-play-btn"></div><span class="yt-play-label">Ver vídeo</span></div>' : ""}`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2;position:relative;z-index:1">🚗</div>`
           }
           ${fotosGlobal.length > 1 ? `
