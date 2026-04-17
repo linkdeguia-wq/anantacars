@@ -162,6 +162,20 @@
     @media(max-width:600px){.coche-precio{display:none}.coche-acciones{gap:4px}}
   
     .textarea-autosize { min-height:80px; overflow:hidden; resize:none; }
+    /* ── WATERMARK PREVIEW ── */
+    .wa-controles{background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:14px;margin-bottom:12px;display:none}
+    .wa-controles.visible{display:block}
+    .wa-titulo{font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--rojo);margin-bottom:10px}
+    .wa-fila{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px}
+    .wa-fila label{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--gris-texto);min-width:80px}
+    .wa-fila input[type=range]{flex:1;min-width:100px;accent-color:var(--rojo)}
+    .wa-fila select{background:var(--negro);border:1px solid var(--gris-linea);color:var(--blanco);font-size:0.82rem;padding:5px 8px;border-radius:var(--radio)}
+    .wa-val{font-size:0.78rem;color:var(--blanco);min-width:36px;text-align:right}
+    .wa-previews{display:flex;gap:8px;flex-wrap:nowrap;overflow-x:auto;margin-top:10px;padding-bottom:4px}
+    .wa-preview-item{position:relative;border-radius:var(--radio);overflow:hidden;border:2px solid var(--gris-linea);flex-shrink:0;cursor:pointer}
+    .wa-preview-item.activo{border-color:var(--rojo)}
+    .wa-preview-item canvas{display:block;width:140px;height:90px;object-fit:contain;background:#111}
+    .wa-preview-item span{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.65);color:#fff;font-size:0.6rem;padding:2px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   </style>
 </head>
 <body>
@@ -286,11 +300,33 @@
         <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
         <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
-        <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--gris-texto);cursor:pointer;margin-top:6px">
-          <input type="checkbox" id="n-opt-optimizar" checked style="accent-color:var(--rojo)"/>
-          Optimizar tamaño en navegador antes de subir (quita metadatos, reduce peso sin pérdida visual)
-        </label>
+        <div class="form-campo-full">
+          <label>Fotos (puedes seleccionar varias)</label>
+          <input type="file" id="n-fotos" accept="image/*" multiple onchange="waActualizarPreviews('n')"/>
+        </div>
+        <!-- Marca de agua añadir -->
+        <div class="wa-controles" id="wa-controles-n">
+          <p class="wa-titulo">💧 Marca de agua — preview en vivo</p>
+          <div class="wa-fila">
+            <label>Tipo</label>
+            <select id="wa-tipo-n" onchange="waRedibujar('n')">
+              <option value="logo">Logo</option>
+              <option value="texto">Texto</option>
+              <option value="ninguna">Sin marca de agua</option>
+            </select>
+          </div>
+          <div class="wa-fila">
+            <label>Opacidad</label>
+            <input type="range" id="wa-op-n" min="10" max="85" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('n')"/>
+            <span class="wa-val">40%</span>
+          </div>
+          <div class="wa-fila">
+            <label>Tamaño</label>
+            <input type="range" id="wa-tam-n" min="15" max="65" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('n')"/>
+            <span class="wa-val">40%</span>
+          </div>
+          <div class="wa-previews" id="wa-previews-n"></div>
+        </div>
 
         <!-- IA BUTTONS -->
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;padding:16px;background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio)">
@@ -403,33 +439,6 @@
         </div>
       </div>
 
-      <div class="seccion">
-        <p class="seccion-titulo">💧 Marca de agua en fotos</p>
-        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:16px">Se aplica a las fotos nuevas que subas. Las fotos ya subidas no cambian.</p>
-        <div class="config-campos">
-          <div class="config-campo">
-            <label>Tipo</label>
-            <select id="cfg-wa-tipo" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%">
-              <option value="logo">Logo de la empresa</option>
-              <option value="texto">Solo texto (nombre)</option>
-            </select>
-          </div>
-          <div class="config-campo">
-            <label>Opacidad — <span id="cfg-wa-op-val">55</span>%</label>
-            <input type="range" id="cfg-wa-opacidad" min="10" max="90" step="5" value="55"
-              oninput="document.getElementById('cfg-wa-op-val').textContent=this.value"
-              style="width:100%;accent-color:var(--rojo);margin-top:6px"/>
-          </div>
-          <div class="config-campo">
-            <label>Tamaño — <span id="cfg-wa-tam-val">45</span>% del ancho</label>
-            <input type="range" id="cfg-wa-tamano" min="15" max="70" step="5" value="45"
-              oninput="document.getElementById('cfg-wa-tam-val').textContent=this.value"
-              style="width:100%;accent-color:var(--rojo);margin-top:6px"/>
-          </div>
-        </div>
-        <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:10px">💡 El logo se renderiza en blanco para que sea visible sobre cualquier color de fondo.</p>
-      </div>
-
       <button class="btn-subir" onclick="guardarConfig()">Guardar configuración</button>
       <div class="msg msg-ok" id="msg-cfg-ok">✅ Configuración guardada</div>
       <div class="msg msg-err" id="msg-cfg-err">❌ Error al guardar</div>
@@ -500,15 +509,37 @@
     <div class="modal-seccion">
       <p class="modal-seccion-titulo">📷 Fotos — hover para acciones · arrastra para reordenar</p>
       <div class="fotos-grid" id="fotos-actuales"></div>
-      <div class="opciones-foto">
-        <label><input type="checkbox" id="opt-redimensionar" checked/> Redimensionar automáticamente</label>
-        <label><input type="checkbox" id="opt-marcaagua" checked/> Añadir marca de agua</label>
-        <label><input type="checkbox" id="opt-optimizar" checked/> Optimizar tamaño en navegador</label>
-      </div>
-      <div class="subir-row">
-        <input type="file" id="e-fotos-nuevas" accept="image/*" multiple/>
+
+      <!-- Selector fotos nuevas -->
+      <div class="subir-row" style="margin-top:12px">
+        <input type="file" id="e-fotos-nuevas" accept="image/*" multiple onchange="waActualizarPreviews('e')"/>
         <button class="btn-subir-fotos" id="btn-subir-fotos" onclick="subirFotosEditar()">Subir fotos</button>
       </div>
+
+      <!-- Marca de agua editar -->
+      <div class="wa-controles" id="wa-controles-e">
+        <p class="wa-titulo">💧 Marca de agua — preview en vivo</p>
+        <div class="wa-fila">
+          <label>Tipo</label>
+          <select id="wa-tipo-e" onchange="waRedibujar('e')">
+            <option value="logo">Logo</option>
+            <option value="texto">Texto</option>
+            <option value="ninguna">Sin marca de agua</option>
+          </select>
+        </div>
+        <div class="wa-fila">
+          <label>Opacidad</label>
+          <input type="range" id="wa-op-e" min="10" max="85" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('e')"/>
+          <span class="wa-val">40%</span>
+        </div>
+        <div class="wa-fila">
+          <label>Tamaño</label>
+          <input type="range" id="wa-tam-e" min="15" max="65" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('e')"/>
+          <span class="wa-val">40%</span>
+        </div>
+        <div class="wa-previews" id="wa-previews-e"></div>
+      </div>
+
       <div class="msg msg-ok" id="msg-fotos-ok">✅ Fotos subidas</div>
       <div class="msg msg-err" id="msg-fotos-err">❌ Error al subir</div>
     </div>

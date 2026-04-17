@@ -31,110 +31,16 @@ def requiere_admin(authorization: str = Header(...)):
     return verificar_token(authorization.split(" ")[1])
 
 
-def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: bool = True) -> bytes:
+def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: bool = False) -> bytes:
+    """Redimensiona y comprime. La marca de agua se aplica en el navegador (Canvas)."""
     img = Image.open(io.BytesIO(datos_imagen)).convert("RGB")
-
-    # 1. Redimensionar
     if redimensionar and img.width > ANCHO_MAX_FOTO:
         ratio = ANCHO_MAX_FOTO / img.width
         img = img.resize((ANCHO_MAX_FOTO, int(img.height * ratio)), Image.LANCZOS)
-
-    # 2. Marca de agua — centrada, configurable desde panel admin
-    if marca_agua:
-        # Leer config de Supabase (valores por defecto si falla)
-        _wa_opacidad  = 0.55   # opacidad logo (0-1)
-        _wa_opacidad_txt = 140  # opacidad texto (0-255)
-        _wa_tamano    = 0.45   # % del ancho de imagen
-        _wa_tipo      = "logo" # "logo" o "texto"
-        try:
-            import httpx as _httpx
-            _r = _httpx.get(
-                f"{SUPABASE_URL}/rest/v1/configuracion_negocio",
-                headers=HEADERS_SERVICE,
-                params={"select": "wa_opacidad,wa_tamano,wa_tipo", "id": "eq.1"},
-                timeout=3,
-            )
-            _cfg = _r.json()
-            if _cfg and isinstance(_cfg, list):
-                _c = _cfg[0]
-                if _c.get("wa_opacidad") is not None: _wa_opacidad = float(_c["wa_opacidad"]); _wa_opacidad_txt = int(_wa_opacidad * 255)
-                if _c.get("wa_tamano")   is not None: _wa_tamano   = float(_c["wa_tamano"])
-                if _c.get("wa_tipo")     is not None: _wa_tipo     = _c["wa_tipo"]
-        except Exception:
-            pass
-
-        try:
-            usar_logo = (_wa_tipo == "logo") and os.path.exists(LOGO_WA_PATH)
-
-            if usar_logo:
-                logo_wa = Image.open(LOGO_WA_PATH).convert("RGBA")
-                # Forzar logo a blanco — así se ve sobre fondos oscuros Y claros
-                r_ch, g_ch, b_ch, a_ch = logo_wa.split()
-                logo_blanco = Image.merge("RGBA", (
-                    Image.new("L", logo_wa.size, 255),
-                    Image.new("L", logo_wa.size, 255),
-                    Image.new("L", logo_wa.size, 255),
-                    a_ch,
-                ))
-                wa_w = max(160, int(img.width * _wa_tamano))
-                wa_h = int(logo_wa.height * (wa_w / logo_wa.width))
-                logo_blanco = logo_blanco.resize((wa_w, wa_h), Image.LANCZOS)
-
-                font_size = max(24, int(wa_w * 0.16))
-                try:
-                    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-                except Exception:
-                    font = ImageFont.load_default()
-
-                tmp = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
-                tb = tmp.textbbox((0, 0), NOMBRE_NEGOCIO, font=font)
-                txt_w, txt_h = tb[2] - tb[0], tb[3] - tb[1]
-                gap = int(font_size * 0.4)
-                total_w = max(wa_w, txt_w)
-                total_h = wa_h + gap + txt_h
-
-                wm = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 0))
-
-                # Aplicar opacidad al logo
-                r2, g2, b2, a2 = logo_blanco.split()
-                a2 = a2.point(lambda v: int(v * _wa_opacidad))
-                logo_final = Image.merge("RGBA", (r2, g2, b2, a2))
-                wm.paste(logo_final, ((total_w - wa_w) // 2, 0), logo_final)
-
-                d = ImageDraw.Draw(wm)
-                d.text(((total_w - txt_w) // 2, wa_h + gap), NOMBRE_NEGOCIO,
-                       fill=(255, 255, 255, _wa_opacidad_txt), font=font)
-
-            else:
-                # Modo texto puro — más grande y legible
-                font_size = max(32, int(img.width * 0.04))
-                try:
-                    font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-                except Exception:
-                    font = ImageFont.load_default()
-                tmp = ImageDraw.Draw(Image.new("RGBA", (1, 1)))
-                tb = tmp.textbbox((0, 0), NOMBRE_NEGOCIO, font=font)
-                total_w, total_h = tb[2] - tb[0], tb[3] - tb[1]
-
-                wm = Image.new("RGBA", (total_w, total_h), (0, 0, 0, 0))
-                d = ImageDraw.Draw(wm)
-                d.text((0, 0), NOMBRE_NEGOCIO,
-                       fill=(255, 255, 255, _wa_opacidad_txt), font=font)
-
-            # Centrar en la imagen
-            base = img.convert("RGBA")
-            x = (img.width  - total_w) // 2
-            y = (img.height - total_h) // 2
-            base.paste(wm, (x, y), wm)
-            img = base.convert("RGB")
-
-        except Exception as _e:
-            print(f"[MARCA AGUA] Error: {_e}")
-
-    # 3. Comprimir
     buffer = io.BytesIO()
-    img.save(buffer, format="JPEG", quality=CALIDAD_COMPRESION, optimize=True)
+    img.save(buffer, format="WEBP", quality=CALIDAD_COMPRESION, method=4)
     return buffer.getvalue()
+
 
 
 @router.post("/subir/{coche_id}")

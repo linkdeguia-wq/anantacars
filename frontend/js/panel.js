@@ -1,3 +1,134 @@
+// ═══════════════════════════════════════════════════════════════════
+// MARCA DE AGUA — Canvas en navegador, preview en tiempo real
+// ═══════════════════════════════════════════════════════════════════
+
+let _waLogo = null;
+let _waArchivos = {};
+let _waImagenes = {};
+
+async function _waCargarLogo() {
+  if (_waLogo) return _waLogo;
+  return new Promise(res => {
+    const img = new Image();
+    img.onload  = () => { _waLogo = img; res(img); };
+    img.onerror = () => res(null);
+    img.src = '/assets/logo.png?v=' + Date.now();
+  });
+}
+
+async function _waDibujar(canvas, ctx2d, tipo, opPct, tamPct) {
+  if (tipo === 'ninguna') return;
+  const W = canvas.width, H = canvas.height;
+  const nombre = document.getElementById('cfg-nombre')?.value.trim() || 'Ananta Cars';
+  ctx2d.save();
+  ctx2d.globalAlpha = opPct / 100;
+
+  if (tipo === 'logo') {
+    const logo = await _waCargarLogo();
+    if (logo) {
+      const waW = W * (tamPct / 100);
+      const waH = logo.height * (waW / logo.width);
+      // Renderizar logo en blanco
+      const tmp = document.createElement('canvas');
+      tmp.width = logo.naturalWidth || logo.width;
+      tmp.height = logo.naturalHeight || logo.height;
+      const tc = tmp.getContext('2d');
+      tc.drawImage(logo, 0, 0);
+      tc.globalCompositeOperation = 'source-in';
+      tc.fillStyle = 'white';
+      tc.fillRect(0, 0, tmp.width, tmp.height);
+      ctx2d.drawImage(tmp, (W - waW) / 2, (H - waH) / 2, waW, waH);
+      // Texto debajo
+      const fs = Math.max(14, Math.round(waW * 0.14));
+      ctx2d.font = `bold ${fs}px Arial`;
+      ctx2d.fillStyle = 'white';
+      ctx2d.textAlign = 'center';
+      ctx2d.globalAlpha = (opPct / 100) * 0.65;
+      ctx2d.fillText(nombre, W / 2, H / 2 + waH / 2 + fs * 1.2);
+    }
+  } else {
+    const fs = Math.max(18, Math.round(W * (tamPct / 100) * 0.20));
+    ctx2d.font = `bold ${fs}px Arial`;
+    ctx2d.fillStyle = 'white';
+    ctx2d.textAlign = 'center';
+    ctx2d.textBaseline = 'middle';
+    ctx2d.fillText(nombre, W / 2, H / 2);
+  }
+  ctx2d.restore();
+}
+
+function _waOpts(sfx) {
+  return {
+    tipo:   document.getElementById(`wa-tipo-${sfx}`)?.value  || 'logo',
+    opPct:  parseInt(document.getElementById(`wa-op-${sfx}`)?.value  || 40),
+    tamPct: parseInt(document.getElementById(`wa-tam-${sfx}`)?.value || 40),
+  };
+}
+
+async function waActualizarPreviews(sfx) {
+  const input = sfx === 'n'
+    ? document.getElementById('n-fotos')
+    : document.getElementById('e-fotos-nuevas');
+  const cont = document.getElementById(`wa-controles-${sfx}`);
+  const prev = document.getElementById(`wa-previews-${sfx}`);
+  if (!input?.files.length) { cont?.classList.remove('visible'); return; }
+  cont?.classList.add('visible');
+  prev.innerHTML = '<span style="font-size:0.75rem;color:var(--gris-texto);padding:8px">Cargando previews...</span>';
+  _waArchivos[sfx] = input.files;
+  _waImagenes[sfx] = await Promise.all(Array.from(input.files).map(f => new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => { URL.revokeObjectURL(url); res({ img, nombre: f.name }); };
+    img.src = url;
+  })));
+  await _waMostrarPreviews(sfx);
+}
+
+async function _waMostrarPreviews(sfx) {
+  const prev = document.getElementById(`wa-previews-${sfx}`);
+  const opts = _waOpts(sfx);
+  prev.innerHTML = '';
+  for (const { img, nombre } of (_waImagenes[sfx] || [])) {
+    const wrap = document.createElement('div');
+    wrap.className = 'wa-preview-item';
+    const canvas = document.createElement('canvas');
+    const lbl = document.createElement('span');
+    lbl.textContent = nombre;
+    wrap.appendChild(canvas); wrap.appendChild(lbl);
+    prev.appendChild(wrap);
+    canvas.width  = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx2d = canvas.getContext('2d');
+    ctx2d.drawImage(img, 0, 0);
+    await _waDibujar(canvas, ctx2d, opts.tipo, opts.opPct, opts.tamPct);
+  }
+}
+
+async function waRedibujar(sfx) {
+  if (!_waImagenes[sfx]?.length) return;
+  await _waMostrarPreviews(sfx);
+}
+
+async function waProcesarTodos(sfx) {
+  const opts = _waOpts(sfx);
+  return Promise.all(Array.from(_waArchivos[sfx] || []).map(file => new Promise(async res => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = async () => {
+      URL.revokeObjectURL(url);
+      let W = img.naturalWidth, H = img.naturalHeight;
+      if (W > 1920) { H = Math.round(H * 1920 / W); W = 1920; }
+      const canvas = document.createElement('canvas');
+      canvas.width = W; canvas.height = H;
+      const ctx2d = canvas.getContext('2d');
+      ctx2d.drawImage(img, 0, 0, W, H);
+      await _waDibujar(canvas, ctx2d, opts.tipo, opts.opPct, opts.tamPct);
+      canvas.toBlob(blob => {
+        res(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), { type:'image/webp', lastModified:Date.now() }));
+      }, 'image/webp', 0.88);
+    };
+    img.src = url;
+  })));
+}
+
 
 // ── OPTIMIZAR FOTO EN NAVEGADOR ───────────────────────────────────────────────
 async function optimizarFoto(file, maxWidth = 1920, quality = 0.88) {
@@ -338,8 +469,7 @@ async function crearCoche() {
     const archivosRaw = document.getElementById("n-fotos").files;
     if (archivosRaw.length > 0) {
       btn.textContent = `Subiendo ${archivosRaw.length} foto(s)...`;
-      const optimizar = document.getElementById("n-opt-optimizar")?.checked !== false;
-      const archivos = await procesarFotos(archivosRaw, optimizar);
+      const archivos = await waProcesarTodos('n');
       const formData = new FormData();
       for (const f of archivos) formData.append("fotos", f);
       await fetch(`${API}/api/fotos/subir/${coche.id}?redimensionar=true&marca_agua=true`, {
@@ -619,16 +749,14 @@ async function subirFotosEditar() {
   msgOk.style.display = msgErr.style.display = "none";
   if (!input.files.length) return;
 
-  const redimensionar = document.getElementById("opt-redimensionar").checked;
-  const marcaAgua     = document.getElementById("opt-marcaagua").checked;
   btn.disabled = true; btn.textContent = "Subiendo...";
 
   try {
-    const optimizar = document.getElementById("opt-optimizar")?.checked !== false;
-    const fotosOptimizadas = await procesarFotos(input.files, optimizar);
+    // Marca de agua + compresión 100% en Canvas del navegador
+    const fotosOptimizadas = await waProcesarTodos('e');
     const formData = new FormData();
     for (const f of fotosOptimizadas) formData.append("fotos", f);
-    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=${redimensionar}&marca_agua=${marcaAgua}`, {
+    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=false&marca_agua=false`, {
       method:"POST", headers:{"Authorization": `Bearer ${getToken()}`}, body: formData,
     });
     if (!resp.ok) throw new Error();
@@ -706,16 +834,6 @@ async function cargarConfig() {
     document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
     document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
     document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
-    // Marca de agua
-    if (document.getElementById("cfg-wa-tipo")) {
-      const op  = Math.round((cfg.wa_opacidad ?? 0.55) * 100);
-      const tam = Math.round((cfg.wa_tamano   ?? 0.45) * 100);
-      document.getElementById("cfg-wa-tipo").value    = cfg.wa_tipo     || "logo";
-      document.getElementById("cfg-wa-opacidad").value = op;
-      document.getElementById("cfg-wa-tamano").value   = tam;
-      document.getElementById("cfg-wa-op-val").textContent  = op;
-      document.getElementById("cfg-wa-tam-val").textContent = tam;
-    }
   } catch { toast("Error al cargar configuración", true); }
 }
 
@@ -758,10 +876,6 @@ async function guardarConfig() {
     modulo_alertas:     document.getElementById("cfg-alertas").checked,
     garantia_activa:    document.getElementById("cfg-garantia").checked,
     modulo_chat:        document.getElementById("cfg-chat").checked,
-    // Marca de agua
-    wa_tipo:     document.getElementById("cfg-wa-tipo")?.value     || null,
-    wa_opacidad: parseFloat(document.getElementById("cfg-wa-opacidad")?.value || 55) / 100,
-    wa_tamano:   parseFloat(document.getElementById("cfg-wa-tamano")?.value   || 45) / 100,
   };
 
   try {
