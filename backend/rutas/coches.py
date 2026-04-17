@@ -97,7 +97,6 @@ async def listar_coches(
     pagina: Optional[int] = Query(1),
     por_pagina: Optional[int] = Query(12),
     etiqueta: Optional[str] = Query(None),
-    q: Optional[str] = Query(None),   # búsqueda libre: "seat leon blanco"
 ):
     params = {"select": "*", "order": orden}
     if marca:       params["marca"]        = f"ilike.*{marca}*"
@@ -107,9 +106,6 @@ async def listar_coches(
     if precio_max:  params["precio"]       = f"lte.{precio_max}"
     if km_max:      params["km"]           = f"lte.{km_max}"
     if etiqueta:    params["etiqueta_dgt"] = f"eq.{etiqueta}"
-    if q:
-        termino = q.strip().replace("'", "")   # sanitizar
-        params["or"] = f"(marca.ilike.*{termino}*,modelo.ilike.*{termino}*,color.ilike.*{termino}*,carroceria.ilike.*{termino}*,descripcion.ilike.*{termino}*)"
 
     # Paginación
     offset = (pagina - 1) * por_pagina
@@ -330,12 +326,21 @@ async def actualizar_orden_fotos(coche_id: int, orden: list[int], authorization:
 @router.post("/{coche_id}/visita")
 async def registrar_visita(coche_id: int):
     async with httpx.AsyncClient() as client:
-        resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params={"select": "visitas", "id": f"eq.{coche_id}"})
-        data = resp.json()
-        if not data:
-            return {"ok": False}
-        visitas = (data[0].get("visitas") or 0) + 1
-        await client.patch(URL_TABLA, headers=HEADERS_SERVICE, params={"id": f"eq.{coche_id}"}, json={"visitas": visitas})
+        resp = await client.get(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"select": "id,visitas", "id": f"eq.{coche_id}"},
+        )
+    data = resp.json()
+    # Supabase puede devolver dict de error en vez de lista — protegemos
+    if not isinstance(data, list) or not data:
+        return {"ok": False}
+    visitas = (data[0].get("visitas") or 0) + 1
+    async with httpx.AsyncClient() as client:
+        await client.patch(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"id": f"eq.{coche_id}"},
+            json={"visitas": visitas},
+        )
     return {"ok": True, "visitas": visitas}
 
 

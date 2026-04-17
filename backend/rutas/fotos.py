@@ -71,7 +71,7 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
             # Logo con solo 30% de opacidad
             logo_rgba = logo_wa.copy()
             r, g, b, a = logo_rgba.split()
-            a = a.point(lambda v: int(v * 0.30))
+            a = a.point(lambda v: int(v * 0.55))
             logo_rgba = Image.merge("RGBA", (r, g, b, a))
             logo_x = (total_w - wa_w) // 2
             wm.paste(logo_rgba, (logo_x, 0), logo_rgba)
@@ -79,7 +79,7 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
             # Nombre del negocio: blanco casi invisible (alpha 55/255)
             draw_wm = ImageDraw.Draw(wm)
             txt_x = (total_w - txt_w) // 2
-            draw_wm.text((txt_x, wa_h + gap), NOMBRE_NEGOCIO, fill=(255, 255, 255, 55), font=font)
+            draw_wm.text((txt_x, wa_h + gap), NOMBRE_NEGOCIO, fill=(255, 255, 255, 110), font=font)
 
             # Centrar en la imagen
             base = img.convert("RGBA")
@@ -102,7 +102,7 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
                 tw, th = tb[2] - tb[0], tb[3] - tb[1]
                 x = (img.width  - tw) // 2
                 y = (img.height - th) // 2
-                d.text((x, y), NOMBRE_NEGOCIO, fill=(255, 255, 255, 45), font=font)
+                d.text((x, y), NOMBRE_NEGOCIO, fill=(255, 255, 255, 90), font=font)
                 img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
             except Exception:
                 pass
