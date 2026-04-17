@@ -15,7 +15,6 @@ function etiquetaDGTInline(etiqueta) {
 
 
 // ── WHATSAPP — función compartida (form + botón directo + sticky) ─────────────
-// Lee el formulario si está relleno; si no, usa datos del coche como fallback.
 function contactarWhatsApp(vehiculo) {
   const nombre  = document.getElementById("fc-nombre")?.value.trim();
   const email   = document.getElementById("fc-telefono")?.value.trim();
@@ -23,8 +22,10 @@ function contactarWhatsApp(vehiculo) {
   const waNum   = cfgGlobal.whatsapp || "34688644229";
   const url     = window.location.href;
 
-  const partes = [`Hola, ${nombre ? "me llamo " + nombre + " y" : ""} estoy interesado en el ${vehiculo}.`];
-  if (mensaje) partes.push(mensaje);
+  const partes = [];
+  if (nombre) partes.push(`Me llamo ${nombre}.`);
+  // Si el form tiene texto úsalo; si no, mensaje genérico
+  partes.push(mensaje || `Hola, estoy interesado en el ${vehiculo}.`);
   partes.push(`Anuncio: ${url}`);
   if (email) partes.push(`Mi email: ${email}`);
 
