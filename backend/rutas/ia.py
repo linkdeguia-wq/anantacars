@@ -4,20 +4,23 @@ rutas/ia.py — Endpoints de IA con Gemini 2.5 Flash.
 - Generar descripción profesional de venta
 """
 
-from fastapi import APIRouter, HTTPException, Header, UploadFile, File
+from fastapi import APIRouter, HTTPException, Header, Request, UploadFile, File
 from pydantic import BaseModel
 from typing import Optional
 import base64
 import httpx
 import json
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from config import GEMINI_API_KEY, GEMINI_MODEL, ENTORNO, SUPABASE_URL, HEADERS_SERVICE
 from rutas.auth import verificar_token
 
 router = APIRouter()
 
+# 20 peticiones/minuto por IP — protege quota de Gemini y Railway
+limiter = Limiter(key_func=get_remote_address)
+
 GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-
-
 
 
 async def obtener_coletilla() -> str:
@@ -75,9 +78,7 @@ async def llamar_gemini(partes: list) -> str:
         candidate = data["candidates"][0]
         finish_reason = candidate.get("finishReason", "UNKNOWN")
         text = candidate["content"]["parts"][0]["text"]
-        # Si se cortó por MAX_TOKENS, intentar de nuevo con más contexto
         if finish_reason == "MAX_TOKENS":
-            # Añadir punto final si falta
             text = text.rstrip() + "."
         return text
     except (KeyError, IndexError) as e:
@@ -85,7 +86,9 @@ async def llamar_gemini(partes: list) -> str:
 
 
 @router.post("/escanear-coche")
+@limiter.limit("20/minute")
 async def escanear_coche(
+    request: Request,
     foto: UploadFile = File(...),
     authorization: str = Header(...),
 ):
@@ -127,10 +130,8 @@ Reglas:
         {"inline_data": {"mime_type": mime, "data": b64}},
     ])
 
-    # Limpiar respuesta y parsear JSON — robusto
     texto = texto.strip()
-    
-    # Quitar bloques markdown ```json ... ```
+
     if "```" in texto:
         partes = texto.split("```")
         for parte in partes:
@@ -140,19 +141,16 @@ Reglas:
             elif "{" in parte:
                 texto = parte.strip()
                 break
-    
-    # Extraer solo el JSON si hay texto extra alrededor
+
     inicio = texto.find("{")
     fin    = texto.rfind("}") + 1
     if inicio >= 0 and fin > inicio:
         texto = texto[inicio:fin]
-    
-    # Intentar parsear — si falla, extraer campos manualmente
+
     try:
         datos = json.loads(texto)
         return {"ok": True, "datos": datos}
     except json.JSONDecodeError:
-        # Extracción manual con regex como fallback
         import re
         datos = {}
         patrones = {
@@ -171,7 +169,7 @@ Reglas:
                 datos[campo] = int(val) if campo in ("anio", "cv") else val
             else:
                 datos[campo] = None
-        
+
         if datos.get("marca") or datos.get("modelo"):
             return {"ok": True, "datos": datos}
         raise HTTPException(status_code=500, detail=f"No se pudo parsear respuesta: {texto[:200]}")
@@ -188,11 +186,13 @@ class GenerarDescripcionRequest(BaseModel):
     color: Optional[str] = None
     carroceria: Optional[str] = None
     precio: Optional[float] = None
-    extras: Optional[str] = None  # Notas del vendedor para incluir/excluir
+    extras: Optional[str] = None
 
 
 @router.post("/generar-descripcion")
+@limiter.limit("20/minute")
 async def generar_descripcion(
+    request: Request,
     datos: GenerarDescripcionRequest,
     authorization: str = Header(...),
 ):
@@ -233,11 +233,9 @@ INSTRUCCIONES:
 
     descripcion = await llamar_gemini([{"text": prompt}])
     descripcion = descripcion.strip()
-    
-    # Asegurar que termina en punto
+
     if descripcion and not descripcion.endswith("."):
         descripcion = descripcion.rstrip(".,;:") + "."
-    
-    # Añadir coletilla en Python — nunca se corta, siempre aparece
+
     resultado = f"{descripcion}\n\n{coletilla}"
     return {"ok": True, "descripcion": resultado}

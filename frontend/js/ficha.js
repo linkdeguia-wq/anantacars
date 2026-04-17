@@ -1,6 +1,5 @@
 
 
-
 function etiquetaDGTInline(etiqueta) {
   const map = {
     "0":   { cls:"dgt-0",   circulo:"0",   txt:"0 Emisiones" },
@@ -43,7 +42,6 @@ async function enviarConsulta(vehiculo, cocheId) {
     msgEl.style.color = "#ff8f8f";
     return;
   }
-  // Validar formato email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(telefono)) {
     msgEl.textContent = "Por favor introduce un email válido.";
@@ -114,7 +112,6 @@ function formatDescripcion(texto) {
     .map(linea => {
       linea = linea.trim();
       if (!linea) return '';
-      // Detectar líneas tipo "- item" o "• item" como lista visual
       if (linea.match(/^[-•*]\s/)) {
         return `<span style="display:flex;gap:8px;margin-bottom:4px"><span style="color:var(--rojo);flex-shrink:0">›</span><span>${linea.slice(2)}</span></span>`;
       }
@@ -123,7 +120,7 @@ function formatDescripcion(texto) {
     .join('');
 }
 
-// ficha.js — v3 completo con lightbox, calculadora, URLs limpias, alertas
+// ficha.js — v4 con Schema.org, rate limiting, título con ciudad
 const API = "https://anantacars-production.up.railway.app";
 const WA  = "34600000000";
 
@@ -144,11 +141,74 @@ function youtubeEmbed(url) {
 // Extraer ID de URL limpia o query param
 function extractId() {
   const path = window.location.pathname;
-  // /coches/seat-leon-2019-id42
   const mPath = path.match(/id(\d+)$/);
   if (mPath) return mPath[1];
-  // ?id=42
   return new URLSearchParams(window.location.search).get("id");
+}
+
+// ── SCHEMA.ORG JSON-LD ────────────────────────────────────────────────────────
+function inyectarSchemaOrg(c, fotos, cfg) {
+  // Mapeo combustible a Schema.org
+  const fuelMap = {
+    gasolina: "https://schema.org/Gasoline",
+    diesel:   "https://schema.org/Diesel",
+    hibrido:  "https://schema.org/HybridFuel",
+    electrico:"https://schema.org/ElectricVehicle",
+  };
+  const fuelType = fuelMap[c.combustible?.toLowerCase()] || c.combustible;
+
+  // Disponibilidad
+  const availMap = {
+    disponible: "https://schema.org/InStock",
+    reservado:  "https://schema.org/LimitedAvailability",
+    vendido:    "https://schema.org/SoldOut",
+  };
+
+  const nombreNegocio = cfg.nombre_negocio || "Ananta Cars";
+  const ciudad        = cfg.ciudad || "";
+  const dominio       = cfg.dominio || window.location.origin;
+
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "Car",
+    "name": `${c.marca} ${c.modelo} ${c.anio}`,
+    "brand": { "@type": "Brand", "name": c.marca },
+    "model": c.modelo,
+    "vehicleModelDate": String(c.anio),
+    "mileageFromOdometer": {
+      "@type": "QuantitativeValue",
+      "value": c.km,
+      "unitCode": "KMT"
+    },
+    "fuelType": fuelType,
+    "offers": {
+      "@type": "Offer",
+      "price": c.precio,
+      "priceCurrency": "EUR",
+      "availability": availMap[c.estado] || "https://schema.org/InStock",
+      "url": window.location.href,
+      "seller": {
+        "@type": "AutoDealer",
+        "name": nombreNegocio,
+        ...(ciudad && { "address": { "@type": "PostalAddress", "addressLocality": ciudad, "addressCountry": "ES" } }),
+      }
+    }
+  };
+
+  // Campos opcionales
+  if (c.cv)         schema["vehicleEngine"] = { "@type": "EngineSpecification", "enginePower": { "@type": "QuantitativeValue", "value": c.cv, "unitCode": "BHP" } };
+  if (c.color)      schema["color"] = c.color;
+  if (c.carroceria) schema["bodyType"] = c.carroceria;
+  if (c.puertas)    schema["numberOfDoors"] = c.puertas;
+  if (c.plazas)     schema["seatingCapacity"] = c.plazas;
+  if (c.caja)       schema["vehicleTransmission"] = c.caja;
+  if (c.descripcion) schema["description"] = c.descripcion.substring(0, 500);
+  if (fotos.length) schema["image"] = fotos.slice(0, 5).map(f => f.url);
+
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
 }
 
 async function cargarFicha() {
@@ -181,18 +241,23 @@ async function cargarFicha() {
     // Redes sociales en footer
     renderRedesFooter(cfgGlobal, document.querySelector('footer .footer-col, footer'));
 
-    // SEO — título y meta tags
-    document.title = `${c.marca} ${c.modelo} ${c.anio} — ${formatPrecio(c.precio)} | Ananta Cars`;
+    // SEO — título con ciudad + meta tags
+    const ciudad = cfgGlobal.ciudad ? ` en ${cfgGlobal.ciudad}` : "";
+    document.title = `${c.marca} ${c.modelo} ${c.anio}${ciudad} — ${formatPrecio(c.precio)} | Ananta Cars`;
+
     const setMeta = (prop, val, attr="property") => {
       let el = document.querySelector(`meta[${attr}="${prop}"]`);
       if (!el) { el = document.createElement("meta"); el.setAttribute(attr, prop); document.head.appendChild(el); }
       el.setAttribute("content", val);
     };
-    setMeta("description", `${c.marca} ${c.modelo} ${c.anio}, ${formatKm(c.km)}, ${c.combustible}. ${formatPrecio(c.precio)}.`, "name");
-    setMeta("og:title",       `${c.marca} ${c.modelo} ${c.anio} — ${formatPrecio(c.precio)}`);
+    setMeta("description", `${c.marca} ${c.modelo} ${c.anio}${ciudad}, ${formatKm(c.km)}, ${c.combustible}. ${formatPrecio(c.precio)}.`, "name");
+    setMeta("og:title",       `${c.marca} ${c.modelo} ${c.anio}${ciudad} — ${formatPrecio(c.precio)}`);
     setMeta("og:description", `${formatKm(c.km)} · ${c.combustible} · ${c.caja}`);
     setMeta("og:image",       fotos[0]?.url || "");
     setMeta("og:url",         window.location.href);
+
+    // Schema.org JSON-LD — datos estructurados para Google
+    inyectarSchemaOrg(c, fotos, cfgGlobal);
 
     // URL canónica limpia
     const slug = `${c.marca}-${c.modelo}-${c.anio}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
@@ -218,7 +283,16 @@ async function cargarFicha() {
           ${fotoPortada
             ? `<div class="foto-bg-principal" style="background-image:url('${fotoPortada}')" id="foto-bg"></div>
                <img src="${fotoPortada}" alt="${c.marca} ${c.modelo}" id="foto-main"/>`
-            : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2;position:relative;z-index:1">🚗</div>`
+            : `<div class="ficha-foto-placeholder">
+                 <svg viewBox="0 0 120 60" width="120" height="60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                   <path d="M10 42 L10 32 L28 18 L48 16 L80 16 L98 26 L110 32 L110 42 Z" stroke="#444" stroke-width="2" fill="none"/>
+                   <circle cx="30" cy="42" r="7" stroke="#444" stroke-width="2"/>
+                   <circle cx="90" cy="42" r="7" stroke="#444" stroke-width="2"/>
+                   <path d="M28 18 L34 16" stroke="#444" stroke-width="1.5"/>
+                   <rect x="50" y="18" width="24" height="14" rx="2" stroke="#444" stroke-width="1.5"/>
+                 </svg>
+                 <span>Sin foto</span>
+               </div>`
           }
           ${fotos.length > 1 ? `
           <button class="nav-foto nav-prev" onclick="event.stopPropagation();cambiarFoto(fotoActualIdx-1)">‹</button>
@@ -321,7 +395,6 @@ async function cargarFicha() {
       sticky.style.cssText = "position:fixed;bottom:0;left:0;right:0;z-index:200;background:#25d366;color:#000;font-family:var(--fuente-titulo);font-weight:800;font-size:1rem;letter-spacing:0.06em;text-transform:uppercase;padding:16px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 -2px 12px rgba(0,0,0,0.3)";
       sticky.innerHTML = "📱 Contactar vía WhatsApp";
       document.body.appendChild(sticky);
-      // Añadir padding al footer para no tapar contenido
       document.querySelector("footer").style.paddingBottom = "80px";
     }
     // Badge precio
@@ -482,7 +555,6 @@ async function cargarBadgeFicha(cocheId) {
     const resp = await fetch(`${API}/api/coches/badge-precio/${cocheId}`);
     const data = await resp.json();
     if (!data.badge) return;
-    // Insertar badge junto al precio en sidebar
     const precioEl = document.querySelector(".sidebar-precio");
     if (!precioEl) return;
     const badge = document.createElement("div");

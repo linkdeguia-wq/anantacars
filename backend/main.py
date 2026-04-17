@@ -3,9 +3,12 @@ main.py — Servidor FastAPI. Punto de entrada del backend.
 Arrancar con: uvicorn main:app --reload --port 8000
 """
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from config import ORIGINS_PERMITIDOS, NOMBRE_NEGOCIO, ENTORNO
 import httpx
 import os
@@ -13,12 +16,18 @@ import os
 from rutas import coches, fotos, auth, redes, alertas
 from rutas import config_negocio, ia
 
+# ── RATE LIMITER ──────────────────────────────────────────────────────────────
+limiter = Limiter(key_func=get_remote_address, default_limits=["200/minute"])
+
 app = FastAPI(
     title=f"{NOMBRE_NEGOCIO} API",
     description="Backend para web de compraventa de coches",
     version="2.0.0",
     docs_url="/docs" if ENTORNO == "desarrollo" else None,
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,7 +43,10 @@ app.include_router(auth.router,           prefix="/api/auth",     tags=["Auth"])
 app.include_router(redes.router,          prefix="/api/redes",    tags=["Redes"])
 app.include_router(alertas.router,        prefix="/api/alertas",  tags=["Alertas"])
 app.include_router(config_negocio.router, prefix="/api/config",   tags=["Configuración"])
-app.include_router(ia.router,           prefix="/api/ia",      tags=["IA"])
+app.include_router(ia.router,             prefix="/api/ia",       tags=["IA"])
+
+# Exponer limiter para que los routers puedan importarlo
+app.limiter = limiter
 
 
 @app.get("/")

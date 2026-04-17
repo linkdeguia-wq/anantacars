@@ -2,16 +2,21 @@
 rutas/auth.py — Login del panel de administración.
 """
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel
 from jose import jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import os
 from config import SECRET_KEY, ALGORITHM, TOKEN_EXPIRE_HORAS
 
 router = APIRouter()
 pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+# Limiter propio para este router (comparte misma key_func que el de main)
+limiter = Limiter(key_func=get_remote_address)
 
 
 class LoginDatos(BaseModel):
@@ -38,12 +43,13 @@ def verificar_token(token: str) -> dict:
         )
 
 
-ADMIN_USUARIO      = os.getenv("ADMIN_USUARIO", "admin")
+ADMIN_USUARIO       = os.getenv("ADMIN_USUARIO", "admin")
 ADMIN_PASSWORD_HASH = os.getenv("ADMIN_PASSWORD_HASH", "")
 
 
 @router.post("/login", response_model=TokenRespuesta)
-def login(datos: LoginDatos):
+@limiter.limit("5/minute")
+def login(request: Request, datos: LoginDatos):
     if datos.usuario != ADMIN_USUARIO:
         raise HTTPException(status_code=401, detail="Credenciales incorrectas")
 

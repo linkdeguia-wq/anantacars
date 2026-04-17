@@ -1,5 +1,4 @@
 
-
 function etiquetaDGT(etiqueta) {
   if (!etiqueta) return "";
   const map = {
@@ -20,14 +19,14 @@ function calcCuota(precio, tin = 7, meses = 60, entradaPct = 10) {
   return capital * (r * Math.pow(1+r, meses)) / (Math.pow(1+r, meses) - 1);
 }
 
-// catalogo.js — v3 con scroll infinito, comparador y carga desde config
+// catalogo.js — v4 placeholder elegante, filtros móvil, comparador
 const API = "https://anantacars-production.up.railway.app";
 
 let paginaActual = 1;
 let hayMas = true;
 let cargando = false;
 let filtrosActivos = {};
-let cochesSel = {}; // comparador
+let cochesSel = {};
 
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 let cfg = {};
@@ -35,7 +34,6 @@ async function cargarConfig() {
   try {
     const r = await fetch(`${API}/api/config`);
     cfg = await r.json();
-    // Actualizar WhatsApp si está en config
     if (cfg.whatsapp) {
       document.querySelectorAll('a[href*="wa.me"]').forEach(a => {
         a.href = a.href.replace(/wa\.me\/\d+/, `wa.me/${cfg.whatsapp}`);
@@ -56,10 +54,24 @@ function estadoBadge(estado) {
   return `<span class="estado-badge ${cls}">${txt}</span>`;
 }
 
+// ── PLACEHOLDER ELEGANTE ──────────────────────────────────────────────────────
+const PLACEHOLDER_SVG = `
+  <div class="tarjeta-foto-placeholder">
+    <svg viewBox="0 0 140 70" width="140" height="70" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M14 52 L14 38 L38 22 L68 19 L102 19 L122 30 L128 38 L128 52 Z" stroke="#555" stroke-width="2" fill="none" stroke-linejoin="round"/>
+      <circle cx="42" cy="52" r="9" stroke="#555" stroke-width="2"/>
+      <circle cx="100" cy="52" r="9" stroke="#555" stroke-width="2"/>
+      <path d="M38 22 L44 19" stroke="#555" stroke-width="1.5" stroke-linecap="round"/>
+      <rect x="68" y="21" width="30" height="17" rx="2" stroke="#555" stroke-width="1.5"/>
+      <line x1="14" y1="43" x2="128" y2="43" stroke="#555" stroke-width="1" stroke-dasharray="4 3"/>
+    </svg>
+    <span>SIN FOTO</span>
+  </div>`;
+
 function renderTarjeta(c) {
   const foto = c.foto_portada
     ? `<div class="foto-bg" style="background-image:url('${c.foto_portada}')"></div><img src="${c.foto_portada}" alt="${c.marca} ${c.modelo}" loading="lazy"/>`
-    : `<div class="tarjeta-foto-placeholder">🚗</div>`;
+    : PLACEHOLDER_SVG;
 
   const precioHTML = c.precio_anterior
     ? `${formatPrecio(c.precio)} <span class="precio-anterior">${formatPrecio(c.precio_anterior)}</span>`
@@ -68,7 +80,6 @@ function renderTarjeta(c) {
   const seleccionado = cochesSel[c.id] ? "seleccionado" : "";
   const txtComparar = cochesSel[c.id] ? "✓ Comparando" : "+ Comparar";
 
-  // URL limpia
   const slug = `${c.marca}-${c.modelo}-${c.anio}`.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"");
   const ciudadTag = cfg.ciudad ? `<span class="dato">📍 ${cfg.ciudad}</span>` : "";
 
@@ -134,12 +145,12 @@ async function buscar(reset = true) {
   }
 
   filtrosActivos = {};
-  const marca      = document.getElementById("f-marca").value.trim();
+  const marca       = document.getElementById("f-marca").value.trim();
   const combustible = document.getElementById("f-combustible").value;
   const carroceria  = document.getElementById("f-carroceria").value;
-  const precio     = document.getElementById("f-precio").value;
-  const km         = document.getElementById("f-km").value;
-  const estado     = document.getElementById("f-estado").value;
+  const precio      = document.getElementById("f-precio").value;
+  const km          = document.getElementById("f-km").value;
+  const estado      = document.getElementById("f-estado").value;
 
   const params = new URLSearchParams({ pagina: paginaActual, por_pagina: 12, orden: "destacado.desc,creado_at.desc" });
   if (marca)       { params.set("marca", marca);             filtrosActivos.marca = marca; }
@@ -151,7 +162,6 @@ async function buscar(reset = true) {
   const etiqueta = document.getElementById("f-etiqueta")?.value;
   if (etiqueta)    { params.set("etiqueta", etiqueta);       filtrosActivos.etiqueta = etiqueta; }
 
-  // Filtro cuota: convertir cuota mensual a precio máximo estimado
   const cuota = parseFloat(document.getElementById("f-cuota")?.value);
   if (cuota > 0) {
     const precioMaxEstimado = Math.round(cuota / calcCuota(1));
@@ -167,9 +177,7 @@ async function buscar(reset = true) {
       throw new Error(`HTTP ${resp.status}`);
     }
     const data = await resp.json();
-    console.log("API response:", data);
 
-    // Compatible con backend viejo (array) y nuevo (objeto con .coches)
     const coches = Array.isArray(data) ? data : (data.coches || []);
     const total   = Array.isArray(data) ? data.length : (data.total || coches.length);
     hayMas = Array.isArray(data) ? false : (data.hay_mas || false);
@@ -201,7 +209,6 @@ async function buscar(reset = true) {
     }
 
     contador.innerHTML = `<strong>${total}</strong> vehículo${total !== 1 ? "s" : ""} encontrado${total !== 1 ? "s" : ""}`;
-    // Cargar badges de precio y contador fotos en segundo plano
     coches.forEach(c => { cargarBadgePrecio(c.id); if (c.foto_portada) cargarContadorFotos(c.id); });
     paginaActual++;
 
@@ -250,7 +257,6 @@ function toggleComparar(e, id, nombre) {
     cochesSel[id] = nombre;
   }
   actualizarBarraComparar();
-  // Actualizar botón en tarjeta
   const btn = e.target;
   if (cochesSel[id]) {
     btn.classList.add("seleccionado");
@@ -262,10 +268,10 @@ function toggleComparar(e, id, nombre) {
 }
 
 function actualizarBarraComparar() {
-  const barra    = document.getElementById("barra-comparar");
-  const barraC   = document.getElementById("barra-coches");
-  const header   = document.getElementById("btn-comparar-header");
-  const numSpan  = document.getElementById("num-comparar");
+  const barra   = document.getElementById("barra-comparar");
+  const barraC  = document.getElementById("barra-coches");
+  const header  = document.getElementById("btn-comparar-header");
+  const numSpan = document.getElementById("num-comparar");
   const n = Object.keys(cochesSel).length;
 
   if (n === 0) {
@@ -288,13 +294,6 @@ function actualizarBarraComparar() {
 function quitarDeComparar(id) {
   delete cochesSel[id];
   actualizarBarraComparar();
-  document.querySelectorAll(`.btn-comparar-tarjeta`).forEach(btn => {
-    if (btn.closest(".tarjeta")?.querySelector(`[onclick*="irFicha(event, ${id},"]`)) {
-      btn.classList.remove("seleccionado");
-      btn.textContent = "+ Comparar";
-    }
-  });
-  // Recargar para actualizar estados
   buscar();
 }
 

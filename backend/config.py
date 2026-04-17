@@ -23,7 +23,7 @@ HEADERS_SERVICE = {
 # --- AUTH ---
 SECRET_KEY      = os.getenv("SECRET_KEY", "cambia-esto-en-produccion")
 ALGORITHM       = "HS256"
-TOKEN_EXPIRE_HORAS = 24
+TOKEN_EXPIRE_HORAS = 8  # Reducido de 24h a 8h por seguridad
 
 # --- NEGOCIO ---
 WHATSAPP_NUMERO  = os.getenv("WHATSAPP_NUMERO", "34600000000")
