@@ -346,7 +346,7 @@ async function cargarFicha() {
     }
 
   } catch (err) {
-    wrap.innerHTML = `<div class="cargando">No se pudo cargar la ficha. <a href="index.html" style="color:var(--rojo)">Volver al catálogo</a></div>`;
+    wrap.innerHTML = `<div class="cargando">No se pudo cargar la ficha. <a href="/" style="color:var(--rojo)">Volver al catálogo</a></div>`;
     console.error(err);
   }
 }

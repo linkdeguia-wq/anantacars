@@ -41,7 +41,7 @@
 <body>
   <header>
     <a href="/index.html" class="logo"><img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/><span class="logo-texto" style="color:var(--blanco)">ANANTA<span style="color:var(--blanco)">.</span>CARS</span></a>
-    <a href="index.html" class="btn-volver">← Volver al catálogo</a>
+    <a href="/" class="btn-volver">← Volver al catálogo</a>
   </header>
   <div class="wrap">
     <h1>Comparar vehículos</h1>
@@ -56,7 +56,7 @@
     function fmtKm(n) { return new Intl.NumberFormat("es-ES").format(n) + " km"; }
 
     async function cargar() {
-      if (!ids) { document.getElementById("contenido").innerHTML = '<p style="color:var(--gris-texto)">No hay vehículos para comparar. <a href="index.html" style="color:var(--rojo)">Volver al catálogo</a></p>'; return; }
+      if (!ids) { document.getElementById("contenido").innerHTML = '<p style="color:var(--gris-texto)">No hay vehículos para comparar. <a href="/" style="color:var(--rojo)">Volver al catálogo</a></p>'; return; }
       try {
         const resp = await fetch(`${API}/api/coches/comparar?ids=${ids}`);
         const coches = await resp.json();
@@ -101,5 +101,6 @@
     cargar();
   </script>
 <script src="/js/config-aplicar.js"></script>
+  <script src="/js/cookies-banner.js"></script>
 </body>
 </html>
