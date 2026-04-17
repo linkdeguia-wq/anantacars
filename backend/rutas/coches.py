@@ -32,6 +32,14 @@ class CocheNuevo(BaseModel):
     etiqueta_dgt: Optional[str] = None
     estado: str = "disponible"
     destacado: bool = False
+    # Campos extras que faltaban
+    puertas: Optional[int] = None
+    plazas: Optional[int] = None
+    propietarios: Optional[int] = None
+    itv_hasta: Optional[str] = None
+    consumo: Optional[str] = None
+    garantia_meses: Optional[int] = None
+    historial_km: Optional[str] = None
 
 class CocheEditar(BaseModel):
     marca: Optional[str] = None
@@ -326,21 +334,12 @@ async def actualizar_orden_fotos(coche_id: int, orden: list[int], authorization:
 @router.post("/{coche_id}/visita")
 async def registrar_visita(coche_id: int):
     async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            URL_TABLA, headers=HEADERS_SERVICE,
-            params={"select": "id,visitas", "id": f"eq.{coche_id}"},
-        )
-    data = resp.json()
-    # Supabase puede devolver dict de error en vez de lista — protegemos
-    if not isinstance(data, list) or not data:
-        return {"ok": False}
-    visitas = (data[0].get("visitas") or 0) + 1
-    async with httpx.AsyncClient() as client:
-        await client.patch(
-            URL_TABLA, headers=HEADERS_SERVICE,
-            params={"id": f"eq.{coche_id}"},
-            json={"visitas": visitas},
-        )
+        resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params={"select": "visitas", "id": f"eq.{coche_id}"})
+        data = resp.json()
+        if not data:
+            return {"ok": False}
+        visitas = (data[0].get("visitas") or 0) + 1
+        await client.patch(URL_TABLA, headers=HEADERS_SERVICE, params={"id": f"eq.{coche_id}"}, json={"visitas": visitas})
     return {"ok": True, "visitas": visitas}
 
 
