@@ -90,7 +90,7 @@ function renderTarjeta(c) {
       <div class="tarjeta-foto">
         ${foto}
         ${estadoBadge(c.estado)}
-        ${c.destacado ? '<span class="destacado-badge">⭐ Destacado</span>' : ""}
+        ${c.destacado ? `<span class="destacado-badge" title="Destacado"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01L12 2z" fill="#f5c400" stroke="#f5c400" stroke-width="1.5" stroke-linejoin="round"/></svg></span>` : ""}
         ${c.foto_portada ? `<span class="fotos-badge" id="fotos-count-${c.id}">📷</span>` : ""}
         ${c.precio_anterior ? '<span class="oferta-badge">🔥 Bajada de precio</span>' : ""}
       </div>
