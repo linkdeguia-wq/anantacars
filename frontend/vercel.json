@@ -1,17 +1,18 @@
 {
   "rewrites": [
-    { "source": "/coches/:slug", "destination": "/ficha.html" },
-    { "source": "/como-comprar", "destination": "/como-comprar.html" },
-    { "source": "/comparar", "destination": "/comparar.html" },
-    { "source": "/politica-privacidad", "destination": "/politica-privacidad.html" }
+    { "source": "/coches/:slug",          "destination": "/ficha.html" },
+    { "source": "/como-comprar",          "destination": "/como-comprar.html" },
+    { "source": "/comparar",              "destination": "/comparar.html" },
+    { "source": "/politica-privacidad",   "destination": "/politica-privacidad.html" },
+    { "source": "/aviso-legal",           "destination": "/aviso-legal.html" }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+        { "key": "X-Frame-Options",        "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection",       "value": "1; mode=block" }
       ]
     },
     { "source": "/sw.js", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }

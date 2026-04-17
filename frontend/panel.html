@@ -162,6 +162,49 @@
     @media(max-width:600px){.coche-precio{display:none}.coche-acciones{gap:4px}}
   
     .textarea-autosize { min-height:80px; overflow:hidden; resize:none; }
+
+    /* ── MOBILE PANEL ── */
+    @media(max-width:768px){
+      .panel-wrap{padding:20px 4vw}
+      .stats-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+      .stat-card{padding:14px 10px}
+      .stat-num{font-size:1.6rem}
+      .form-grid{grid-template-columns:1fr 1fr}
+      .config-campos{grid-template-columns:1fr}
+      .config-grid{grid-template-columns:1fr}
+      .modal{padding:20px 16px}
+      .modal-footer{flex-direction:column}
+      .modal-footer > *{width:100%;text-align:center}
+      .btn-guardar,.btn-cancelar{padding:12px}
+      .seccion{padding:16px}
+      .tabs-nav{padding:0 2vw}
+      .tab-btn{padding:12px 14px;font-size:0.72rem}
+      .lista-toolbar{flex-direction:column;align-items:stretch}
+      .lista-toolbar select{width:100%}
+      .coche-item{flex-wrap:wrap;gap:8px}
+      .coche-acciones{width:100%;justify-content:flex-end}
+    }
+    @media(max-width:480px){
+      .form-grid{grid-template-columns:1fr}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      header{padding:0 3vw}
+    }
+
+    /* ── ESCANEO PERMISO ── */
+    .scan-zona{
+      border:2px dashed var(--gris-linea);border-radius:var(--radio);
+      padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;
+      background:var(--negro);position:relative;
+    }
+    .scan-zona:hover{border-color:var(--rojo)}
+    .scan-zona input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+    .scan-zona-icono{font-size:2rem;margin-bottom:8px}
+    .scan-zona-titulo{font-family:var(--fuente-titulo);font-size:1rem;font-weight:700;color:var(--blanco);margin-bottom:4px}
+    .scan-zona-desc{font-size:0.75rem;color:var(--gris-texto)}
+    .scan-preview{width:100%;max-height:160px;object-fit:contain;border-radius:var(--radio);margin-top:12px;display:none}
+    .scan-resultado{background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:12px 14px;margin-top:10px;font-size:0.8rem;display:none}
+    .scan-campo-ok{color:#7fffaa}
+    .scan-campo-vacio{color:var(--gris-texto)}
   </style>
 </head>
 <body>
@@ -211,7 +254,8 @@
         <p class="seccion-titulo">Acciones rápidas</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn-subir" onclick="cambiarTab('anadir')">➕ Añadir vehículo</button>
-          <button class="btn-secundario-panel" onclick="exportarPDF()">📄 Exportar catálogo PDF</button>
+          <button class="btn-secundario-panel" onclick="exportarPDF()">📄 Exportar PDF</button>
+          <button class="btn-secundario-panel" onclick="exportarCSV()">📊 Exportar CSV</button>
           <button class="btn-secundario-panel" onclick="cambiarTab('catalogo')">🚗 Ver catálogo</button>
         </div>
       </div>
@@ -246,8 +290,28 @@
 
     <!-- TAB: AÑADIR -->
     <div class="tab-panel" id="tab-anadir">
+
+      <!-- ESCANEO PERMISO — zona prominente -->
+      <div class="seccion" style="border-color:var(--rojo);margin-bottom:16px">
+        <p class="seccion-titulo" style="color:var(--rojo)">🤖 Escaneo automático con IA — Rellena los campos al instante</p>
+        <p style="font-size:0.8rem;color:var(--gris-texto);margin-bottom:14px">Sube una foto del <strong style="color:var(--blanco)">permiso de circulación</strong> o de la <strong style="color:var(--blanco)">ficha técnica</strong> y la IA rellenará marca, modelo, año, color, combustible y CV automáticamente.</p>
+        <div class="scan-zona" id="scan-zona-drop" onclick="document.getElementById('ia-foto-scan').click()">
+          <input type="file" id="ia-foto-scan" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previsualizarScan(this)"/>
+          <div class="scan-zona-icono">📄</div>
+          <div class="scan-zona-titulo">Toca o arrastra aquí el permiso de circulación</div>
+          <div class="scan-zona-desc">JPG, PNG o foto desde cámara · La IA extrae los datos automáticamente</div>
+          <img id="scan-img-preview" class="scan-preview" alt="preview"/>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
+          <button class="btn-subir" id="btn-scan" onclick="escanearCoche()" style="margin-top:0">🔍 Analizar con IA</button>
+          <button class="btn-secundario-panel" onclick="limpiarScan()">✕ Limpiar</button>
+          <p id="scan-msg" style="font-size:0.8rem;flex:1;min-width:200px"></p>
+        </div>
+        <div class="scan-resultado" id="scan-resultado"></div>
+      </div>
+
       <div class="seccion">
-        <p class="seccion-titulo">➕ Añadir vehículo</p>
+        <p class="seccion-titulo">📝 Datos del vehículo</p>
         <div class="form-grid">
           <div class="form-campo"><label>Marca *</label><input type="text" id="n-marca" placeholder="Seat"/></div>
           <div class="form-campo"><label>Modelo *</label><input type="text" id="n-modelo" placeholder="León"/></div>
@@ -319,73 +383,6 @@
 
     <!-- TAB: CONFIGURACIÓN -->
     <div class="tab-panel" id="tab-config">
-      <!-- ── IDENTIDAD VISUAL ───────────────────────────────────────────── -->
-      <div class="seccion">
-        <p class="seccion-titulo">🎨 Identidad visual</p>
-
-        <!-- Logo -->
-        <div style="margin-bottom:20px">
-          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Logotipo</p>
-          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-            <div id="logo-preview-wrap" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:10px;width:120px;height:60px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-              <img id="logo-preview" src="/assets/logo.png" style="max-width:100%;max-height:100%;object-fit:contain"/>
-            </div>
-            <div style="flex:1;min-width:200px">
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <input type="file" id="logo-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:6px 10px;border-radius:var(--radio);font-size:0.78rem;flex:1;min-width:0"/>
-                <button id="btn-subir-logo" onclick="subirLogo()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Subir logo</button>
-              </div>
-              <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:6px">PNG con transparencia recomendado · máx 5 MB</p>
-              <p id="logo-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Favicon -->
-        <div style="margin-bottom:20px">
-          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Favicon (icono del navegador)</p>
-          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-            <div id="fav-preview-wrap" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;overflow:hidden">
-              <img id="fav-preview" src="/assets/icon-192.png" style="width:32px;height:32px;object-fit:contain"/>
-            </div>
-            <div style="flex:1;min-width:200px">
-              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-                <input type="file" id="fav-input" accept="image/png,image/jpeg,image/webp,image/x-icon" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:6px 10px;border-radius:var(--radio);font-size:0.78rem;flex:1;min-width:0"/>
-                <button id="btn-subir-fav" onclick="subirFavicon()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Subir favicon</button>
-              </div>
-              <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:6px">Se redimensiona a 32×32 px · PNG o ICO</p>
-              <p id="fav-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Color de acento -->
-        <div>
-          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Color de acento</p>
-          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-            <input type="color" id="cfg-color" value="#e8311a" oninput="previsualizarColor(this.value)" style="width:44px;height:36px;border:1px solid var(--gris-linea);border-radius:var(--radio);background:none;cursor:pointer;padding:2px"/>
-            <div style="display:flex;gap:6px;flex-wrap:wrap" id="color-swatches">
-              <!-- Swatches precargados -->
-            </div>
-            <button onclick="guardarColor()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Aplicar color</button>
-            <button onclick="resetColor()" style="background:transparent;color:var(--gris-texto);border:1px solid var(--gris-linea);font-family:var(--fuente-titulo);font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 12px;border-radius:var(--radio);cursor:pointer">Reset</button>
-          </div>
-          <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:8px">Cambia el rojo en toda la web — botones, precios, badges.</p>
-          <p id="color-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
-        </div>
-      </div>
-
-      <!-- ── HERO DE INICIO ─────────────────────────────────────────────────── -->
-      <div class="seccion">
-        <p class="seccion-titulo">🏠 Hero de inicio</p>
-        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Textos que aparecen en la cabecera de la página principal.</p>
-        <div class="config-campos">
-          <div class="config-campo" style="grid-column:1/-1"><label>Título principal (h1)</label><input type="text" id="cfg-hero-titulo" placeholder="Tu próximo coche te espera."/></div>
-          <div class="config-campo" style="grid-column:1/-1"><label>Etiqueta sobre el título</label><input type="text" id="cfg-hero-subtitulo" placeholder="Compraventa · Vehículos de ocasión"/></div>
-        </div>
-      </div>
-
-      <!-- ── MÓDULOS ────────────────────────────────────────────────────────── -->
       <div class="seccion">
         <p class="seccion-titulo">⚙️ Módulos activos</p>
         <div class="config-grid">
@@ -423,37 +420,6 @@
           <div class="config-campo"><label>Ciudad</label><input type="text" id="cfg-ciudad" placeholder="Madrid"/></div>
           <div class="config-campo" style="grid-column:1/-1"><label>Dirección</label><input type="text" id="cfg-direccion" placeholder="Calle Ejemplo 12, 28001 Madrid"/></div>
           <div class="config-campo" style="grid-column:1/-1"><label>Horario de atención</label><input type="text" id="cfg-horario" placeholder="Lun–Vie 9:00–19:00 · Sáb 10:00–14:00"/></div>
-        </div>
-      </div>
-
-      <div class="seccion">
-        <p class="seccion-titulo">🔍 SEO global</p>
-        <div class="config-campo" style="margin-bottom:0">
-          <label>Meta description de la home</label>
-          <textarea id="cfg-meta-desc" rows="2" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%;resize:vertical" placeholder="Los mejores coches de segunda mano en [ciudad]. Revisados, con garantía y al mejor precio."></textarea>
-          <p style="font-size:0.7rem;color:var(--gris-texto);margin-top:5px">Recomendado: entre 120 y 160 caracteres. Aparece en Google bajo el título de la web.</p>
-        </div>
-      </div>
-
-      <div class="seccion">
-        <p class="seccion-titulo">📢 Banner de aviso</p>
-        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Barra fija en la parte superior de todas las páginas. Ideal para avisos temporales: vacaciones, eventos, ofertas.</p>
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
-          <label class="toggle-switch"><input type="checkbox" id="cfg-banner-activo" onchange="guardarToggle('banner_activo', this.checked)"/><span class="toggle-slider"></span></label>
-          <span style="font-size:0.82rem;color:var(--gris-texto)">Banner activo</span>
-        </div>
-        <div class="config-campo" style="margin-bottom:12px">
-          <label>Texto del banner</label>
-          <input type="text" id="cfg-banner-texto" placeholder="Ej: Cerramos por vacaciones del 1 al 15 de agosto. ¡Volvemos pronto!"/>
-        </div>
-        <div class="config-campo">
-          <label>Color</label>
-          <select id="cfg-banner-color" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%">
-            <option value="naranja">🟠 Naranja (avisos)</option>
-            <option value="rojo">🔴 Rojo (urgente)</option>
-            <option value="verde">🟢 Verde (noticias positivas)</option>
-            <option value="azul">🔵 Azul (información)</option>
-          </select>
         </div>
       </div>
 

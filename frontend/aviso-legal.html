@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aviso Legal — Ananta Cars</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--negro:#0a0a0a;--carbon:#141414;--gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--rojo:#e8311a;--fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;--radio:4px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300;line-height:1.7}
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-img{height:40px;width:auto;object-fit:contain}
+    .logo-texto{font-family:var(--fuente-titulo);font-size:1.4rem;font-weight:800;color:var(--blanco)}
+    .btn-volver{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;transition:color 0.2s}
+    .btn-volver:hover{color:var(--blanco)}
+    .wrap{max-width:760px;margin:0 auto;padding:60px 5vw 80px}
+    .hero-label{font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--rojo);margin-bottom:12px}
+    h1{font-family:var(--fuente-titulo);font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1;margin-bottom:8px}
+    .fecha{font-size:0.78rem;color:var(--gris-texto);margin-bottom:48px}
+    .aviso-rellenar{background:#2a1a00;border:1px solid #6b4400;color:#ffd97f;border-radius:var(--radio);padding:14px 18px;font-size:0.82rem;margin-bottom:40px}
+    .aviso-rellenar strong{color:#ffb84d}
+    h2{font-family:var(--fuente-titulo);font-size:1.3rem;font-weight:800;letter-spacing:0.04em;color:var(--blanco);margin:40px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--gris-linea)}
+    p{color:var(--gris-texto);font-size:0.92rem;margin-bottom:12px}
+    ul{color:var(--gris-texto);font-size:0.92rem;margin:0 0 12px 0;padding-left:0;list-style:none}
+    ul li{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+    ul li::before{content:"›";color:var(--rojo);flex-shrink:0;font-family:var(--fuente-titulo);font-weight:700}
+    .dato-box{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:20px 24px;margin:16px 0 24px}
+    .dato-box table{width:100%;border-collapse:collapse}
+    .dato-box td{padding:6px 0;font-size:0.88rem;vertical-align:top}
+    .dato-box td:first-child{color:var(--gris-texto);width:180px}
+    .dato-box td:last-child{color:var(--blanco)}
+    .placeholder{color:var(--rojo);font-weight:600;background:rgba(232,49,26,0.1);padding:1px 4px;border-radius:2px}
+    a{color:var(--rojo);text-decoration:none}
+    a:hover{text-decoration:underline}
+    footer{padding:28px 5vw;border-top:1px solid var(--gris-linea);text-align:center}
+    footer p{font-size:0.78rem;color:var(--gris-texto)}
+    .footer-logo{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:800;color:var(--blanco);margin-bottom:6px}
+    .footer-logo span{color:var(--rojo)}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/index.html" class="logo">
+      <img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/>
+      <span class="logo-texto">ANANTA.CARS</span>
+    </a>
+    <a href="/index.html" class="btn-volver">← Volver al inicio</a>
+  </header>
+
+  <div class="wrap">
+    <p class="hero-label">Legal</p>
+    <h1>Aviso Legal</h1>
+    <p class="fecha">Última actualización: <span id="fecha-actual"></span></p>
+
+    <div class="aviso-rellenar">
+      ⚠️ <strong>Para el administrador:</strong> rellena todos los campos en rojo antes de publicar.
+    </div>
+
+    <h2>1. Datos identificativos del titular</h2>
+    <p>En cumplimiento de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSI-CE), te informamos de que este sitio web es titularidad de:</p>
+    <div class="dato-box">
+      <table>
+        <tr><td>Nombre / Razón social</td><td><span class="placeholder">[NOMBRE COMPLETO O RAZÓN SOCIAL]</span></td></tr>
+        <tr><td>NIF / CIF</td><td><span class="placeholder">[NIF O CIF]</span></td></tr>
+        <tr><td>Domicilio</td><td><span class="placeholder">[DIRECCIÓN COMPLETA, CÓDIGO POSTAL, LOCALIDAD, PROVINCIA]</span></td></tr>
+        <tr><td>Email de contacto</td><td><span class="placeholder">[EMAIL DE CONTACTO]</span></td></tr>
+        <tr><td>Teléfono</td><td><span class="placeholder">[TELÉFONO]</span></td></tr>
+        <tr><td>Sitio web</td><td><span class="placeholder">[DOMINIO WEB]</span></td></tr>
+        <tr><td>Actividad</td><td>Compraventa de vehículos de ocasión</td></tr>
+        <tr><td>Nº Registro (si aplica)</td><td><span class="placeholder">[Nº REGISTRO MERCANTIL O INDICAR "Autónomo"]</span></td></tr>
+      </table>
+    </div>
+
+    <h2>2. Objeto y ámbito de aplicación</h2>
+    <p>El presente Aviso Legal regula el acceso, navegación y uso del sitio web, del que es titular la persona indicada en el apartado anterior. El acceso y uso de este sitio web implica la aceptación plena y sin reservas de todas las disposiciones incluidas en este Aviso Legal y en la <a href="/politica-privacidad">Política de Privacidad</a>.</p>
+    <p>El titular se reserva el derecho a modificar unilateralmente, en cualquier momento y sin previo aviso, la presentación y configuración del sitio web, así como los servicios y contenidos aquí incluidos.</p>
+
+    <h2>3. Actividad comercial</h2>
+    <p>Ananta Cars se dedica a la intermediación y compraventa de vehículos de segunda mano. Los vehículos publicados en este sitio pueden estar sujetos a cambios de disponibilidad, precio y características sin previo aviso. Los precios indicados son orientativos y al contado, salvo indicación expresa en contrario. La confirmación definitiva de precio, estado y condiciones se realizará en el momento de formalizar la operación.</p>
+    <p>Los vehículos mostrados en el catálogo han sido revisados previamente, si bien el titular no garantiza que la información sea exhaustiva ni exenta de errores involuntarios.</p>
+
+    <h2>4. Propiedad intelectual e industrial</h2>
+    <p>Todos los contenidos del sitio web —incluyendo textos, fotografías, logotipos, iconos, imágenes, diseño gráfico y código fuente— son propiedad del titular o de terceros que han autorizado su uso, y están protegidos por la legislación española e internacional sobre propiedad intelectual e industrial.</p>
+    <p>Queda expresamente prohibida la reproducción, distribución, comunicación pública o transformación de dichos contenidos sin la autorización expresa y por escrito del titular, salvo para uso estrictamente personal y privado.</p>
+    <p>Las marcas comerciales de los vehículos mostrados pertenecen a sus respectivos fabricantes. Su uso en este sitio es meramente descriptivo, sin implicar ninguna asociación, patrocinio o aval por parte de dichos fabricantes.</p>
+
+    <h2>5. Exclusión de responsabilidad</h2>
+    <ul>
+      <li><strong>Disponibilidad:</strong> El titular no garantiza la disponibilidad y continuidad del funcionamiento del sitio web y sus servicios. Cuando sea razonablemente posible, se advertirá previamente de las interrupciones.</li>
+      <li><strong>Contenido:</strong> El titular no se responsabiliza de los daños o perjuicios de cualquier naturaleza que pudieran derivarse del acceso, uso o mala utilización de los contenidos del sitio web.</li>
+      <li><strong>Virus y seguridad:</strong> El titular adopta las medidas de seguridad adecuadas, pero no puede garantizar la ausencia absoluta de virus u otros elementos que puedan producir alteraciones en los sistemas informáticos de los usuarios.</li>
+      <li><strong>Enlaces externos:</strong> El sitio web puede incluir enlaces a páginas de terceros. El titular no controla ni se responsabiliza de los contenidos o servicios de dichas páginas externas.</li>
+    </ul>
+
+    <h2>6. Política de precios y reservas</h2>
+    <p>Los precios publicados en el catálogo son orientativos y pueden modificarse sin previo aviso hasta la formalización de la venta. La reserva de un vehículo estará sujeta a las condiciones pactadas individualmente con el comprador. El pago de una señal de reserva, si se acordara, no implica contrato de compraventa definitivo hasta la firma del correspondiente documento.</p>
+
+    <h2>7. Legislación aplicable y jurisdicción</h2>
+    <p>Las relaciones entre el titular y los usuarios del sitio web se rigen por la legislación y jurisdicción españolas. Para la resolución de cualquier controversia derivada del uso de este sitio web, las partes se someten a los Juzgados y Tribunales del domicilio del usuario, sin perjuicio de otros fueros que pudieran corresponder.</p>
+
+    <h2>8. Contacto</h2>
+    <p>Para cualquier consulta relacionada con este Aviso Legal, puedes contactar con nosotros en <span class="placeholder">[EMAIL DE CONTACTO]</span> o a través del formulario de contacto disponible en la web.</p>
+  </div>
+
+  <footer>
+    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
+    <p>© 2025 Ananta Cars · <a href="/index.html">Inicio</a> · <a href="/politica-privacidad">Privacidad</a></p>
+  </footer>
+
+  <script src="/js/config-aplicar.js"></script>
+  <script src="/js/cookies-banner.js"></script>
+  <script>
+    document.getElementById("fecha-actual").textContent =
+      new Date().toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  </script>
+</body>
+</html>

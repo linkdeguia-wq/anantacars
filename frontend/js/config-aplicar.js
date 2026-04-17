@@ -16,6 +16,7 @@
       _aplicarMetaDesc(c.meta_description);
       _aplicarHero(c.hero_titulo, c.hero_subtitulo);
       _aplicarBanner(c.banner_activo, c.banner_texto, c.banner_color);
+      _aplicarHeroImagen(c.hero_imagen);
       return c;
     })
     .catch(() => ({}));
@@ -78,6 +79,16 @@
     const elSubtitulo = document.getElementById("hero-label-txt");
     if (elTitulo    && titulo)    elTitulo.textContent    = titulo;
     if (elSubtitulo && subtitulo) elSubtitulo.textContent = subtitulo;
+  }
+
+  // ── Hero imagen (solo index.html) ─────────────────────────────────────────
+  function _aplicarHeroImagen(url) {
+    const hero = document.getElementById("hero");
+    if (!hero) return;
+    if (url) {
+      hero.style.backgroundImage = `url('${url}')`;
+      hero.classList.add("con-imagen");
+    }
   }
 
   // ── Banner de aviso ────────────────────────────────────────────────────────

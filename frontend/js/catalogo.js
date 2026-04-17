@@ -148,6 +148,7 @@ async function buscar(reset = true) {
 
   filtrosActivos = {};
   const marca       = document.getElementById("f-marca").value.trim();
+  const q           = document.getElementById("f-q")?.value.trim();
   const combustible = document.getElementById("f-combustible").value;
   const carroceria  = document.getElementById("f-carroceria").value;
   const precio      = document.getElementById("f-precio").value;
@@ -156,6 +157,7 @@ async function buscar(reset = true) {
 
   const params = new URLSearchParams({ pagina: paginaActual, por_pagina: 12, orden: "destacado.desc,creado_at.desc" });
   if (marca)       { params.set("marca", marca);             filtrosActivos.marca = marca; }
+  if (q)           { params.set("q", q);                     filtrosActivos.q = q; }
   if (combustible) { params.set("combustible", combustible); filtrosActivos.combustible = combustible; }
   if (carroceria)  { params.set("carroceria", carroceria);   filtrosActivos.carroceria = carroceria; }
   if (precio)      { params.set("precio_max", precio);       filtrosActivos.precio_max = precio; }
@@ -251,7 +253,7 @@ function observarScroll() {
 }
 
 function resetFiltros() {
-  ["f-marca","f-precio","f-km","f-cuota"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
+  ["f-marca","f-precio","f-km","f-cuota","f-q"].forEach(id => { const el=document.getElementById(id); if(el) el.value=""; });
   document.getElementById("f-combustible").value = "";
   const fe = document.getElementById("f-etiqueta"); if(fe) fe.value = "";
   document.getElementById("f-carroceria").value = "";
