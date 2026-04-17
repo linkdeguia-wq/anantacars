@@ -162,49 +162,6 @@
     @media(max-width:600px){.coche-precio{display:none}.coche-acciones{gap:4px}}
   
     .textarea-autosize { min-height:80px; overflow:hidden; resize:none; }
-
-    /* ── MOBILE PANEL ── */
-    @media(max-width:768px){
-      .panel-wrap{padding:20px 4vw}
-      .stats-grid{grid-template-columns:repeat(3,1fr);gap:8px}
-      .stat-card{padding:14px 10px}
-      .stat-num{font-size:1.6rem}
-      .form-grid{grid-template-columns:1fr 1fr}
-      .config-campos{grid-template-columns:1fr}
-      .config-grid{grid-template-columns:1fr}
-      .modal{padding:20px 16px}
-      .modal-footer{flex-direction:column}
-      .modal-footer > *{width:100%;text-align:center}
-      .btn-guardar,.btn-cancelar{padding:12px}
-      .seccion{padding:16px}
-      .tabs-nav{padding:0 2vw}
-      .tab-btn{padding:12px 14px;font-size:0.72rem}
-      .lista-toolbar{flex-direction:column;align-items:stretch}
-      .lista-toolbar select{width:100%}
-      .coche-item{flex-wrap:wrap;gap:8px}
-      .coche-acciones{width:100%;justify-content:flex-end}
-    }
-    @media(max-width:480px){
-      .form-grid{grid-template-columns:1fr}
-      .stats-grid{grid-template-columns:repeat(2,1fr)}
-      header{padding:0 3vw}
-    }
-
-    /* ── ESCANEO PERMISO ── */
-    .scan-zona{
-      border:2px dashed var(--gris-linea);border-radius:var(--radio);
-      padding:24px;text-align:center;cursor:pointer;transition:border-color 0.2s;
-      background:var(--negro);position:relative;
-    }
-    .scan-zona:hover{border-color:var(--rojo)}
-    .scan-zona input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-    .scan-zona-icono{font-size:2rem;margin-bottom:8px}
-    .scan-zona-titulo{font-family:var(--fuente-titulo);font-size:1rem;font-weight:700;color:var(--blanco);margin-bottom:4px}
-    .scan-zona-desc{font-size:0.75rem;color:var(--gris-texto)}
-    .scan-preview{width:100%;max-height:160px;object-fit:contain;border-radius:var(--radio);margin-top:12px;display:none}
-    .scan-resultado{background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:12px 14px;margin-top:10px;font-size:0.8rem;display:none}
-    .scan-campo-ok{color:#7fffaa}
-    .scan-campo-vacio{color:var(--gris-texto)}
   </style>
 </head>
 <body>
@@ -254,8 +211,7 @@
         <p class="seccion-titulo">Acciones rápidas</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn-subir" onclick="cambiarTab('anadir')">➕ Añadir vehículo</button>
-          <button class="btn-secundario-panel" onclick="exportarPDF()">📄 Exportar PDF</button>
-          <button class="btn-secundario-panel" onclick="exportarCSV()">📊 Exportar CSV</button>
+          <button class="btn-secundario-panel" onclick="exportarPDF()">📄 Exportar catálogo PDF</button>
           <button class="btn-secundario-panel" onclick="cambiarTab('catalogo')">🚗 Ver catálogo</button>
         </div>
       </div>
@@ -290,28 +246,8 @@
 
     <!-- TAB: AÑADIR -->
     <div class="tab-panel" id="tab-anadir">
-
-      <!-- ESCANEO PERMISO — zona prominente -->
-      <div class="seccion" style="border-color:var(--rojo);margin-bottom:16px">
-        <p class="seccion-titulo" style="color:var(--rojo)">🤖 Escaneo automático con IA — Rellena los campos al instante</p>
-        <p style="font-size:0.8rem;color:var(--gris-texto);margin-bottom:14px">Sube una foto del <strong style="color:var(--blanco)">permiso de circulación</strong> o de la <strong style="color:var(--blanco)">ficha técnica</strong> y la IA rellenará marca, modelo, año, color, combustible y CV automáticamente.</p>
-        <div class="scan-zona" id="scan-zona-drop" onclick="document.getElementById('ia-foto-scan').click()">
-          <input type="file" id="ia-foto-scan" accept="image/*" style="position:absolute;inset:0;opacity:0;cursor:pointer" onchange="previsualizarScan(this)"/>
-          <div class="scan-zona-icono">📄</div>
-          <div class="scan-zona-titulo">Toca o arrastra aquí el permiso de circulación</div>
-          <div class="scan-zona-desc">JPG, PNG o foto desde cámara · La IA extrae los datos automáticamente</div>
-          <img id="scan-img-preview" class="scan-preview" alt="preview"/>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center">
-          <button class="btn-subir" id="btn-scan" onclick="escanearCoche()" style="margin-top:0">🔍 Analizar con IA</button>
-          <button class="btn-secundario-panel" onclick="limpiarScan()">✕ Limpiar</button>
-          <p id="scan-msg" style="font-size:0.8rem;flex:1;min-width:200px"></p>
-        </div>
-        <div class="scan-resultado" id="scan-resultado"></div>
-      </div>
-
       <div class="seccion">
-        <p class="seccion-titulo">📝 Datos del vehículo</p>
+        <p class="seccion-titulo">➕ Añadir vehículo</p>
         <div class="form-grid">
           <div class="form-campo"><label>Marca *</label><input type="text" id="n-marca" placeholder="Seat"/></div>
           <div class="form-campo"><label>Modelo *</label><input type="text" id="n-modelo" placeholder="León"/></div>
@@ -465,6 +401,33 @@
           <label>Código de embed (pega el script completo)</label>
           <textarea id="cfg-chat-codigo" placeholder="&lt;script&gt;...&lt;/script&gt;"></textarea>
         </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">💧 Marca de agua en fotos</p>
+        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:16px">Se aplica a las fotos nuevas que subas. Las fotos ya subidas no cambian.</p>
+        <div class="config-campos">
+          <div class="config-campo">
+            <label>Tipo</label>
+            <select id="cfg-wa-tipo" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%">
+              <option value="logo">Logo de la empresa</option>
+              <option value="texto">Solo texto (nombre)</option>
+            </select>
+          </div>
+          <div class="config-campo">
+            <label>Opacidad — <span id="cfg-wa-op-val">55</span>%</label>
+            <input type="range" id="cfg-wa-opacidad" min="10" max="90" step="5" value="55"
+              oninput="document.getElementById('cfg-wa-op-val').textContent=this.value"
+              style="width:100%;accent-color:var(--rojo);margin-top:6px"/>
+          </div>
+          <div class="config-campo">
+            <label>Tamaño — <span id="cfg-wa-tam-val">45</span>% del ancho</label>
+            <input type="range" id="cfg-wa-tamano" min="15" max="70" step="5" value="45"
+              oninput="document.getElementById('cfg-wa-tam-val').textContent=this.value"
+              style="width:100%;accent-color:var(--rojo);margin-top:6px"/>
+          </div>
+        </div>
+        <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:10px">💡 El logo se renderiza en blanco para que sea visible sobre cualquier color de fondo.</p>
       </div>
 
       <button class="btn-subir" onclick="guardarConfig()">Guardar configuración</button>

@@ -64,6 +64,10 @@ class ConfigUpdate(BaseModel):
     facebook: Optional[str] = None
     youtube: Optional[str] = None
     resenas_place_id: Optional[str] = None
+    # Marca de agua
+    wa_opacidad: Optional[float] = None   # 0.0 – 1.0
+    wa_tamano:   Optional[float] = None   # 0.10 – 0.70 (fracción del ancho)
+    wa_tipo:     Optional[str]   = None   # "logo" | "texto"
 
 
 def requiere_admin(authorization: str = Header(...)):

@@ -706,6 +706,16 @@ async function cargarConfig() {
     document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
     document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
     document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
+    // Marca de agua
+    if (document.getElementById("cfg-wa-tipo")) {
+      const op  = Math.round((cfg.wa_opacidad ?? 0.55) * 100);
+      const tam = Math.round((cfg.wa_tamano   ?? 0.45) * 100);
+      document.getElementById("cfg-wa-tipo").value    = cfg.wa_tipo     || "logo";
+      document.getElementById("cfg-wa-opacidad").value = op;
+      document.getElementById("cfg-wa-tamano").value   = tam;
+      document.getElementById("cfg-wa-op-val").textContent  = op;
+      document.getElementById("cfg-wa-tam-val").textContent = tam;
+    }
   } catch { toast("Error al cargar configuración", true); }
 }
 
@@ -748,6 +758,10 @@ async function guardarConfig() {
     modulo_alertas:     document.getElementById("cfg-alertas").checked,
     garantia_activa:    document.getElementById("cfg-garantia").checked,
     modulo_chat:        document.getElementById("cfg-chat").checked,
+    // Marca de agua
+    wa_tipo:     document.getElementById("cfg-wa-tipo")?.value     || null,
+    wa_opacidad: parseFloat(document.getElementById("cfg-wa-opacidad")?.value || 55) / 100,
+    wa_tamano:   parseFloat(document.getElementById("cfg-wa-tamano")?.value   || 45) / 100,
   };
 
   try {
@@ -764,84 +778,7 @@ async function guardarConfig() {
 }
 
 
-// ── ESCANEO VISUAL (preview + resultado) ─────────────────────────────────────
-function previsualizarScan(input) {
-  const preview = document.getElementById("scan-img-preview");
-  const zona    = document.getElementById("scan-zona-drop");
-  if (!input.files[0] || !preview) return;
-  const url = URL.createObjectURL(input.files[0]);
-  preview.src = url;
-  preview.style.display = "block";
-  if (zona) zona.style.borderColor = "var(--rojo)";
-}
-
-function limpiarScan() {
-  const input   = document.getElementById("ia-foto-scan");
-  const preview = document.getElementById("scan-img-preview");
-  const msg     = document.getElementById("scan-msg");
-  const res     = document.getElementById("scan-resultado");
-  const zona    = document.getElementById("scan-zona-drop");
-  if (input)   input.value = "";
-  if (preview) { preview.src = ""; preview.style.display = "none"; }
-  if (msg)     msg.textContent = "";
-  if (res)     res.style.display = "none";
-  if (zona)    zona.style.borderColor = "";
-}
-
-// Mostrar resultado en el bloque visual tras el escaneo
-const _escanearCocheOrig = escanearCoche;
-async function escanearCoche() {
-  await _escanearCocheOrig();
-  // Mostrar resumen de campos en scan-resultado si existe
-  const res = document.getElementById("scan-resultado");
-  if (!res) return;
-  const campos = [
-    ["Marca",       "n-marca"],
-    ["Modelo",      "n-modelo"],
-    ["Año",         "n-anio"],
-    ["Color",       "n-color"],
-    ["Combustible", "n-combustible"],
-    ["Carrocería",  "n-carroceria"],
-    ["CV",          "n-cv"],
-  ];
-  const filas = campos.map(([label, id]) => {
-    const val = document.getElementById(id)?.value;
-    const cls = val ? "scan-campo-ok" : "scan-campo-vacio";
-    return `<span class="${cls}" style="display:inline-block;margin:2px 8px 2px 0"><strong>${label}:</strong> ${val || "—"}</span>`;
-  }).join("");
-  res.innerHTML = filas;
-  res.style.display = "block";
-}
-
-// ── EXPORTAR CSV ───────────────────────────────────────────────────────────────
-async function exportarCSV() {
-  toast("Generando CSV...");
-  try {
-    const resp   = await fetch(`${API}/api/coches?por_pagina=500`, {headers: authHeaders()});
-    const data   = await resp.json();
-    const coches = data.coches || [];
-
-    const cabeceras = ["ID","Marca","Modelo","Año","Km","Combustible","Caja","CV","Carrocería","Color","Precio","Precio anterior","Estado","Destacado","Puertas","Plazas","Propietarios","ITV hasta","Consumo","Garantía meses","Etiqueta DGT","Visitas"];
-    const filas = coches.map(c => [
-      c.id, c.marca, c.modelo, c.anio, c.km, c.combustible, c.caja, c.cv || "",
-      c.carroceria, c.color || "", c.precio, c.precio_anterior || "", c.estado,
-      c.destacado ? "Sí" : "No", c.puertas || "", c.plazas || "", c.propietarios || "",
-      c.itv_hasta || "", c.consumo || "", c.garantia_meses || "", c.etiqueta_dgt || "",
-      c.visitas || 0,
-    ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(","));
-
-    const csv = [cabeceras.join(","), ...filas].join("\n");
-    const blob = new Blob(["\uFEFF" + csv], {type: "text/csv;charset=utf-8;"});
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href     = url;
-    a.download = `ananta-cars-catalogo-${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-    toast("✅ CSV descargado");
-  } catch { toast("Error al exportar CSV", true); }
-}
-
+// ── EXPORTAR PDF ──────────────────────────────────────────────────────────────
 async function exportarPDF() {
   toast("Generando PDF...");
   try {
