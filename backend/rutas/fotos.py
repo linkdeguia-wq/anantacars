@@ -110,9 +110,9 @@ def procesar_foto(datos_imagen: bytes, redimensionar: bool = True, marca_agua: b
             img = Image.alpha_composite(img.convert("RGBA"), overlay).convert("RGB")
             ImageDraw.Draw(img).text((x, y), texto, fill=(255, 255, 255), font=font)
 
-    # 3. Comprimir
+    # 3. Comprimir en WebP — mismo calidad visual, ~30% menos peso que JPEG
     buffer = io.BytesIO()
-    img.save(buffer, format="JPEG", quality=CALIDAD_COMPRESION, optimize=True)
+    img.save(buffer, format="WEBP", quality=CALIDAD_COMPRESION, method=4)
     return buffer.getvalue()
 
 
@@ -138,11 +138,11 @@ async def subir_fotos(
                 raise HTTPException(status_code=400, detail=f"{foto.filename} supera {MAX_FOTO_MB}MB")
 
             datos_procesados = procesar_foto(datos, redimensionar=redimensionar, marca_agua=marca_agua)
-            nombre_archivo   = f"{coche_id}/{int(time.time() * 1000)}.jpg"
+            nombre_archivo   = f"{coche_id}/{int(time.time() * 1000)}.webp"
 
             resp = await client.post(
                 f"{URL_STORAGE}/{nombre_archivo}",
-                headers={**HEADERS_SERVICE, "Content-Type": "image/jpeg", "x-upsert": "true"},
+                headers={**HEADERS_SERVICE, "Content-Type": "image/webp", "x-upsert": "true"},
                 content=datos_procesados,
             )
             if resp.status_code not in (200, 201):

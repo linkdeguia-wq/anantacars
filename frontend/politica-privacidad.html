@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Política de Privacidad — Ananta Cars</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-linea:#333;--gris-texto:#888;--blanco:#f5f5f0;--rojo:#e8311a;--fuente-titulo:'Barlow Condensed',sans-serif;--fuente-cuerpo:'Barlow',sans-serif;--radio:4px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--negro);color:var(--blanco);font-family:var(--fuente-cuerpo);font-weight:300;line-height:1.7}
+    header{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--gris-linea);padding:0 5vw;display:flex;align-items:center;justify-content:space-between;height:64px}
+    .logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+    .logo-img{height:40px;width:auto;object-fit:contain}
+    .logo-texto{font-family:var(--fuente-titulo);font-size:1.4rem;font-weight:800;color:var(--blanco)}
+    .btn-volver{color:var(--gris-texto);font-size:0.82rem;text-decoration:none;transition:color 0.2s}
+    .btn-volver:hover{color:var(--blanco)}
+    .wrap{max-width:760px;margin:0 auto;padding:60px 5vw 80px}
+    .hero-label{font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--rojo);margin-bottom:12px}
+    h1{font-family:var(--fuente-titulo);font-size:clamp(2rem,5vw,3rem);font-weight:800;line-height:1;margin-bottom:8px}
+    .fecha{font-size:0.78rem;color:var(--gris-texto);margin-bottom:48px}
+    .aviso-rellenar{background:#2a1a00;border:1px solid #6b4400;color:#ffd97f;border-radius:var(--radio);padding:14px 18px;font-size:0.82rem;margin-bottom:40px;line-height:1.5}
+    .aviso-rellenar strong{color:#ffb84d}
+    h2{font-family:var(--fuente-titulo);font-size:1.3rem;font-weight:800;letter-spacing:0.04em;color:var(--blanco);margin:40px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--gris-linea)}
+    h3{font-family:var(--fuente-titulo);font-size:1rem;font-weight:700;color:var(--blanco);margin:20px 0 6px}
+    p{color:var(--gris-texto);font-size:0.92rem;margin-bottom:12px}
+    ul{color:var(--gris-texto);font-size:0.92rem;margin:0 0 12px 0;padding-left:0;list-style:none}
+    ul li{display:flex;gap:8px;margin-bottom:6px;align-items:flex-start}
+    ul li::before{content:"›";color:var(--rojo);flex-shrink:0;font-family:var(--fuente-titulo);font-weight:700}
+    .dato-responsable{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:20px 24px;margin:16px 0 24px}
+    .dato-responsable table{width:100%;border-collapse:collapse}
+    .dato-responsable td{padding:6px 0;font-size:0.88rem;vertical-align:top}
+    .dato-responsable td:first-child{color:var(--gris-texto);width:180px;flex-shrink:0}
+    .dato-responsable td:last-child{color:var(--blanco)}
+    .placeholder{color:var(--rojo);font-weight:600;background:rgba(232,49,26,0.1);padding:1px 4px;border-radius:2px}
+    .derechos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin:16px 0 24px}
+    .derecho{background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:14px}
+    .derecho-titulo{font-family:var(--fuente-titulo);font-size:0.88rem;font-weight:700;margin-bottom:4px}
+    .derecho-desc{font-size:0.75rem;color:var(--gris-texto)}
+    footer{padding:28px 5vw;border-top:1px solid var(--gris-linea);text-align:center}
+    footer p{font-size:0.78rem;color:var(--gris-texto)}
+    .footer-logo{font-family:var(--fuente-titulo);font-size:1.1rem;font-weight:800;color:var(--blanco);margin-bottom:6px}
+    .footer-logo span{color:var(--rojo)}
+    a{color:var(--rojo);text-decoration:none}
+    a:hover{text-decoration:underline}
+    @media(max-width:600px){.dato-responsable td:first-child{width:130px}.derechos-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <header>
+    <a href="/index.html" class="logo">
+      <img src="/assets/logo.png" alt="Ananta Cars" class="logo-img"/>
+      <span class="logo-texto">ANANTA.CARS</span>
+    </a>
+    <a href="/index.html" class="btn-volver">← Volver al inicio</a>
+  </header>
+
+  <div class="wrap">
+    <p class="hero-label">Legal</p>
+    <h1>Política de Privacidad</h1>
+    <p class="fecha">Última actualización: <span id="fecha-actual"></span></p>
+
+    <div class="aviso-rellenar">
+      ⚠️ <strong>Para el administrador:</strong> sustituye todos los campos marcados en rojo antes de publicar. Busca <strong>[ENTRE CORCHETES]</strong> — son los datos reales del negocio que debes rellenar.
+    </div>
+
+    <h2>1. Responsable del tratamiento</h2>
+    <p>En cumplimiento del Reglamento (UE) 2016/679 (RGPD) y la Ley Orgánica 3/2018 (LOPDGDD), te informamos de que los datos personales que nos facilites serán tratados por:</p>
+    <div class="dato-responsable">
+      <table>
+        <tr><td>Razón social</td><td><span class="placeholder">[NOMBRE LEGAL DEL NEGOCIO O AUTÓNOMO]</span></td></tr>
+        <tr><td>NIF / CIF</td><td><span class="placeholder">[NIF O CIF]</span></td></tr>
+        <tr><td>Dirección</td><td><span class="placeholder">[DIRECCIÓN COMPLETA, CÓDIGO POSTAL, LOCALIDAD]</span></td></tr>
+        <tr><td>Email de contacto</td><td><span class="placeholder">[EMAIL DE CONTACTO]</span></td></tr>
+        <tr><td>Teléfono</td><td><span class="placeholder">[TELÉFONO]</span></td></tr>
+        <tr><td>Web</td><td>anantacars.vercel.app</td></tr>
+      </table>
+    </div>
+
+    <h2>2. Datos que recopilamos</h2>
+    <p>Recopilamos los datos personales que nos proporcionas voluntariamente a través de los siguientes canales:</p>
+    <ul>
+      <li><strong>Formulario de consulta:</strong> nombre, dirección de email y mensaje.</li>
+      <li><strong>WhatsApp:</strong> número de teléfono y el contenido del mensaje que nos envíes.</li>
+      <li><strong>Alertas de vehículos:</strong> número de teléfono para enviarte notificaciones sobre nuevas incorporaciones al catálogo.</li>
+      <li><strong>Navegación web:</strong> datos de uso anónimos o pseudonimizados a través de cookies técnicas y, si lo has aceptado, herramientas de analítica.</li>
+    </ul>
+    <p>No recopilamos datos especialmente protegidos (salud, ideología, origen racial, etc.).</p>
+
+    <h2>3. Finalidad y base jurídica</h2>
+    <ul>
+      <li><strong>Atender tu consulta</strong> sobre vehículos en venta — base jurídica: ejecución de medidas precontractuales (Art. 6.1.b RGPD).</li>
+      <li><strong>Enviarte alertas de nuevos vehículos</strong> que coincidan con tus criterios — base jurídica: tu consentimiento explícito (Art. 6.1.a RGPD), que puedes retirar en cualquier momento.</li>
+      <li><strong>Mejorar nuestros servicios</strong> mediante analítica anónima del tráfico web — base jurídica: interés legítimo (Art. 6.1.f RGPD).</li>
+      <li><strong>Cumplir obligaciones legales</strong> aplicables al comercio de vehículos de segunda mano — base jurídica: obligación legal (Art. 6.1.c RGPD).</li>
+    </ul>
+
+    <h2>4. Conservación de los datos</h2>
+    <ul>
+      <li>Datos de consultas: se conservan durante el tiempo necesario para gestionar tu solicitud y hasta <strong>1 año</strong> después del último contacto.</li>
+      <li>Alertas: hasta que canceles la suscripción o transcurran <strong>12 meses</strong> sin actividad.</li>
+      <li>Datos de analítica: según la política de retención del proveedor (máx. 26 meses).</li>
+    </ul>
+
+    <h2>5. Destinatarios y transferencias internacionales</h2>
+    <p>No cedemos tus datos a terceros salvo obligación legal o los siguientes proveedores de servicios que actúan como encargados del tratamiento:</p>
+    <ul>
+      <li><strong>Supabase Inc.</strong> (alojamiento de base de datos) — servidores en la UE.</li>
+      <li><strong>Railway Corp.</strong> (alojamiento del servidor) — servidores en EE.UU., acogidos a las garantías adecuadas del Art. 46 RGPD.</li>
+      <li><strong>Vercel Inc.</strong> (alojamiento web) — servidores en EE.UU., con cláusulas contractuales tipo.</li>
+      <li><strong>Twilio Inc.</strong> (envío de mensajes WhatsApp para alertas) — solo si has activado alertas.</li>
+      <li><strong>Google LLC</strong> (analítica web, si está activada) — servidores en EE.UU., con Privacy Shield / DPF.</li>
+    </ul>
+
+    <h2>6. Tus derechos</h2>
+    <p>Puedes ejercer los siguientes derechos en cualquier momento escribiendo a <span class="placeholder">[EMAIL DE CONTACTO]</span> indicando en el asunto "Protección de datos":</p>
+    <div class="derechos-grid">
+      <div class="derecho"><div class="derecho-titulo">Acceso</div><div class="derecho-desc">Saber qué datos tenemos sobre ti.</div></div>
+      <div class="derecho"><div class="derecho-titulo">Rectificación</div><div class="derecho-desc">Corregir datos inexactos o incompletos.</div></div>
+      <div class="derecho"><div class="derecho-titulo">Supresión</div><div class="derecho-desc">Que eliminemos tus datos ("derecho al olvido").</div></div>
+      <div class="derecho"><div class="derecho-titulo">Oposición</div><div class="derecho-desc">Oponerte a un tratamiento concreto.</div></div>
+      <div class="derecho"><div class="derecho-titulo">Portabilidad</div><div class="derecho-desc">Recibir tus datos en formato estructurado.</div></div>
+      <div class="derecho"><div class="derecho-titulo">Limitación</div><div class="derecho-desc">Solicitar que suspendamos el tratamiento.</div></div>
+    </div>
+    <p>Responderemos en un plazo máximo de <strong>30 días</strong>. Si consideras que no hemos atendido correctamente tu solicitud, puedes reclamar ante la <a href="https://www.aepd.es" target="_blank" rel="noopener">Agencia Española de Protección de Datos (AEPD)</a>.</p>
+
+    <h2>7. Cookies</h2>
+    <h3>Cookies técnicas (siempre activas)</h3>
+    <p>Necesarias para el funcionamiento básico de la web. No requieren consentimiento.</p>
+    <ul>
+      <li><strong>tema</strong> — Almacena tu preferencia de modo oscuro/claro. Duración: persistente.</li>
+      <li><strong>ac_token</strong> — Token de sesión del panel de administración. Solo presente si eres administrador. Duración: 8 horas.</li>
+    </ul>
+    <h3>Cookies analíticas (requieren consentimiento)</h3>
+    <p>Solo se activan si tienes configurado Google Analytics en el panel. Permiten medir el tráfico de forma agregada y mejorar la web. Puedes desactivarlas instalando el <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">complemento de inhabilitación de Google Analytics</a>.</p>
+
+    <h2>8. Seguridad</h2>
+    <p>Aplicamos medidas técnicas y organizativas adecuadas para proteger tus datos: comunicaciones cifradas (HTTPS/TLS), autenticación con tokens JWT de corta duración, limitación de intentos de acceso y almacenamiento en proveedores con certificaciones de seguridad reconocidas.</p>
+
+    <h2>9. Menores de edad</h2>
+    <p>Este sitio web no está dirigido a menores de 14 años. No recopilamos conscientemente datos de menores. Si detectamos o nos comunicas que hemos recibido datos de un menor sin consentimiento parental, los eliminaremos de inmediato.</p>
+
+    <h2>10. Cambios en esta política</h2>
+    <p>Podemos actualizar esta política para adaptarla a cambios legales o en nuestros servicios. Publicaremos la nueva versión en esta misma URL con la fecha de actualización. Te recomendamos revisarla periódicamente.</p>
+
+    <h2>11. Contacto</h2>
+    <p>Para cualquier consulta sobre privacidad o para ejercer tus derechos, escríbenos a <span class="placeholder">[EMAIL DE CONTACTO]</span> o utiliza el formulario de contacto de la web.</p>
+  </div>
+
+  <footer>
+    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
+    <p>© 2025 Ananta Cars · <a href="/index.html">Inicio</a> · <a href="/como-comprar">Cómo comprar</a></p>
+  </footer>
+
+  <script>
+    // Fecha actual localizada
+    document.getElementById("fecha-actual").textContent =
+      new Date().toLocaleDateString("es-ES", {day:"numeric", month:"long", year:"numeric"});
+  </script>
+</body>
+</html>

@@ -2,7 +2,8 @@
   "rewrites": [
     { "source": "/coches/:slug", "destination": "/ficha.html" },
     { "source": "/como-comprar", "destination": "/como-comprar.html" },
-    { "source": "/comparar", "destination": "/comparar.html" }
+    { "source": "/comparar", "destination": "/comparar.html" },
+    { "source": "/politica-privacidad", "destination": "/politica-privacidad.html" }
   ],
   "headers": [
     {

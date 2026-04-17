@@ -19,8 +19,10 @@ function calcCuota(precio, tin = 7, meses = 60, entradaPct = 10) {
   return capital * (r * Math.pow(1+r, meses)) / (Math.pow(1+r, meses) - 1);
 }
 
-// catalogo.js — v4 placeholder elegante, filtros móvil, comparador
+// catalogo.js — v4 placeholder elegante, filtros móvil, comparador, límite DOM
 const API = "https://anantacars-production.up.railway.app";
+
+const MAX_DOM_TARJETAS = 48; // ~4 páginas — el DOM nunca acumula más de esto
 
 let paginaActual = 1;
 let hayMas = true;
@@ -197,6 +199,19 @@ async function buscar(reset = true) {
         div.innerHTML = renderTarjeta(c);
         grid.appendChild(div.firstElementChild);
       });
+
+      // ── Limpiar DOM si supera el límite ──────────────────────────────────
+      const todasTarjetas = [...grid.querySelectorAll(".tarjeta")];
+      if (todasTarjetas.length > MAX_DOM_TARJETAS) {
+        const exceso = todasTarjetas.length - MAX_DOM_TARJETAS;
+        let alturaEliminada = 0;
+        for (let i = 0; i < exceso; i++) {
+          alturaEliminada += todasTarjetas[i].getBoundingClientRect().height + 1;
+          todasTarjetas[i].remove();
+        }
+        // Compensar scroll para que no salte visualmente
+        window.scrollBy(0, -alturaEliminada);
+      }
     }
 
     if (hayMas) {
