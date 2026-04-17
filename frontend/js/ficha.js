@@ -315,7 +315,7 @@ async function cargarFicha() {
       const ta = document.getElementById("fc-mensaje");
       if (ta) {
         const precio = new Intl.NumberFormat("es-ES",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(c.precio);
-        ta.value = "Hola, estoy interesado en el " + c.marca + " " + c.modelo + " " + c.anio + (c.color ? " en color " + c.color : "") + " por " + precio + ".\n\n¿Podéis darme más información?\n\nAnuncio: " + window.location.href;
+        ta.value = "Hola, estoy interesado en el " + c.marca + " " + c.modelo + " " + c.anio + (c.color ? " en color " + c.color : "") + " por " + precio + ".\n\n¿Podéis darme más información?";
       }
     }, 100);
     // Registrar visita
