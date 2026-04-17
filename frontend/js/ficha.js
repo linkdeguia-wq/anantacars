@@ -187,7 +187,7 @@ async function cargarFicha() {
     fotosGlobal = fotos;
     // Añadir vídeo al final de la galería si existe
     const _ytId = youtubeId(c.video_youtube);
-    if (_ytId) fotosGlobal = [...fotos, { tipo: "video", videoId: _ytId, url: `https://img.youtube.com/vi/${_ytId}/maxresdefault.jpg` }];
+    if (_ytId) fotosGlobal = [{ tipo: "video", videoId: _ytId, url: `https://img.youtube.com/vi/${_ytId}/maxresdefault.jpg` }, ...fotos];
 
     const waNum = cfgGlobal.whatsapp || WA;
     const garantiaActiva = cfgGlobal.garantia_activa;
@@ -218,7 +218,9 @@ async function cargarFicha() {
       window.history.replaceState({}, "", urlLimpia);
     }
 
-    const fotoPortada = fotos[0]?.url || null;
+    const primeraEntrada = fotosGlobal[0];
+    const esPrimeroVideo = primeraEntrada?.tipo === "video";
+    const fotoPortada = esPrimeroVideo ? primeraEntrada.url : (fotos[0]?.url || null);
     const embedYT     = youtubeEmbed(c.video_youtube);
     const waMsg       = encodeURIComponent(`Hola, estoy interesado en el ${c.marca} ${c.modelo} ${c.anio} (${formatPrecio(c.precio)}) que vi en vuestra web.\n\nAnuncio: ${window.location.href}`);
     const shareUrl    = encodeURIComponent(window.location.href);
@@ -239,16 +241,17 @@ async function cargarFicha() {
     wrap.innerHTML = `
       <!-- GALERÍA -->
       <div class="galeria">
-        <div class="foto-principal" onclick="abrirLightbox(${fotoActualIdx})" id="foto-principal-wrap">
+        <div class="foto-principal" onclick="esPrimeroVideo && fotoActualIdx===0 ? null : abrirLightbox(fotoActualIdx)" id="foto-principal-wrap">
           ${fotoPortada
             ? `<div class="foto-bg-principal" style="background-image:url('${fotoPortada}')" id="foto-bg"></div>
-               <img src="${fotoPortada}" alt="${c.marca} ${c.modelo}" id="foto-main"/>`
+               <img src="${fotoPortada}" alt="${esPrimeroVideo ? "Vídeo" : c.marca + " " + c.modelo}" id="foto-main" style="${esPrimeroVideo ? "opacity:0.82" : ""}"/>
+               ${esPrimeroVideo ? '<div class="yt-play-overlay" onclick="event.stopPropagation();cambiarFoto(0)"><div class="yt-play-btn">▶</div></div>' : ""}`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2;position:relative;z-index:1">🚗</div>`
           }
-          ${fotos.length > 1 ? `
+          ${fotosGlobal.length > 1 ? `
           <button class="nav-foto nav-prev" onclick="event.stopPropagation();cambiarFoto(fotoActualIdx-1)">‹</button>
           <button class="nav-foto nav-next" onclick="event.stopPropagation();cambiarFoto(fotoActualIdx+1)">›</button>` : ""}
-          ${fotos.length ? `<button class="btn-fullscreen" onclick="event.stopPropagation();abrirLightbox(fotoActualIdx)">⛶ Pantalla completa</button>` : ""}
+          ${fotosGlobal.length ? `<button class="btn-fullscreen" onclick="event.stopPropagation();abrirLightbox(fotoActualIdx)">⛶ Pantalla completa</button>` : ""}
         </div>
         ${miniaturasHTML ? `<div class="miniaturas">${miniaturasHTML}</div>` : ""}
       </div>
