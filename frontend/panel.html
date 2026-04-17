@@ -184,8 +184,8 @@
 <div id="pantalla-login">
   <div class="login-box">
     <div class="login-logo"><img src="/assets/logo.png" alt="Ananta Cars" style="height:60px;object-fit:contain;margin-bottom:8px;display:block;margin-left:auto;margin-right:auto"/><small style="font-size:0.55em;color:var(--gris-texto);font-weight:300;letter-spacing:0.1em">PANEL DE GESTIÓN</small></div>
-    <div class="campo"><label>Usuario</label><input type="text" id="l-usuario" placeholder="admin"/></div>
-    <div class="campo"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••"/></div>
+    <div class="campo"><label>Usuario</label><input type="text" id="l-usuario" placeholder="admin" autocapitalize="none" autocorrect="off" spellcheck="false"/></div>
+    <div class="campo"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••" autocapitalize="none"/></div>
     <button class="btn-login" onclick="login()">Entrar</button>
     <p class="login-error" id="login-error"></p>
   </div>
@@ -574,9 +574,11 @@
 <script src="js/panel.js"></script>
 
 <script>
-// Capitalizar primera letra en todos los inputs de texto al escribir
+// Capitalizar primera letra en inputs de texto — excepto login
+const _noCapitalizar = ["l-usuario", "l-pass"];
 document.addEventListener('input', function(e) {
   const el = e.target;
+  if (_noCapitalizar.includes(el.id)) return;
   if ((el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA') {
     const val = el.value;
     if (val.length === 1) el.value = val.toUpperCase();
@@ -585,9 +587,10 @@ document.addEventListener('input', function(e) {
     }
   }
 });
-// Capitalizar al pegar
+// Capitalizar al pegar — excepto login
 document.addEventListener('paste', function(e) {
   const el = e.target;
+  if (_noCapitalizar.includes(el.id)) return;
   if ((el.tagName === 'INPUT' && el.type === 'text') || el.tagName === 'TEXTAREA') {
     setTimeout(() => {
       const v = el.value;

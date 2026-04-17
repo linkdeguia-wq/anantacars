@@ -247,8 +247,7 @@ async function cargarFicha() {
         <div class="foto-principal" onclick="esPrimeroVideo && fotoActualIdx===0 ? null : abrirLightbox(fotoActualIdx)" id="foto-principal-wrap">
           ${fotoPortada
             ? `<div class="foto-bg-principal" style="background-image:url('${fotoPortada}')" id="foto-bg"></div>
-               <img src="${fotoPortada}" alt="${esPrimeroVideo ? "Vídeo" : c.marca + " " + c.modelo}" id="foto-main" style="${esPrimeroVideo ? "opacity:0.82" : ""}"/>
-               ${esPrimeroVideo ? '<div class="yt-play-overlay" onclick="event.stopPropagation();cambiarFoto(0)"><div class="yt-play-btn"></div><span class="yt-play-label">Ver vídeo</span></div>' : ""}`
+               <img src="${fotoPortada}" alt="${esPrimeroVideo ? "Vídeo" : c.marca + " " + c.modelo}" id="foto-main" style="${esPrimeroVideo ? "opacity:0.82" : ""}"/>`
             : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:0.2;position:relative;z-index:1">🚗</div>`
           }
           ${fotosGlobal.length > 1 ? `
@@ -342,6 +341,8 @@ async function cargarFicha() {
     }, 100);
     // Registrar visita
     registrarVisita(c.id);
+    // Si el primero es vídeo, aplicar overlay correctamente vía cambiarFoto
+    if (esPrimeroVideo) setTimeout(() => cambiarFoto(0), 50);
     // Sticky WA en móvil
     if (window.innerWidth < 780 && c.estado !== "vendido") {
       const waNum = cfgGlobal.whatsapp || WA;
@@ -383,24 +384,35 @@ function cambiarFoto(idx) {
   const bg   = document.getElementById("foto-bg");
   const wrap = document.getElementById("foto-principal-wrap");
 
-  // Eliminar iframe anterior si existe
+  // Limpiar elementos del estado anterior
   document.getElementById("yt-iframe")?.remove();
+  document.querySelector(".yt-play-overlay")?.remove();
 
   if (item.tipo === "video") {
-    // Mostrar vídeo — reemplazar imagen por iframe
+    // Thumbnail del coche de fondo + overlay play
     if (img) img.style.display = "none";
-    if (bg)  bg.style.backgroundImage = `url('${item.url}')`;
-    const iframe = document.createElement("iframe");
-    iframe.id = "yt-iframe";
-    iframe.src = `https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0&modestbranding=1`;
-    iframe.allow = "autoplay; encrypted-media; fullscreen";
-    iframe.allowFullscreen = true;
-    iframe.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;z-index:3";
-    iframe.onclick = e => e.stopPropagation();
-    wrap.appendChild(iframe);
+    if (bg && item.url)  bg.style.backgroundImage = `url('${item.url}')`;
+    // Añadir overlay play
+    const overlay = document.createElement("div");
+    overlay.className = "yt-play-overlay";
+    overlay.onclick = e => {
+      e.stopPropagation();
+      overlay.remove();
+      if (img) img.style.display = "none";
+      const iframe = document.createElement("iframe");
+      iframe.id = "yt-iframe";
+      iframe.src = `https://www.youtube.com/embed/${item.videoId}?autoplay=1&rel=0&modestbranding=1`;
+      iframe.allow = "autoplay; encrypted-media; fullscreen";
+      iframe.allowFullscreen = true;
+      iframe.style.cssText = "position:absolute;inset:0;width:100%;height:100%;border:none;z-index:3";
+      iframe.onclick = e => e.stopPropagation();
+      wrap.appendChild(iframe);
+    };
+    overlay.innerHTML = '<div class="yt-play-btn"></div><span class="yt-play-label">Ver vídeo</span>';
+    wrap.appendChild(overlay);
   } else {
-    // Mostrar foto normal
-    if (img) { img.src = item.url; img.style.display = ""; }
+    // Foto normal — sin overlay
+    if (img) { img.src = item.url; img.style.display = ""; img.style.opacity = ""; }
     if (bg)  bg.style.backgroundImage = `url('${item.url}')`;
   }
 
