@@ -706,7 +706,23 @@ async function cargarConfig() {
     document.getElementById("cfg-entrada").value       = cfg.calc_entrada_min || 10;
     document.getElementById("cfg-garantia-txt").value  = cfg.garantia_texto || "";
     document.getElementById("cfg-chat-codigo").value   = cfg.chat_codigo || "";
+    // Identidad visual
+    if (cfg.logo_url)    { document.getElementById("logo-preview").src = cfg.logo_url + "?v=" + Date.now(); }
+    if (cfg.favicon_url) { document.getElementById("fav-preview").src  = cfg.favicon_url; }
+    if (cfg.color_acento){ document.getElementById("cfg-color").value  = cfg.color_acento; }
+    // Hero
+    if (document.getElementById("cfg-hero-titulo"))    document.getElementById("cfg-hero-titulo").value    = cfg.hero_titulo    || "";
+    if (document.getElementById("cfg-hero-subtitulo")) document.getElementById("cfg-hero-subtitulo").value = cfg.hero_subtitulo || "";
+    // SEO
+    if (document.getElementById("cfg-meta-desc")) document.getElementById("cfg-meta-desc").value = cfg.meta_description || "";
+    // Banner
+    if (document.getElementById("cfg-banner-activo")) document.getElementById("cfg-banner-activo").checked = cfg.banner_activo || false;
+    if (document.getElementById("cfg-banner-texto"))  document.getElementById("cfg-banner-texto").value   = cfg.banner_texto  || "";
+    if (document.getElementById("cfg-banner-color"))  document.getElementById("cfg-banner-color").value   = cfg.banner_color  || "naranja";
+    // Hero imagen
     mostrarHeroPreview(cfg.hero_imagen || null);
+    // Swatches de color
+    _renderSwatches(cfg.color_acento || "#e8311a");
   } catch { toast("Error al cargar configuración", true); }
 }
 
@@ -749,6 +765,14 @@ async function guardarConfig() {
     modulo_alertas:     document.getElementById("cfg-alertas").checked,
     garantia_activa:    document.getElementById("cfg-garantia").checked,
     modulo_chat:        document.getElementById("cfg-chat").checked,
+    // Hero textos
+    hero_titulo:    document.getElementById("cfg-hero-titulo")?.value.trim()    || null,
+    hero_subtitulo: document.getElementById("cfg-hero-subtitulo")?.value.trim() || null,
+    // SEO
+    meta_description: document.getElementById("cfg-meta-desc")?.value.trim() || null,
+    // Banner
+    banner_texto: document.getElementById("cfg-banner-texto")?.value.trim() || null,
+    banner_color: document.getElementById("cfg-banner-color")?.value        || null,
   };
 
   try {
@@ -765,6 +789,135 @@ async function guardarConfig() {
 }
 
 
+// ── LOGO ──────────────────────────────────────────────────────────────────────
+async function subirLogo() {
+  const input = document.getElementById("logo-input");
+  const btn   = document.getElementById("btn-subir-logo");
+  const msg   = document.getElementById("logo-msg");
+  if (!input?.files[0]) { msg.textContent = "Selecciona un archivo"; msg.style.color = "#ff8f8f"; return; }
+
+  btn.disabled = true; btn.textContent = "Subiendo...";
+  msg.textContent = "⏳ Subiendo logo..."; msg.style.color = "var(--gris-texto)";
+
+  try {
+    // Comprimir si es imagen rasterizada (no SVG)
+    let archivo = input.files[0];
+    if (archivo.type !== "image/svg+xml") {
+      archivo = await optimizarFoto(archivo, 400, 0.92);
+    }
+    const fd = new FormData();
+    fd.append("archivo", archivo, archivo.name);
+    const resp = await fetch(`${API}/api/config/logo`, {
+      method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: fd,
+    });
+    if (!resp.ok) throw new Error((await resp.json()).detail || "Error");
+    const data = await resp.json();
+    document.getElementById("logo-preview").src = data.url + "?v=" + Date.now();
+    input.value = "";
+    msg.textContent = "✅ Logo actualizado — se aplica en toda la web";
+    msg.style.color = "#7fffaa";
+    toast("✅ Logo actualizado");
+  } catch(e) {
+    msg.textContent = "❌ " + (e.message || "Error al subir");
+    msg.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false; btn.textContent = "Subir logo";
+  }
+}
+
+// ── FAVICON ───────────────────────────────────────────────────────────────────
+async function subirFavicon() {
+  const input = document.getElementById("fav-input");
+  const btn   = document.getElementById("btn-subir-fav");
+  const msg   = document.getElementById("fav-msg");
+  if (!input?.files[0]) { msg.textContent = "Selecciona un archivo"; msg.style.color = "#ff8f8f"; return; }
+
+  btn.disabled = true; btn.textContent = "Subiendo...";
+  msg.textContent = "⏳ Subiendo favicon..."; msg.style.color = "var(--gris-texto)";
+
+  try {
+    const fd = new FormData();
+    fd.append("archivo", input.files[0]);
+    const resp = await fetch(`${API}/api/config/favicon`, {
+      method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: fd,
+    });
+    if (!resp.ok) throw new Error((await resp.json()).detail || "Error");
+    const data = await resp.json();
+    document.getElementById("fav-preview").src = data.url + "?v=" + Date.now();
+    input.value = "";
+    msg.textContent = "✅ Favicon actualizado";
+    msg.style.color = "#7fffaa";
+    toast("✅ Favicon actualizado");
+  } catch(e) {
+    msg.textContent = "❌ " + (e.message || "Error al subir");
+    msg.style.color = "#ff8f8f";
+  } finally {
+    btn.disabled = false; btn.textContent = "Subir favicon";
+  }
+}
+
+// ── COLOR DE ACENTO ───────────────────────────────────────────────────────────
+const _COLORES_PRESET = [
+  { hex: "#e8311a", nombre: "Rojo (defecto)" },
+  { hex: "#2563eb", nombre: "Azul" },
+  { hex: "#16a34a", nombre: "Verde" },
+  { hex: "#d97706", nombre: "Naranja" },
+  { hex: "#9333ea", nombre: "Morado" },
+  { hex: "#0891b2", nombre: "Cian" },
+  { hex: "#be185d", nombre: "Rosa" },
+  { hex: "#374151", nombre: "Antracita" },
+];
+
+function _renderSwatches(colorActual) {
+  const cont = document.getElementById("color-swatches");
+  if (!cont) return;
+  cont.innerHTML = _COLORES_PRESET.map(c => `
+    <button onclick="setColorSwatch('${c.hex}')" title="${c.nombre}"
+      style="width:26px;height:26px;border-radius:50%;background:${c.hex};border:2px solid ${c.hex === colorActual ? '#fff' : 'transparent'};cursor:pointer;transition:border 0.15s;flex-shrink:0">
+    </button>`).join("");
+}
+
+function setColorSwatch(hex) {
+  document.getElementById("cfg-color").value = hex;
+  previsualizarColor(hex);
+  _renderSwatches(hex);
+}
+
+function previsualizarColor(hex) {
+  // Preview en vivo en el propio panel
+  document.documentElement.style.setProperty("--rojo", hex);
+  const darken = (h, a) => {
+    const n = parseInt(h.replace("#",""),16);
+    return "#" + [n>>16, (n>>8)&0xff, n&0xff].map(c => Math.max(0,Math.min(255,c+a)).toString(16).padStart(2,"0")).join("");
+  };
+  document.documentElement.style.setProperty("--rojo-hover", darken(hex, -22));
+}
+
+async function guardarColor() {
+  const hex = document.getElementById("cfg-color")?.value;
+  const msg = document.getElementById("color-msg");
+  if (!hex) return;
+  try {
+    const resp = await fetch(`${API}/api/config`, {
+      method: "PATCH", headers: authHeaders(), body: JSON.stringify({ color_acento: hex }),
+    });
+    if (!resp.ok) throw new Error();
+    _renderSwatches(hex);
+    msg.textContent = "✅ Color guardado — se aplica en toda la web al recargar";
+    msg.style.color = "#7fffaa";
+    toast("✅ Color de acento guardado");
+  } catch {
+    msg.textContent = "❌ Error al guardar color";
+    msg.style.color = "#ff8f8f";
+  }
+}
+
+async function resetColor() {
+  setColorSwatch("#e8311a");
+  document.getElementById("cfg-color").value = "#e8311a";
+  await guardarColor();
+}
+
 // ── IMAGEN HERO ───────────────────────────────────────────────────────────────
 function mostrarHeroPreview(url) {
   const wrap        = document.getElementById("hero-preview-wrap");
@@ -772,12 +925,12 @@ function mostrarHeroPreview(url) {
   const placeholder = document.getElementById("hero-placeholder");
   if (!wrap) return;
   if (url) {
-    img.src = url + "?t=" + Date.now(); // cache bust para ver el cambio al instante
+    img.src = url + "?t=" + Date.now();
     wrap.style.display = "block";
-    placeholder.style.display = "none";
+    if (placeholder) placeholder.style.display = "none";
   } else {
     wrap.style.display = "none";
-    placeholder.style.display = "block";
+    if (placeholder) placeholder.style.display = "block";
   }
 }
 
@@ -785,62 +938,40 @@ async function subirImagenHero() {
   const input = document.getElementById("hero-img-input");
   const btn   = document.getElementById("btn-subir-hero");
   const msg   = document.getElementById("hero-msg");
+  if (!input?.files[0]) { msg.textContent = "Selecciona una imagen primero"; msg.style.color = "#ff8f8f"; return; }
 
-  if (!input?.files[0]) {
-    msg.textContent = "Selecciona una imagen primero";
-    msg.style.color = "#ff8f8f";
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = "Subiendo...";
-  msg.textContent = "⏳ Comprimiendo y subiendo...";
-  msg.style.color = "var(--gris-texto)";
+  btn.disabled = true; btn.textContent = "Subiendo...";
+  msg.textContent = "⏳ Comprimiendo y subiendo..."; msg.style.color = "var(--gris-texto)";
 
   try {
-    // Compresión cliente: max 1920px, calidad 0.85 — igual que fotos de coches
     const comprimida = await optimizarFoto(input.files[0], 1920, 0.85);
-
-    const formData = new FormData();
-    formData.append("archivo", comprimida, "hero.jpg");
-
+    const fd = new FormData();
+    fd.append("archivo", comprimida, "hero.jpg");
     const resp = await fetch(`${API}/api/config/hero-imagen`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${getToken()}` },
-      body: formData,
+      method: "POST", headers: { "Authorization": `Bearer ${getToken()}` }, body: fd,
     });
-
-    if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.detail || `Error ${resp.status}`);
-    }
-
+    if (!resp.ok) throw new Error((await resp.json()).detail || `Error ${resp.status}`);
     const data = await resp.json();
     mostrarHeroPreview(data.url);
     input.value = "";
-    msg.textContent = "✅ Imagen subida — ya se ve en la web";
+    msg.textContent = "✅ Imagen subida y guardada";
     msg.style.color = "#7fffaa";
     toast("✅ Imagen del hero actualizada");
   } catch(e) {
-    msg.textContent = "❌ " + (e.message || "Error al subir. Inténtalo de nuevo.");
+    msg.textContent = "❌ " + (e.message || "Error al subir");
     msg.style.color = "#ff8f8f";
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Subir imagen";
+    btn.disabled = false; btn.textContent = "Subir imagen";
   }
 }
 
 async function eliminarHeroImagen() {
   if (!confirm("¿Quitar la imagen de fondo del hero? Volverá al diseño oscuro por defecto.")) return;
   try {
-    const resp = await fetch(`${API}/api/config/hero-imagen`, {
-      method: "DELETE",
-      headers: authHeaders(),
-    });
-    if (!resp.ok) throw new Error();
+    await fetch(`${API}/api/config/hero-imagen`, { method: "DELETE", headers: authHeaders() });
     mostrarHeroPreview(null);
-    document.getElementById("hero-msg").textContent = "Imagen eliminada — fondo oscuro activo";
-    document.getElementById("hero-msg").style.color = "var(--gris-texto)";
+    const msg = document.getElementById("hero-msg");
+    if (msg) { msg.textContent = "Imagen eliminada"; msg.style.color = "var(--gris-texto)"; }
     toast("Imagen del hero eliminada");
   } catch { toast("Error al eliminar imagen", true); }
 }

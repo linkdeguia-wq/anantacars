@@ -319,6 +319,73 @@
 
     <!-- TAB: CONFIGURACIÓN -->
     <div class="tab-panel" id="tab-config">
+      <!-- ── IDENTIDAD VISUAL ───────────────────────────────────────────── -->
+      <div class="seccion">
+        <p class="seccion-titulo">🎨 Identidad visual</p>
+
+        <!-- Logo -->
+        <div style="margin-bottom:20px">
+          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Logotipo</p>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div id="logo-preview-wrap" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:10px;width:120px;height:60px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+              <img id="logo-preview" src="/assets/logo.png" style="max-width:100%;max-height:100%;object-fit:contain"/>
+            </div>
+            <div style="flex:1;min-width:200px">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input type="file" id="logo-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:6px 10px;border-radius:var(--radio);font-size:0.78rem;flex:1;min-width:0"/>
+                <button id="btn-subir-logo" onclick="subirLogo()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Subir logo</button>
+              </div>
+              <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:6px">PNG con transparencia recomendado · máx 5 MB</p>
+              <p id="logo-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Favicon -->
+        <div style="margin-bottom:20px">
+          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Favicon (icono del navegador)</p>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <div id="fav-preview-wrap" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:10px;width:52px;height:52px;display:flex;align-items:center;justify-content:center;overflow:hidden">
+              <img id="fav-preview" src="/assets/icon-192.png" style="width:32px;height:32px;object-fit:contain"/>
+            </div>
+            <div style="flex:1;min-width:200px">
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <input type="file" id="fav-input" accept="image/png,image/jpeg,image/webp,image/x-icon" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:6px 10px;border-radius:var(--radio);font-size:0.78rem;flex:1;min-width:0"/>
+                <button id="btn-subir-fav" onclick="subirFavicon()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Subir favicon</button>
+              </div>
+              <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:6px">Se redimensiona a 32×32 px · PNG o ICO</p>
+              <p id="fav-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Color de acento -->
+        <div>
+          <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:10px">Color de acento</p>
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <input type="color" id="cfg-color" value="#e8311a" oninput="previsualizarColor(this.value)" style="width:44px;height:36px;border:1px solid var(--gris-linea);border-radius:var(--radio);background:none;cursor:pointer;padding:2px"/>
+            <div style="display:flex;gap:6px;flex-wrap:wrap" id="color-swatches">
+              <!-- Swatches precargados -->
+            </div>
+            <button onclick="guardarColor()" class="btn-subir" style="margin-top:0;padding:7px 16px;font-size:0.8rem">Aplicar color</button>
+            <button onclick="resetColor()" style="background:transparent;color:var(--gris-texto);border:1px solid var(--gris-linea);font-family:var(--fuente-titulo);font-size:0.75rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:7px 12px;border-radius:var(--radio);cursor:pointer">Reset</button>
+          </div>
+          <p style="font-size:0.72rem;color:var(--gris-texto);margin-top:8px">Cambia el rojo en toda la web — botones, precios, badges.</p>
+          <p id="color-msg" style="font-size:0.74rem;margin-top:4px;min-height:14px"></p>
+        </div>
+      </div>
+
+      <!-- ── HERO DE INICIO ─────────────────────────────────────────────────── -->
+      <div class="seccion">
+        <p class="seccion-titulo">🏠 Hero de inicio</p>
+        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Textos que aparecen en la cabecera de la página principal.</p>
+        <div class="config-campos">
+          <div class="config-campo" style="grid-column:1/-1"><label>Título principal (h1)</label><input type="text" id="cfg-hero-titulo" placeholder="Tu próximo coche te espera."/></div>
+          <div class="config-campo" style="grid-column:1/-1"><label>Etiqueta sobre el título</label><input type="text" id="cfg-hero-subtitulo" placeholder="Compraventa · Vehículos de ocasión"/></div>
+        </div>
+      </div>
+
+      <!-- ── MÓDULOS ────────────────────────────────────────────────────────── -->
       <div class="seccion">
         <p class="seccion-titulo">⚙️ Módulos activos</p>
         <div class="config-grid">
@@ -356,6 +423,37 @@
           <div class="config-campo"><label>Ciudad</label><input type="text" id="cfg-ciudad" placeholder="Madrid"/></div>
           <div class="config-campo" style="grid-column:1/-1"><label>Dirección</label><input type="text" id="cfg-direccion" placeholder="Calle Ejemplo 12, 28001 Madrid"/></div>
           <div class="config-campo" style="grid-column:1/-1"><label>Horario de atención</label><input type="text" id="cfg-horario" placeholder="Lun–Vie 9:00–19:00 · Sáb 10:00–14:00"/></div>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">🔍 SEO global</p>
+        <div class="config-campo" style="margin-bottom:0">
+          <label>Meta description de la home</label>
+          <textarea id="cfg-meta-desc" rows="2" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%;resize:vertical" placeholder="Los mejores coches de segunda mano en [ciudad]. Revisados, con garantía y al mejor precio."></textarea>
+          <p style="font-size:0.7rem;color:var(--gris-texto);margin-top:5px">Recomendado: entre 120 y 160 caracteres. Aparece en Google bajo el título de la web.</p>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <p class="seccion-titulo">📢 Banner de aviso</p>
+        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Barra fija en la parte superior de todas las páginas. Ideal para avisos temporales: vacaciones, eventos, ofertas.</p>
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px">
+          <label class="toggle-switch"><input type="checkbox" id="cfg-banner-activo" onchange="guardarToggle('banner_activo', this.checked)"/><span class="toggle-slider"></span></label>
+          <span style="font-size:0.82rem;color:var(--gris-texto)">Banner activo</span>
+        </div>
+        <div class="config-campo" style="margin-bottom:12px">
+          <label>Texto del banner</label>
+          <input type="text" id="cfg-banner-texto" placeholder="Ej: Cerramos por vacaciones del 1 al 15 de agosto. ¡Volvemos pronto!"/>
+        </div>
+        <div class="config-campo">
+          <label>Color</label>
+          <select id="cfg-banner-color" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);font-family:var(--fuente-cuerpo);font-size:0.88rem;padding:8px 10px;border-radius:var(--radio);width:100%">
+            <option value="naranja">🟠 Naranja (avisos)</option>
+            <option value="rojo">🔴 Rojo (urgente)</option>
+            <option value="verde">🟢 Verde (noticias positivas)</option>
+            <option value="azul">🔵 Azul (información)</option>
+          </select>
         </div>
       </div>
 
@@ -401,33 +499,6 @@
           <label>Código de embed (pega el script completo)</label>
           <textarea id="cfg-chat-codigo" placeholder="&lt;script&gt;...&lt;/script&gt;"></textarea>
         </div>
-      </div>
-
-      <div class="seccion">
-        <p class="seccion-titulo">🖼️ Imagen de fondo del hero</p>
-        <p style="font-size:0.78rem;color:var(--gris-texto);margin-bottom:14px">Foto de portada de la página de inicio. Se comprime automáticamente (dos pasadas: navegador + servidor). Sin imagen se muestra el fondo oscuro con diseño por defecto.</p>
-
-        <!-- Preview imagen actual -->
-        <div id="hero-preview-wrap" style="display:none;margin-bottom:14px">
-          <div style="position:relative;border-radius:var(--radio);overflow:hidden;border:1px solid var(--gris-linea)">
-            <img id="hero-preview" style="width:100%;max-height:180px;object-fit:cover;display:block"/>
-            <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,10,10,0.85) 0%,rgba(10,10,10,0.4) 100%);pointer-events:none"></div>
-            <div style="position:absolute;top:10px;left:12px;font-family:var(--fuente-titulo);font-size:0.7rem;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.6)">Preview</div>
-          </div>
-          <button onclick="eliminarHeroImagen()" style="margin-top:8px;background:transparent;color:#ff8f8f;border:1px solid #3a1a1a;font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:var(--radio);cursor:pointer">🗑 Quitar imagen</button>
-        </div>
-
-        <!-- Placeholder sin imagen -->
-        <div id="hero-placeholder" style="background:var(--gris-oscuro);border:1px dashed var(--gris-linea);border-radius:var(--radio);padding:20px;text-align:center;margin-bottom:14px;font-size:0.78rem;color:var(--gris-texto)">
-          Sin imagen — fondo oscuro con diseño por defecto
-        </div>
-
-        <!-- Subida -->
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <input type="file" id="hero-img-input" accept="image/*" style="background:var(--gris-oscuro);border:1px solid var(--gris-linea);color:var(--blanco);padding:7px 10px;border-radius:var(--radio);font-size:0.82rem;flex:1;min-width:0"/>
-          <button id="btn-subir-hero" onclick="subirImagenHero()" class="btn-subir" style="margin-top:0;padding:9px 20px;white-space:nowrap">Subir imagen</button>
-        </div>
-        <p id="hero-msg" style="font-size:0.75rem;margin-top:8px;min-height:16px"></p>
       </div>
 
       <button class="btn-subir" onclick="guardarConfig()">Guardar configuración</button>
