@@ -426,7 +426,33 @@
         <div class="form-campo-full"><label>Notas internas (solo tú las ves)</label><input type="text" id="n-notas" placeholder="Comprado a particular, pendiente revisión..."/></div>
         <div class="form-campo-full"><label>Vídeo YouTube (URL)</label><input type="text" id="n-video" placeholder="https://youtube.com/watch?v=..."/></div>
         <div class="form-campo-full"><label>Historial de km (opcional)</label><input type="text" id="n-historial-km" placeholder="Revisión oficial 80.000 km, cambio correa 120.000 km..."/></div>
-        <div class="form-campo-full"><label>Fotos (puedes seleccionar varias)</label><input type="file" id="n-fotos" accept="image/*" multiple/></div>
+        <div class="form-campo-full">
+          <label>Fotos (puedes seleccionar varias)</label>
+          <input type="file" id="n-fotos" accept="image/*" multiple onchange="waActualizarPreviews('n')"/>
+        </div>
+        <!-- Marca de agua: controles + preview -->
+        <div class="wa-controles" id="wa-controles-n">
+          <p class="wa-titulo">💧 Marca de agua — preview en vivo</p>
+          <div class="wa-fila">
+            <label>Tipo</label>
+            <select id="wa-tipo-n" onchange="waRedibujar('n')">
+              <option value="logo">Logo</option>
+              <option value="texto">Texto</option>
+              <option value="ninguna">Sin marca</option>
+            </select>
+          </div>
+          <div class="wa-fila">
+            <label>Opacidad</label>
+            <input type="range" id="wa-op-n" min="10" max="85" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('n')"/>
+            <span class="wa-val">40%</span>
+          </div>
+          <div class="wa-fila">
+            <label>Tamaño</label>
+            <input type="range" id="wa-tam-n" min="15" max="65" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('n')"/>
+            <span class="wa-val">40%</span>
+          </div>
+          <div class="wa-previews" id="wa-previews-n"></div>
+        </div>
         <label style="display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--gris-texto);cursor:pointer;margin-top:6px">
           <input type="checkbox" id="n-opt-optimizar" checked style="accent-color:var(--rojo)"/>
           Optimizar tamaño en navegador antes de subir (quita metadatos, reduce peso sin pérdida visual)
@@ -631,9 +657,32 @@
         <label><input type="checkbox" id="opt-marcaagua" checked/> Añadir marca de agua</label>
         <label><input type="checkbox" id="opt-optimizar" checked/> Optimizar tamaño en navegador</label>
       </div>
-      <div class="subir-row">
-        <input type="file" id="e-fotos-nuevas" accept="image/*" multiple/>
+      <div class="subir-row" style="margin-top:10px">
+        <input type="file" id="e-fotos-nuevas" accept="image/*" multiple onchange="waActualizarPreviews('e')"/>
         <button class="btn-subir-fotos" id="btn-subir-fotos" onclick="subirFotosEditar()">Subir fotos</button>
+      </div>
+      <!-- Marca de agua: controles + preview -->
+      <div class="wa-controles" id="wa-controles-e">
+        <p class="wa-titulo">💧 Marca de agua — preview en vivo</p>
+        <div class="wa-fila">
+          <label>Tipo</label>
+          <select id="wa-tipo-e" onchange="waRedibujar('e')">
+            <option value="logo">Logo</option>
+            <option value="texto">Texto</option>
+            <option value="ninguna">Sin marca</option>
+          </select>
+        </div>
+        <div class="wa-fila">
+          <label>Opacidad</label>
+          <input type="range" id="wa-op-e" min="10" max="85" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('e')"/>
+          <span class="wa-val">40%</span>
+        </div>
+        <div class="wa-fila">
+          <label>Tamaño</label>
+          <input type="range" id="wa-tam-e" min="15" max="65" value="40" step="5" oninput="this.nextElementSibling.textContent=this.value+'%';waRedibujar('e')"/>
+          <span class="wa-val">40%</span>
+        </div>
+        <div class="wa-previews" id="wa-previews-e"></div>
       </div>
       <div class="msg msg-ok" id="msg-fotos-ok">✅ Fotos subidas</div>
       <div class="msg msg-err" id="msg-fotos-err">❌ Error al subir</div>

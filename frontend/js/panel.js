@@ -1,4 +1,110 @@
 
+// ═══════════════════════════════════════════════════════════════════
+// MARCA DE AGUA — Canvas en navegador, preview en tiempo real
+// ═══════════════════════════════════════════════════════════════════
+let _waLogo = null, _waArchivos = {}, _waImagenes = {};
+
+async function _waCargarLogo() {
+  if (_waLogo) return _waLogo;
+  return new Promise(res => {
+    const img = new Image();
+    img.onload  = () => { _waLogo = img; res(img); };
+    img.onerror = () => res(null);
+    img.src = '/assets/logo.png?v=' + Date.now();
+  });
+}
+
+async function _waDibujar(canvas, ctx2d, tipo, opPct, tamPct) {
+  if (tipo === 'ninguna') return;
+  const W = canvas.width, H = canvas.height;
+  const nombre = document.getElementById('cfg-nombre')?.value.trim() || 'Ananta Cars';
+  ctx2d.save(); ctx2d.globalAlpha = opPct / 100;
+  if (tipo === 'logo') {
+    const logo = await _waCargarLogo();
+    if (logo) {
+      const waW = W * (tamPct / 100), waH = logo.height * (waW / logo.width);
+      const tmp = document.createElement('canvas');
+      tmp.width = logo.naturalWidth || logo.width; tmp.height = logo.naturalHeight || logo.height;
+      const tc = tmp.getContext('2d'); tc.drawImage(logo, 0, 0);
+      tc.globalCompositeOperation = 'source-in'; tc.fillStyle = 'white'; tc.fillRect(0, 0, tmp.width, tmp.height);
+      ctx2d.drawImage(tmp, (W - waW) / 2, (H - waH) / 2, waW, waH);
+      const fs = Math.max(14, Math.round(waW * 0.14));
+      ctx2d.font = `bold ${fs}px Arial`; ctx2d.fillStyle = 'white'; ctx2d.textAlign = 'center';
+      ctx2d.globalAlpha = (opPct / 100) * 0.65;
+      ctx2d.fillText(nombre, W / 2, H / 2 + waH / 2 + fs * 1.2);
+    }
+  } else {
+    const fs = Math.max(18, Math.round(W * (tamPct / 100) * 0.20));
+    ctx2d.font = `bold ${fs}px Arial`; ctx2d.fillStyle = 'white';
+    ctx2d.textAlign = 'center'; ctx2d.textBaseline = 'middle';
+    ctx2d.fillText(nombre, W / 2, H / 2);
+  }
+  ctx2d.restore();
+}
+
+function _waOpts(sfx) {
+  return {
+    tipo:   document.getElementById(`wa-tipo-${sfx}`)?.value  || 'logo',
+    opPct:  parseInt(document.getElementById(`wa-op-${sfx}`)?.value  || 40),
+    tamPct: parseInt(document.getElementById(`wa-tam-${sfx}`)?.value || 40),
+  };
+}
+
+async function waActualizarPreviews(sfx) {
+  const input = sfx === 'n' ? document.getElementById('n-fotos') : document.getElementById('e-fotos-nuevas');
+  const cont  = document.getElementById(`wa-controles-${sfx}`);
+  const prev  = document.getElementById(`wa-previews-${sfx}`);
+  if (!input?.files.length) { cont?.classList.remove('visible'); return; }
+  cont?.classList.add('visible');
+  prev.innerHTML = '<span style="font-size:0.75rem;color:var(--gris-texto);padding:8px">Cargando previews...</span>';
+  _waArchivos[sfx] = input.files;
+  _waImagenes[sfx] = await Promise.all(Array.from(input.files).map(f => new Promise(res => {
+    const img = new Image(), url = URL.createObjectURL(f);
+    img.onload = () => { URL.revokeObjectURL(url); res({ img, nombre: f.name }); };
+    img.src = url;
+  })));
+  await _waMostrarPreviews(sfx);
+}
+
+async function _waMostrarPreviews(sfx) {
+  const prev = document.getElementById(`wa-previews-${sfx}`);
+  const opts = _waOpts(sfx);
+  prev.innerHTML = '';
+  for (const { img, nombre } of (_waImagenes[sfx] || [])) {
+    const wrap = document.createElement('div'); wrap.className = 'wa-preview-item';
+    const canvas = document.createElement('canvas'); const lbl = document.createElement('span');
+    lbl.textContent = nombre; wrap.appendChild(canvas); wrap.appendChild(lbl); prev.appendChild(wrap);
+    canvas.width = img.naturalWidth; canvas.height = img.naturalHeight;
+    const ctx2d = canvas.getContext('2d'); ctx2d.drawImage(img, 0, 0);
+    await _waDibujar(canvas, ctx2d, opts.tipo, opts.opPct, opts.tamPct);
+  }
+}
+
+async function waRedibujar(sfx) {
+  if (!_waImagenes[sfx]?.length) return;
+  await _waMostrarPreviews(sfx);
+}
+
+async function waProcesarTodos(sfx) {
+  const opts = _waOpts(sfx);
+  return Promise.all(Array.from(_waArchivos[sfx] || []).map(file => new Promise(async res => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = async () => {
+      URL.revokeObjectURL(url);
+      let W = img.naturalWidth, H = img.naturalHeight;
+      if (W > 1920) { H = Math.round(H * 1920 / W); W = 1920; }
+      const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+      const ctx2d = canvas.getContext('2d'); ctx2d.drawImage(img, 0, 0, W, H);
+      await _waDibujar(canvas, ctx2d, opts.tipo, opts.opPct, opts.tamPct);
+      canvas.toBlob(blob => {
+        res(new File([blob], file.name.replace(/\.[^.]+$/, '.webp'), {type:'image/webp', lastModified:Date.now()}));
+      }, 'image/webp', 0.88);
+    };
+    img.src = url;
+  })));
+}
+
+
 // ── OPTIMIZAR FOTO EN NAVEGADOR ───────────────────────────────────────────────
 async function optimizarFoto(file, maxWidth = 1920, quality = 0.88) {
   return new Promise((resolve) => {
@@ -52,40 +158,10 @@ async function procesarFotos(archivos, optimizar = true) {
 
 
 // ── IA — ESCANEAR COCHE ───────────────────────────────────────────────────────
-
-// ── IA — PREVIEW Y HELPERS ────────────────────────────────────────────────────
-function iaMostrarPreview(input) {
-  const img  = document.getElementById("ia-preview-img");
-  const cont = document.getElementById("ia-drop-contenido");
-  const zona = document.getElementById("ia-drop-zona");
-  if (!input.files[0]) return;
-  const url = URL.createObjectURL(input.files[0]);
-  img.src = url;
-  img.style.display = "block";
-  if (cont) cont.style.display = "none";
-  if (zona) zona.style.borderColor = "var(--rojo)";
-}
-
-function iaLimpiar() {
-  const input = document.getElementById("ia-foto-scan");
-  const img   = document.getElementById("ia-preview-img");
-  const cont  = document.getElementById("ia-drop-contenido");
-  const zona  = document.getElementById("ia-drop-zona");
-  const msg   = document.getElementById("scan-msg");
-  const res   = document.getElementById("ia-campos-rellenos");
-  if (input) input.value = "";
-  if (img)   { img.src = ""; img.style.display = "none"; }
-  if (cont)  cont.style.display = "block";
-  if (zona)  zona.style.borderColor = "";
-  if (msg)   msg.textContent = "";
-  if (res)   res.style.display = "none";
-}
-
 async function escanearCoche() {
   const input = document.getElementById("ia-foto-scan");
   const msg   = document.getElementById("scan-msg");
   const btn   = document.getElementById("btn-scan");
-  const res   = document.getElementById("ia-campos-rellenos");
   if (!input?.files[0]) { msg.textContent = "Selecciona una foto primero"; msg.style.color = "#ff8f8f"; return; }
 
   btn.disabled = true; btn.textContent = "Analizando...";
@@ -101,35 +177,22 @@ async function escanearCoche() {
     if (!data.ok) throw new Error(data.detail || "Error");
 
     const d = data.datos;
-    const mapa = [
-      ["n-marca",       d.marca,       "Marca"],
-      ["n-modelo",      d.modelo,      "Modelo"],
-      ["n-anio",        d.anio,        "Año"],
-      ["n-color",       d.color,       "Color"],
-      ["n-combustible", d.combustible, "Combustible"],
-      ["n-carroceria",  d.carroceria,  "Carrocería"],
-      ["n-cv",          d.cv,          "CV"],
-    ];
-    let rellenadosTxt = [];
-    mapa.forEach(([id, val, label]) => {
-      if (val) {
-        const el = document.getElementById(id);
-        if (el) { el.value = val; el.style.borderColor = "var(--rojo)"; setTimeout(() => el.style.borderColor = "", 2000); }
-        rellenadosTxt.push(`<span style="color:#7fffaa">✓ ${label}:</span> <strong>${val}</strong>`);
-      }
-    });
+    if (d.marca)      { const el = document.getElementById("n-marca");      if (el) el.value = d.marca; }
+    if (d.modelo)     { const el = document.getElementById("n-modelo");     if (el) el.value = d.modelo; }
+    if (d.anio)       { const el = document.getElementById("n-anio");       if (el) el.value = d.anio; }
+    if (d.color)      { const el = document.getElementById("n-color");      if (el) el.value = d.color; }
+    if (d.combustible){ const el = document.getElementById("n-combustible"); if (el) el.value = d.combustible; }
+    if (d.carroceria) { const el = document.getElementById("n-carroceria"); if (el) el.value = d.carroceria; }
+    if (d.cv)         { const el = document.getElementById("n-cv");         if (el) el.value = d.cv; }
 
-    msg.textContent = `✅ ${rellenadosTxt.length} campos detectados — revisa y completa el resto`;
+    const rellenos = Object.values(d).filter(v => v !== null).length;
+    msg.textContent = `✅ ${rellenos} campos rellenados automáticamente`;
     msg.style.color = "#7fffaa";
-    if (res && rellenadosTxt.length) {
-      res.innerHTML = rellenadosTxt.join(" &nbsp;·&nbsp; ");
-      res.style.display = "block";
-    }
   } catch(e) {
-    msg.textContent = "❌ Error al analizar: " + (e.message || "Inténtalo de nuevo");
+    msg.textContent = "❌ Error al analizar: " + e.message;
     msg.style.color = "#ff8f8f";
   } finally {
-    btn.disabled = false; btn.textContent = "🔍 Analizar con IA";
+    btn.disabled = false; btn.textContent = "🔍 Escanear";
   }
 }
 
@@ -381,8 +444,7 @@ async function crearCoche() {
     const archivosRaw = document.getElementById("n-fotos").files;
     if (archivosRaw.length > 0) {
       btn.textContent = `Subiendo ${archivosRaw.length} foto(s)...`;
-      const optimizar = document.getElementById("n-opt-optimizar")?.checked !== false;
-      const archivos = await procesarFotos(archivosRaw, optimizar);
+      const archivos = await waProcesarTodos('n');
       const formData = new FormData();
       for (const f of archivos) formData.append("fotos", f);
       await fetch(`${API}/api/fotos/subir/${coche.id}?redimensionar=true&marca_agua=true`, {
@@ -662,16 +724,13 @@ async function subirFotosEditar() {
   msgOk.style.display = msgErr.style.display = "none";
   if (!input.files.length) return;
 
-  const redimensionar = document.getElementById("opt-redimensionar").checked;
-  const marcaAgua     = document.getElementById("opt-marcaagua").checked;
   btn.disabled = true; btn.textContent = "Subiendo...";
 
   try {
-    const optimizar = document.getElementById("opt-optimizar")?.checked !== false;
-    const fotosOptimizadas = await procesarFotos(input.files, optimizar);
+    const fotosOptimizadas = await waProcesarTodos('e');
     const formData = new FormData();
     for (const f of fotosOptimizadas) formData.append("fotos", f);
-    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=${redimensionar}&marca_agua=${marcaAgua}`, {
+    const resp = await fetch(`${API}/api/fotos/subir/${cocheEditandoId}?redimensionar=false&marca_agua=false`, {
       method:"POST", headers:{"Authorization": `Bearer ${getToken()}`}, body: formData,
     });
     if (!resp.ok) throw new Error();
@@ -695,12 +754,29 @@ async function subirFotosEditar() {
 async function eliminarFoto(fotoId) {
   if (!confirm("¿Eliminar esta foto?")) return;
   try {
+    // ¿Era la portada?
+    const itemEl   = document.getElementById(`foto-item-${fotoId}`);
+    const eraPortada = itemEl?.classList.contains("portada");
+
     const resp = await fetch(`${API}/api/fotos/${fotoId}`, {method:"DELETE", headers:authHeaders()});
-    if (resp.ok) {
-      document.getElementById(`foto-item-${fotoId}`)?.remove();
-      toast("Foto eliminada");
-      await cargarListaCoches();
-    } else toast("Error al eliminar foto", true);
+    if (!resp.ok) { toast("Error al eliminar foto", true); return; }
+
+    itemEl?.remove();
+    toast("Foto eliminada");
+
+    // Si era la portada, asignar la primera foto restante (o vaciar)
+    if (eraPortada) {
+      const fotosRestantes = await fetch(`${API}/api/fotos/${cocheEditandoId}`, {headers:authHeaders()});
+      const lista = await fotosRestantes.json();
+      const nuevaPortada = lista[0]?.url || null;
+      await fetch(`${API}/api/coches/${cocheEditandoId}`, {
+        method:"PATCH", headers:authHeaders(),
+        body:JSON.stringify({foto_portada: nuevaPortada}),
+      });
+      renderFotosEditar(lista, nuevaPortada);
+    }
+
+    await cargarListaCoches();
   } catch { toast("Error de conexión", true); }
 }
 
