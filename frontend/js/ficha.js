@@ -408,7 +408,24 @@ function cambiarFoto(idx) {
       iframe.onclick = e => e.stopPropagation();
       wrap.appendChild(iframe);
     };
-    overlay.innerHTML = '<div class="yt-play-btn"></div><span class="yt-play-label">Ver vídeo</span>';
+    overlay.innerHTML = `
+      <div style="
+        width:72px;height:72px;border-radius:50%;
+        background:rgba(255,0,0,0.9);
+        display:flex;align-items:center;justify-content:center;
+        box-shadow:0 4px 24px rgba(0,0,0,0.6);
+        transition:transform 0.2s;
+      ">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+          <polygon points="5,3 19,12 5,21"/>
+        </svg>
+      </div>
+      <span style="
+        color:#fff;font-family:'Barlow Condensed',sans-serif;
+        font-size:0.8rem;font-weight:700;letter-spacing:0.12em;
+        text-transform:uppercase;margin-top:10px;
+        text-shadow:0 1px 4px rgba(0,0,0,0.8);
+      ">Ver vídeo</span>`;
     wrap.appendChild(overlay);
   } else {
     // Foto normal — sin overlay
