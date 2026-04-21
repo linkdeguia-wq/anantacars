@@ -64,7 +64,7 @@
         <div class="paso-num">02</div>
         <div>
           <div class="paso-titulo">Contacta sin compromiso</div>
-          <p class="paso-desc">Escríbenos por WhatsApp o llámanos directamente. Resolvemos todas tus dudas, concertamos una visita y si quieres te hacemos una prueba de conducción.</p>
+          <p class="paso-desc">Escríbenos por WhatsApp o llámanos. Resolvemos todas tus dudas, concertamos una visita y si quieres te hacemos una prueba de conducción. <span id="cmp-contacto"></span></p>
         </div>
       </div>
       <div class="paso">
@@ -90,6 +90,12 @@
       <div class="garantia"><div class="garantia-icono">💳</div><div class="garantia-titulo">Financiación</div><p class="garantia-desc">Gestión de financiación adaptada a tu situación</p></div>
     </div>
 
+    <!-- Datos de contacto dinámicos -->
+    <div id="cmp-info-negocio" style="display:none;background:var(--carbon);border:1px solid var(--gris-linea);border-radius:var(--radio);padding:28px;margin-bottom:32px">
+      <p style="font-family:var(--fuente-titulo);font-size:0.72rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--rojo);margin-bottom:16px">Dónde estamos</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px" id="cmp-datos-grid"></div>
+    </div>
+
     <div class="cta">
       <h2>¿Listo para encontrar tu coche?</h2>
       <p>Más de <span id="num-coches">varios</span> vehículos disponibles ahora mismo</p>
@@ -97,17 +103,50 @@
     </div>
   </div>
 
-  <div id="footer-root"></div>
+  <footer>
+    <div class="footer-logo">ANANTA<span>.</span>CARS</div>
+    <p>© 2025 Ananta Cars · Todos los derechos reservados</p>
+  </footer>
 
   <script>
     const API = "https://anantacars-production.up.railway.app";
+
+    // Contador de coches
     fetch(`${API}/api/coches?estado=disponible&por_pagina=1`)
       .then(r => r.json())
       .then(d => { if (d.total) document.getElementById("num-coches").textContent = d.total; })
       .catch(() => {});
+
+    // Datos del negocio — dirección, horario, teléfono, WhatsApp
+    fetch(`${API}/api/config`)
+      .then(r => r.json())
+      .then(cfg => {
+        // Texto inline en paso 02
+        const ct = document.getElementById("cmp-contacto");
+        if (ct) {
+          const partes = [];
+          if (cfg.whatsapp) partes.push(`<a href="https://wa.me/${cfg.whatsapp}" target="_blank" style="color:var(--rojo)">WhatsApp</a>`);
+          if (cfg.telefono) partes.push(`<a href="tel:+${cfg.telefono}" style="color:var(--rojo)">+${cfg.telefono.replace(/^34/,"34 ")}</a>`);
+          if (partes.length) ct.innerHTML = "(" + partes.join(" · ") + ")";
+        }
+
+        // Bloque de datos del negocio
+        const grid = document.getElementById("cmp-datos-grid");
+        const wrap = document.getElementById("cmp-info-negocio");
+        if (grid && (cfg.direccion || cfg.horario || cfg.telefono || cfg.whatsapp)) {
+          const items = [];
+          if (cfg.direccion) items.push(`<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:4px">📍 Dirección</div><div style="font-size:0.92rem">${cfg.direccion}</div></div>`);
+          if (cfg.horario)   items.push(`<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:4px">🕐 Horario</div><div style="font-size:0.92rem">${cfg.horario}</div></div>`);
+          if (cfg.telefono)  items.push(`<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:4px">📞 Teléfono</div><div style="font-size:0.92rem"><a href="tel:+${cfg.telefono}" style="color:var(--blanco);text-decoration:none">+${cfg.telefono.replace(/^34/,"34 ")}</a></div></div>`);
+          if (cfg.whatsapp)  items.push(`<div><div style="font-family:'Barlow Condensed',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--gris-texto);margin-bottom:4px">💬 WhatsApp</div><div style="font-size:0.92rem"><a href="https://wa.me/${cfg.whatsapp}" target="_blank" style="color:#25d366;text-decoration:none">Escribir ahora →</a></div></div>`);
+          grid.innerHTML = items.join("");
+          wrap.style.display = "block";
+        }
+
+        // Actualizar color acento y logo si está configurado
+        if (cfg.color_acento) document.documentElement.style.setProperty("--rojo", cfg.color_acento);
+      })
+      .catch(() => {});
   </script>
-<script src="/js/config-aplicar.js"></script>
-  <script src="/js/cookies-banner.js"></script>
-  <script src="/js/footer.js"></script>
 </body>
 </html>

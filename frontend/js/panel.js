@@ -1,20 +1,4 @@
 
-// ── FETCH CON AUTO-LOGOUT EN 401 ─────────────────────────────────────────────
-const _fetchOrig = window.fetch.bind(window);
-window.fetch = async function(url, opts = {}) {
-  const resp = await _fetchOrig(url, opts);
-  if (resp.status === 401 && url.includes(API) && !url.includes("/auth/login")) {
-    quitarToken();
-    toast("Sesión expirada — vuelve a entrar", true);
-    setTimeout(() => {
-      document.getElementById("pantalla-panel").style.display = "none";
-      document.getElementById("pantalla-login").style.display = "flex";
-    }, 1200);
-  }
-  return resp;
-};
-
-
 // ── OPTIMIZAR FOTO EN NAVEGADOR ───────────────────────────────────────────────
 async function optimizarFoto(file, maxWidth = 1920, quality = 0.88) {
   return new Promise((resolve) => {
@@ -68,10 +52,40 @@ async function procesarFotos(archivos, optimizar = true) {
 
 
 // ── IA — ESCANEAR COCHE ───────────────────────────────────────────────────────
+
+// ── IA — PREVIEW Y HELPERS ────────────────────────────────────────────────────
+function iaMostrarPreview(input) {
+  const img  = document.getElementById("ia-preview-img");
+  const cont = document.getElementById("ia-drop-contenido");
+  const zona = document.getElementById("ia-drop-zona");
+  if (!input.files[0]) return;
+  const url = URL.createObjectURL(input.files[0]);
+  img.src = url;
+  img.style.display = "block";
+  if (cont) cont.style.display = "none";
+  if (zona) zona.style.borderColor = "var(--rojo)";
+}
+
+function iaLimpiar() {
+  const input = document.getElementById("ia-foto-scan");
+  const img   = document.getElementById("ia-preview-img");
+  const cont  = document.getElementById("ia-drop-contenido");
+  const zona  = document.getElementById("ia-drop-zona");
+  const msg   = document.getElementById("scan-msg");
+  const res   = document.getElementById("ia-campos-rellenos");
+  if (input) input.value = "";
+  if (img)   { img.src = ""; img.style.display = "none"; }
+  if (cont)  cont.style.display = "block";
+  if (zona)  zona.style.borderColor = "";
+  if (msg)   msg.textContent = "";
+  if (res)   res.style.display = "none";
+}
+
 async function escanearCoche() {
   const input = document.getElementById("ia-foto-scan");
   const msg   = document.getElementById("scan-msg");
   const btn   = document.getElementById("btn-scan");
+  const res   = document.getElementById("ia-campos-rellenos");
   if (!input?.files[0]) { msg.textContent = "Selecciona una foto primero"; msg.style.color = "#ff8f8f"; return; }
 
   btn.disabled = true; btn.textContent = "Analizando...";
@@ -87,22 +101,35 @@ async function escanearCoche() {
     if (!data.ok) throw new Error(data.detail || "Error");
 
     const d = data.datos;
-    if (d.marca)      { const el = document.getElementById("n-marca");      if (el) el.value = d.marca; }
-    if (d.modelo)     { const el = document.getElementById("n-modelo");     if (el) el.value = d.modelo; }
-    if (d.anio)       { const el = document.getElementById("n-anio");       if (el) el.value = d.anio; }
-    if (d.color)      { const el = document.getElementById("n-color");      if (el) el.value = d.color; }
-    if (d.combustible){ const el = document.getElementById("n-combustible"); if (el) el.value = d.combustible; }
-    if (d.carroceria) { const el = document.getElementById("n-carroceria"); if (el) el.value = d.carroceria; }
-    if (d.cv)         { const el = document.getElementById("n-cv");         if (el) el.value = d.cv; }
+    const mapa = [
+      ["n-marca",       d.marca,       "Marca"],
+      ["n-modelo",      d.modelo,      "Modelo"],
+      ["n-anio",        d.anio,        "Año"],
+      ["n-color",       d.color,       "Color"],
+      ["n-combustible", d.combustible, "Combustible"],
+      ["n-carroceria",  d.carroceria,  "Carrocería"],
+      ["n-cv",          d.cv,          "CV"],
+    ];
+    let rellenadosTxt = [];
+    mapa.forEach(([id, val, label]) => {
+      if (val) {
+        const el = document.getElementById(id);
+        if (el) { el.value = val; el.style.borderColor = "var(--rojo)"; setTimeout(() => el.style.borderColor = "", 2000); }
+        rellenadosTxt.push(`<span style="color:#7fffaa">✓ ${label}:</span> <strong>${val}</strong>`);
+      }
+    });
 
-    const rellenos = Object.values(d).filter(v => v !== null).length;
-    msg.textContent = `✅ ${rellenos} campos rellenados automáticamente`;
+    msg.textContent = `✅ ${rellenadosTxt.length} campos detectados — revisa y completa el resto`;
     msg.style.color = "#7fffaa";
+    if (res && rellenadosTxt.length) {
+      res.innerHTML = rellenadosTxt.join(" &nbsp;·&nbsp; ");
+      res.style.display = "block";
+    }
   } catch(e) {
-    msg.textContent = "❌ Error al analizar: " + e.message;
+    msg.textContent = "❌ Error al analizar: " + (e.message || "Inténtalo de nuevo");
     msg.style.color = "#ff8f8f";
   } finally {
-    btn.disabled = false; btn.textContent = "🔍 Escanear";
+    btn.disabled = false; btn.textContent = "🔍 Analizar con IA";
   }
 }
 
@@ -422,17 +449,13 @@ function renderItem(c) {
       <div class="coche-thumb">${c.foto_portada ? `<img src="${c.foto_portada}" alt=""/>` : "🚗"}</div>
       <div class="coche-info">
         <div class="coche-nombre">${c.marca} ${c.modelo} ${c.anio}${c.destacado ? " ⭐" : ""}</div>
-        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible}</div>
-        <div class="coche-meta" style="margin-top:2px">
-          <strong style="color:var(--blanco)">${c.estado.toUpperCase()}</strong>
-          ${c.visitas ? ` · 👁 ${c.visitas}` : ""}
-          · <span class="coche-precio-inline">${precioHTML}</span>
-        </div>
+        <div class="coche-meta">${new Intl.NumberFormat("es-ES").format(c.km)} km · ${c.combustible} · <strong style="color:var(--blanco)">${c.estado.toUpperCase()}</strong>${c.visitas ? ` · 👁 ${c.visitas}` : ""}</div>
       </div>
+      <div class="coche-precio">${precioHTML}</div>
       <div class="coche-acciones">
         ${estadosBtns}
-        <button class="btn-accion" onclick="abrirEditar(${c.id})">✏️</button>
-        <button class="btn-accion" onclick="duplicarCoche(${c.id})">⧉</button>
+        <button class="btn-accion" onclick="abrirEditar(${c.id})">✏️ Editar</button>
+        <button class="btn-accion" onclick="duplicarCoche(${c.id})">⧉ Duplicar</button>
         <button class="btn-accion btn-accion-rojo" onclick="borrarCoche(${c.id},'${c.marca} ${c.modelo}')">🗑</button>
       </div>
     </div>`;
