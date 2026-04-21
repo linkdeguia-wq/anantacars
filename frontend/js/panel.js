@@ -737,11 +737,28 @@ async function subirFotosEditar() {
     input.value = "";
     msgOk.style.display = "block";
     toast("✅ Fotos subidas");
+
+    // Recargar fotos y coche
     const [respC, respF] = await Promise.all([
       fetch(`${API}/api/coches/${cocheEditandoId}`, {headers:authHeaders()}),
       fetch(`${API}/api/fotos/${cocheEditandoId}`,  {headers:authHeaders()}),
     ]);
-    renderFotosEditar(await respF.json(), (await respC.json()).foto_portada);
+    const cocheActual = await respC.json();
+    const fotosActuales = await respF.json();
+
+    // Si la portada actual ya no existe entre las fotos válidas → asignar la primera
+    const urlsValidas = fotosActuales.map(f => f.url);
+    if (!urlsValidas.includes(cocheActual.foto_portada) && fotosActuales.length > 0) {
+      const nuevaPortada = fotosActuales[0].url;
+      await fetch(`${API}/api/coches/${cocheEditandoId}`, {
+        method:"PATCH", headers:authHeaders(),
+        body:JSON.stringify({foto_portada: nuevaPortada}),
+      });
+      cocheActual.foto_portada = nuevaPortada;
+      toast("✅ Fotos subidas · portada actualizada");
+    }
+
+    renderFotosEditar(fotosActuales, cocheActual.foto_portada);
     await cargarListaCoches();
   } catch {
     msgErr.style.display = "block";
