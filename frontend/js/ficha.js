@@ -38,25 +38,31 @@ function enviarPorWhatsApp(vehiculo, cocheId) {
 }
 
 
-// ── FORMULARIO CONTACTO WEB3FORMS ─────────────────────────────────────────────
-const W3F_KEY = "72cf4bcd-025f-4f7e-95d7-0f5554625ab4";
+// ── FORMULARIO CONTACTO ───────────────────────────────────────────────────────
+// Web3Forms key oculta en backend — endpoint propio /api/contacto/enviar
 
 async function enviarConsulta(vehiculo, cocheId) {
   const nombre   = document.getElementById("fc-nombre")?.value.trim();
-  const telefono = document.getElementById("fc-telefono")?.value.trim();
+  const email    = document.getElementById("fc-telefono")?.value.trim();
   const mensaje  = document.getElementById("fc-mensaje")?.value.trim();
+  // Honeypot — campo oculto que solo bots rellenan
+  const honeypot = document.getElementById("fc-website")?.value || "";
   const msgEl    = document.getElementById("fc-msg");
   const btn      = document.querySelector(".btn-enviar-consulta");
 
-  if (!nombre || !telefono) {
+  if (!nombre || !email) {
     msgEl.textContent = "Por favor rellena tu nombre y email.";
     msgEl.style.color = "#ff8f8f";
     return;
   }
-  // Validar formato email
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(telefono)) {
+  if (!emailRegex.test(email)) {
     msgEl.textContent = "Por favor introduce un email válido.";
+    msgEl.style.color = "#ff8f8f";
+    return;
+  }
+  if (mensaje.length < 5) {
+    msgEl.textContent = "El mensaje es demasiado corto.";
     msgEl.style.color = "#ff8f8f";
     return;
   }
@@ -65,22 +71,18 @@ async function enviarConsulta(vehiculo, cocheId) {
   btn.textContent = "Enviando...";
 
   try {
-    const resp = await fetch("https://api.web3forms.com/submit", {
+    const resp = await fetch(`${API}/api/contacto/enviar`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        access_key: W3F_KEY,
-        subject: `Consulta sobre ${vehiculo} — Ananta Cars`,
-        name: nombre,
-        phone: telefono,
-        message: mensaje,
-        vehicle: vehiculo,
-        vehicle_url: window.location.href,
-        from_name: "Ananta Cars Web",
+        nombre, email, mensaje,
+        vehiculo,
+        vehiculo_url: window.location.href,
+        website: honeypot,  // honeypot
       }),
     });
     const data = await resp.json();
-    if (data.success) {
+    if (resp.ok && data.ok) {
       const wrap = document.getElementById("form-contacto-wrap");
       if (wrap) {
         wrap.innerHTML = `
@@ -90,6 +92,9 @@ async function enviarConsulta(vehiculo, cocheId) {
             <div style="font-size:0.82rem;color:var(--gris-texto)">Te responderemos lo antes posible.</div>
           </div>`;
       }
+    } else if (resp.status === 429) {
+      msgEl.textContent = "❌ Demasiados envíos. Espera un minuto.";
+      msgEl.style.color = "#ff8f8f";
     } else {
       throw new Error();
     }
@@ -298,13 +303,16 @@ async function cargarFicha() {
           <!-- FORMULARIO CONTACTO -->
           <div class="form-contacto" id="form-contacto-wrap">
             <p class="form-contacto-titulo">✉️ Enviar consulta</p>
-            <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="¿Con quién hablamos?" autocapitalize="sentences"/>
-            <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email (ej: nombre@gmail.com)" inputmode="email"/>
-            <textarea class="form-contacto-input" id="fc-mensaje" rows="5" id="fc-mensaje"></textarea>
+            <input class="form-contacto-input" id="fc-nombre" type="text" placeholder="¿Con quién hablamos?" autocapitalize="sentences" maxlength="80"/>
+            <input class="form-contacto-input" id="fc-telefono" type="email" placeholder="Tu email (ej: nombre@gmail.com)" inputmode="email" maxlength="120"/>
+            <textarea class="form-contacto-input" id="fc-mensaje" rows="5" maxlength="2000"></textarea>
+            <!-- Honeypot anti-bot: invisible para humanos, los bots lo rellenan -->
+            <input type="text" id="fc-website" name="website" tabindex="-1" autocomplete="off"
+                   style="position:absolute;left:-9999px;opacity:0;height:0;width:0;pointer-events:none" aria-hidden="true"/>
             <div style="display:flex;gap:8px;margin-top:4px">
-            <button class="btn-enviar-consulta" style="flex:1" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">📧 Enviar por email</button>
-            <button class="btn-enviar-consulta" style="flex:1;background:#25d366;color:#000" onclick="enviarPorWhatsApp('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">💬 Por WhatsApp</button>
-          </div>
+              <button class="btn-enviar-consulta" style="flex:1" onclick="enviarConsulta('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">📧 Enviar por email</button>
+              <button class="btn-enviar-consulta" style="flex:1;background:#25d366;color:#000" onclick="enviarPorWhatsApp('${c.marca} ${c.modelo} ${c.anio}', '${c.id}')">💬 Por WhatsApp</button>
+            </div>
             <p class="form-contacto-msg" id="fc-msg"></p>
           </div>
           <!-- BOTONES CONTACTO -->
@@ -360,11 +368,33 @@ async function cargarFicha() {
     // Badge precio
     cargarBadgeFicha(c.id);
 
-    // Inyectar chat si está configurado
+    // Inyectar chat solo si es de proveedores conocidos (anti-XSS)
     if (cfgGlobal.modulo_chat && cfgGlobal.chat_codigo) {
-      const div = document.createElement("div");
-      div.innerHTML = cfgGlobal.chat_codigo;
-      document.body.appendChild(div);
+      const codigo = cfgGlobal.chat_codigo;
+      // Whitelist de dominios de chat permitidos
+      const proveedoresOk = [
+        "tawk.to", "embed.tawk.to",
+        "crisp.chat", "client.crisp.chat",
+        "tidio.com", "code.tidio.co",
+        "intercom.io", "widget.intercom.io",
+        "hubspot.com", "js.hs-scripts.com",
+        "chatwoot.com",
+        "smartsupp.com",
+        "drift.com",
+      ];
+      const tieneProveedorConocido = proveedoresOk.some(p => codigo.includes(p));
+      // Bloquear cualquier <script> si no es de proveedor conocido
+      if (tieneProveedorConocido && !/<script[^>]*src=(?!.*(?:tawk|crisp|tidio|intercom|hubspot|chatwoot|smartsupp|drift))/.test(codigo)) {
+        const div = document.createElement("div");
+        div.innerHTML = codigo;
+        // Mover scripts al body para que se ejecuten
+        div.querySelectorAll("script").forEach(s => {
+          const ns = document.createElement("script");
+          [...s.attributes].forEach(a => ns.setAttribute(a.name, a.value));
+          if (s.textContent) ns.textContent = s.textContent;
+          document.body.appendChild(ns);
+        });
+      }
     }
 
   } catch (err) {

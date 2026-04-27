@@ -1,56 +1,45 @@
 {
   "rewrites": [
-    {
-      "source": "/coches/:slug",
-      "destination": "/ficha.html"
-    },
-    {
-      "source": "/como-comprar",
-      "destination": "/como-comprar.html"
-    },
-    {
-      "source": "/comparar",
-      "destination": "/comparar.html"
-    },
-    {
-      "source": "/politica-privacidad",
-      "destination": "/politica-privacidad.html"
-    },
-    {
-      "source": "/aviso-legal",
-      "destination": "/aviso-legal.html"
-    },
-    {
-      "source": "/mantenimiento",
-      "destination": "/mantenimiento.html"
-    }
+    { "source": "/coches/:slug",        "destination": "/ficha.html" },
+    { "source": "/como-comprar",        "destination": "/como-comprar.html" },
+    { "source": "/comparar",            "destination": "/comparar.html" },
+    { "source": "/politica-privacidad", "destination": "/politica-privacidad.html" },
+    { "source": "/aviso-legal",         "destination": "/aviso-legal.html" },
+    { "source": "/mantenimiento",       "destination": "/mantenimiento.html" },
+    { "source": "/gestion-ac-2024",     "destination": "/panel.html" }
+  ],
+  "redirects": [
+    { "source": "/panel.html",   "destination": "/404.html", "statusCode": 404 },
+    { "source": "/panel",        "destination": "/404.html", "statusCode": 404 },
+    { "source": "/admin",        "destination": "/404.html", "statusCode": 404 },
+    { "source": "/admin.html",   "destination": "/404.html", "statusCode": 404 },
+    { "source": "/wp-admin",     "destination": "/404.html", "statusCode": 404 },
+    { "source": "/wp-login.php", "destination": "/404.html", "statusCode": 404 }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "SAMEORIGIN"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
+        { "key": "X-Content-Type-Options",    "value": "nosniff" },
+        { "key": "X-Frame-Options",           "value": "SAMEORIGIN" },
+        { "key": "X-XSS-Protection",          "value": "1; mode=block" },
+        { "key": "Referrer-Policy",           "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",        "value": "camera=(self), microphone=(), geolocation=(), payment=(), usb=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "Content-Security-Policy",   "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://www.youtube.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://anantacars-production.up.railway.app https://api.web3forms.com https://*.supabase.co https://*.supabase.in https://www.google-analytics.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests" }
       ]
     },
     {
       "source": "/sw.js",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "no-cache"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }]
+    },
+    {
+      "source": "/manifest.json",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+    },
+    {
+      "source": "/(.*\\.(?:png|jpg|jpeg|webp|svg|ico|woff|woff2))",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
   ]
 }

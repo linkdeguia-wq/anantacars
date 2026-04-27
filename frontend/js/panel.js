@@ -133,7 +133,8 @@ async function optimizarFoto(file, maxWidth = 1920, quality = 0.88) {
             type: "image/jpeg",
             lastModified: Date.now(),
           });
-          console.log(`Optimizada: ${(file.size/1024/1024).toFixed(2)}MB → ${(optimizada.size/1024/1024).toFixed(2)}MB`);
+          // Solo log en desarrollo si window.DEBUG está activo
+          if (window.DEBUG) console.log(`Optimizada: ${(file.size/1024/1024).toFixed(2)}MB → ${(optimizada.size/1024/1024).toFixed(2)}MB`);
           resolve(optimizada);
         }, "image/jpeg", quality);
       };

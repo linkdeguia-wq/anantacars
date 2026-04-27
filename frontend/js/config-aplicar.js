@@ -10,9 +10,12 @@
     .then(r => r.json())
     .then(c => {
       // ── Modo mantenimiento ─────────────────────────────────────────────────
-      // No redirigir si ya estamos en mantenimiento o en el panel
-      const esPaginas = ["/mantenimiento", "/panel"].every(p => !window.location.pathname.startsWith(p));
-      if (c.modo_mantenimiento && esPaginas) {
+      // No redirigir si ya estamos en mantenimiento o en el panel (cualquier ruta camuflada)
+      const path = window.location.pathname;
+      const esRutaInterna = path.startsWith("/mantenimiento")
+                         || path.startsWith("/gestion-ac-2024")
+                         || path.endsWith("/panel.html");
+      if (c.modo_mantenimiento && !esRutaInterna) {
         window.location.href = "/mantenimiento";
         return c;
       }

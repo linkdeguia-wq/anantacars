@@ -1,0 +1,32 @@
+# robots.txt — Ananta Cars
+# https://anantacars.es/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /panel.html
+Disallow: /panel
+Disallow: /admin
+Disallow: /gestion-ac-2024
+Disallow: /api/
+Disallow: /mantenimiento
+Disallow: /404.html
+
+# Sitemaps
+Sitemap: https://anantacars.es/sitemap.xml
+Sitemap: https://anantacars-production.up.railway.app/sitemap.xml
+
+# Bots maliciosos / agresivos — bloquear completamente
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+User-agent: PetalBot
+Disallow: /

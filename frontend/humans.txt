@@ -1,0 +1,11 @@
+/* TEAM */
+Web: Ananta Cars
+Site: https://anantacars.es
+Location: España
+
+/* SITE */
+Last update: 2025
+Language: Español
+Doctype: HTML5
+Components: FastAPI, Vanilla JS, Supabase, Vercel, Railway
+Standards: HTML5, CSS3, ES6+, Schema.org, RGPD/LOPDGDD

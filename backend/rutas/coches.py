@@ -2,16 +2,25 @@
 rutas/coches.py — Gestión completa de coches con historial de cambios.
 """
 
-from fastapi import APIRouter, HTTPException, Header, Query
+from fastapi import APIRouter, HTTPException, Header, Query, Request
 from pydantic import BaseModel
 from typing import Optional
 import httpx
+import time
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from config import SUPABASE_URL, HEADERS_SERVICE, ENTORNO
 from rutas.auth import verificar_token
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 TABLA     = "coches"
 URL_TABLA = f"{SUPABASE_URL}/rest/v1/{TABLA}"
+
+# Caché de visitas en memoria — evita inflar contador con bots
+# Estructura: { (ip, coche_id): timestamp_ultima_visita }
+_VISITAS_CACHE: dict = {}
+_VISITA_COOLDOWN = 3600  # 1 hora — misma IP no cuenta más visitas al mismo coche
 
 
 class CocheNuevo(BaseModel):
@@ -99,21 +108,61 @@ async def listar_coches(
     combustible: Optional[str] = Query(None),
     carroceria: Optional[str] = Query(None),
     estado: Optional[str] = Query(None),
-    precio_max: Optional[float] = Query(None),
-    km_max: Optional[int] = Query(None),
+    precio_max: Optional[float] = Query(None, ge=0, le=10_000_000),
+    km_max: Optional[int] = Query(None, ge=0, le=2_000_000),
     orden: Optional[str] = Query("creado_at.desc"),
-    pagina: Optional[int] = Query(1),
-    por_pagina: Optional[int] = Query(12),
+    pagina: Optional[int] = Query(1, ge=1, le=10000),
+    por_pagina: Optional[int] = Query(12, ge=1, le=100),
     etiqueta: Optional[str] = Query(None),
+    q: Optional[str] = Query(None, max_length=80),
 ):
-    params = {"select": "*", "order": orden}
-    if marca:       params["marca"]        = f"ilike.*{marca}*"
-    if combustible: params["combustible"]  = f"eq.{combustible}"
-    if carroceria:  params["carroceria"]   = f"eq.{carroceria}"
-    if estado:      params["estado"]       = f"eq.{estado}"
-    if precio_max:  params["precio"]       = f"lte.{precio_max}"
-    if km_max:      params["km"]           = f"lte.{km_max}"
-    if etiqueta:    params["etiqueta_dgt"] = f"eq.{etiqueta}"
+    # ── Sanitizar y validar inputs ───────────────────────────────────────────
+    # Whitelists para enums — evita inyección y filtros incorrectos
+    COMBUSTIBLES_OK = {"gasolina", "diesel", "hibrido", "electrico"}
+    CARROCERIAS_OK  = {"sedan", "suv", "familiar", "coupe", "monovolumen", "furgon"}
+    ESTADOS_OK      = {"disponible", "reservado", "vendido"}
+    ETIQUETAS_OK    = {"0", "eco", "c", "b"}
+    ORDENES_OK      = {
+        "creado_at.desc", "creado_at.asc",
+        "precio.asc", "precio.desc",
+        "km.asc", "km.desc",
+        "destacado.desc,creado_at.desc",
+    }
+
+    # Función para escapar valores en filtros tipo ilike de PostgREST
+    # Caracteres peligrosos: , ( ) " ' \ y los wildcards * %
+    def _escapar(v: str, max_len: int = 60) -> str:
+        if not v:
+            return ""
+        v = str(v)[:max_len]
+        # Eliminar caracteres que rompen filtros PostgREST
+        for ch in [",", "(", ")", '"', "'", "\\", "*", "%", "\n", "\r", "\t"]:
+            v = v.replace(ch, "")
+        return v.strip()
+
+    params = {"select": "*", "order": orden if orden in ORDENES_OK else "creado_at.desc"}
+
+    if marca:
+        m = _escapar(marca, 40)
+        if m: params["marca"] = f"ilike.*{m}*"
+    if combustible and combustible in COMBUSTIBLES_OK:
+        params["combustible"] = f"eq.{combustible}"
+    if carroceria and carroceria in CARROCERIAS_OK:
+        params["carroceria"] = f"eq.{carroceria}"
+    if estado and estado in ESTADOS_OK:
+        params["estado"] = f"eq.{estado}"
+    if precio_max:
+        params["precio"] = f"lte.{precio_max}"
+    if km_max:
+        params["km"] = f"lte.{km_max}"
+    if etiqueta and etiqueta in ETIQUETAS_OK:
+        params["etiqueta_dgt"] = f"eq.{etiqueta}"
+
+    # Búsqueda libre — sanitización agresiva
+    if q:
+        termino = _escapar(q, 60)
+        if termino:
+            params["or"] = f"(marca.ilike.*{termino}*,modelo.ilike.*{termino}*,color.ilike.*{termino}*,carroceria.ilike.*{termino}*,descripcion.ilike.*{termino}*)"
 
     # Paginación
     offset = (pagina - 1) * por_pagina
@@ -332,14 +381,47 @@ async def actualizar_orden_fotos(coche_id: int, orden: list[int], authorization:
 
 
 @router.post("/{coche_id}/visita")
-async def registrar_visita(coche_id: int):
+@limiter.limit("30/minute")
+async def registrar_visita(coche_id: int, request: Request):
+    """Registra visita de un coche. Una IP solo cuenta una vez por hora por coche."""
+    # Validación
+    if coche_id <= 0 or coche_id > 1_000_000:
+        raise HTTPException(status_code=400, detail="ID inválido")
+
+    ip = get_remote_address(request)
+    clave = (ip, coche_id)
+    ahora = time.time()
+
+    # Limpieza periódica del caché (cada 100 inserciones aprox)
+    if len(_VISITAS_CACHE) > 5000:
+        umbral = ahora - _VISITA_COOLDOWN
+        for k in list(_VISITAS_CACHE.keys()):
+            if _VISITAS_CACHE[k] < umbral:
+                _VISITAS_CACHE.pop(k, None)
+
+    # Misma IP en ventana de 1h: no cuenta
+    ultimo = _VISITAS_CACHE.get(clave, 0)
+    if ahora - ultimo < _VISITA_COOLDOWN:
+        return {"ok": True, "duplicada": True}
+
+    _VISITAS_CACHE[clave] = ahora
+
     async with httpx.AsyncClient() as client:
-        resp = await client.get(URL_TABLA, headers=HEADERS_SERVICE, params={"select": "visitas", "id": f"eq.{coche_id}"})
-        data = resp.json()
-        if not data:
-            return {"ok": False}
-        visitas = (data[0].get("visitas") or 0) + 1
-        await client.patch(URL_TABLA, headers=HEADERS_SERVICE, params={"id": f"eq.{coche_id}"}, json={"visitas": visitas})
+        resp = await client.get(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"select": "id,visitas", "id": f"eq.{coche_id}"},
+        )
+    data = resp.json()
+    if not isinstance(data, list) or not data:
+        return {"ok": False}
+
+    visitas = (data[0].get("visitas") or 0) + 1
+    async with httpx.AsyncClient() as client:
+        await client.patch(
+            URL_TABLA, headers=HEADERS_SERVICE,
+            params={"id": f"eq.{coche_id}"},
+            json={"visitas": visitas},
+        )
     return {"ok": True, "visitas": visitas}
 
 

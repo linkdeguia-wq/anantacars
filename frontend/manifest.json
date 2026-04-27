@@ -1,14 +1,34 @@
 {
-  "name": "Ananta Cars",
+  "name": "Ananta Cars — Compraventa de vehículos",
   "short_name": "AnantaCars",
-  "description": "Compraventa de vehículos de ocasión",
-  "start_url": "/",
+  "description": "Catálogo de vehículos de ocasión: revisados, con garantía y al mejor precio.",
+  "start_url": "/?source=pwa",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#0a0a0a",
   "theme_color": "#e8311a",
-  "orientation": "portrait-primary",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["business", "shopping"],
   "icons": [
-    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Catálogo",
+      "short_name": "Catálogo",
+      "description": "Ver todos los vehículos disponibles",
+      "url": "/?source=pwa-shortcut",
+      "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Cómo comprar",
+      "short_name": "Comprar",
+      "description": "Proceso de compra",
+      "url": "/como-comprar",
+      "icons": [{ "src": "/assets/icon-192.png", "sizes": "192x192" }]
+    }
   ]
 }

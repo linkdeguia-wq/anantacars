@@ -5,11 +5,63 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ananta Cars — Compraventa de vehículos de ocasión</title>
   <meta name="description" content="Los mejores coches de segunda mano. Revisados, con garantía y al mejor precio."/>
+  <link rel="canonical" href="https://anantacars.es/"/>
+
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type"        content="website"/>
+  <meta property="og:url"         content="https://anantacars.es/"/>
+  <meta property="og:title"       content="Ananta Cars — Compraventa de vehículos de ocasión"/>
+  <meta property="og:description" content="Los mejores coches de segunda mano. Revisados, con garantía y al mejor precio."/>
+  <meta property="og:image"       content="https://anantacars.es/assets/og-image.jpg"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale"      content="es_ES"/>
+  <meta property="og:site_name"   content="Ananta Cars"/>
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card"        content="summary_large_image"/>
+  <meta name="twitter:title"       content="Ananta Cars — Vehículos de ocasión"/>
+  <meta name="twitter:description" content="Coches de segunda mano revisados, con garantía y al mejor precio."/>
+  <meta name="twitter:image"       content="https://anantacars.es/assets/og-image.jpg"/>
+
   <link rel="manifest" href="/manifest.json"/>
   <meta name="theme-color" content="#e8311a"/>
   <link rel="apple-touch-icon" href="/assets/icon-192.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Schema.org — AutoDealer + WebSite con searchAction -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "AutoDealer",
+        "@id": "https://anantacars.es/#dealer",
+        "name": "Ananta Cars",
+        "url": "https://anantacars.es",
+        "logo": "https://anantacars.es/assets/logo.png",
+        "image": "https://anantacars.es/assets/og-image.jpg",
+        "description": "Compraventa de vehículos de ocasión. Coches revisados, con garantía y al mejor precio.",
+        "areaServed": "ES",
+        "priceRange": "€€",
+        "sameAs": []
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://anantacars.es/#website",
+        "url": "https://anantacars.es",
+        "name": "Ananta Cars",
+        "publisher": { "@id": "https://anantacars.es/#dealer" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://anantacars.es/?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
+      }
+    ]
+  }
+  </script>
   <style>
     :root{
       --negro:#0a0a0a;--carbon:#141414;--gris-oscuro:#1e1e1e;--gris-medio:#2c2c2c;
@@ -321,7 +373,9 @@
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script> -->
   <script>
     if ('serviceWorker' in navigator) {
-      // SW desactivado temporalmente
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
     }
     function toggleTema() {
       const html = document.documentElement;

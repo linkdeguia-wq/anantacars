@@ -4,9 +4,9 @@ Tabla configuracion_negocio con una sola fila (id=1).
 """
 
 from fastapi import APIRouter, HTTPException, Header, UploadFile, File
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
-import httpx, io, time
+import httpx, io, time, re
 from PIL import Image
 from config import SUPABASE_URL, HEADERS_SERVICE, BUCKET_FOTOS
 from rutas.auth import verificar_token
@@ -65,11 +65,61 @@ class ConfigUpdate(BaseModel):
     youtube: Optional[str] = None
     resenas_place_id: Optional[str] = None
     # Marca de agua
-    wa_opacidad: Optional[float] = None   # 0.0 – 1.0
-    wa_tamano:   Optional[float] = None   # 0.10 – 0.70 (fracción del ancho)
-    wa_tipo:     Optional[str]   = None   # "logo" | "texto"
+    wa_opacidad: Optional[float] = Field(None, ge=0.0, le=1.0)
+    wa_tamano:   Optional[float] = Field(None, ge=0.10, le=0.80)
+    wa_tipo:     Optional[str]   = None   # "logo" | "texto" | "ninguna"
     # Mantenimiento
     modo_mantenimiento: Optional[bool] = None
+
+    # ── Validators ───────────────────────────────────────────────────────────
+    @field_validator("whatsapp", "telefono")
+    @classmethod
+    def _validar_telefono(cls, v):
+        if v is None or v == "":
+            return v
+        # Acepta formatos: 34612345678, +34612345678, 34 612 345 678
+        limpio = re.sub(r"[\s\-\(\)\+]", "", str(v))
+        if not limpio.isdigit() or not (9 <= len(limpio) <= 15):
+            raise ValueError("Teléfono inválido — solo dígitos, 9-15 caracteres")
+        return limpio
+
+    @field_validator("color_acento")
+    @classmethod
+    def _validar_color(cls, v):
+        if v is None or v == "":
+            return v
+        if not re.match(r"^#[0-9a-fA-F]{6}$", v):
+            raise ValueError("Color debe ser hex #rrggbb")
+        return v.lower()
+
+    @field_validator("wa_tipo")
+    @classmethod
+    def _validar_wa_tipo(cls, v):
+        if v is None or v == "":
+            return v
+        if v not in ("logo", "texto", "ninguna"):
+            raise ValueError("wa_tipo: logo|texto|ninguna")
+        return v
+
+    @field_validator("banner_color")
+    @classmethod
+    def _validar_banner_color(cls, v):
+        if v is None or v == "":
+            return v
+        if v not in ("rojo", "verde", "naranja", "azul"):
+            raise ValueError("banner_color: rojo|verde|naranja|azul")
+        return v
+
+    @field_validator("dominio")
+    @classmethod
+    def _validar_dominio(cls, v):
+        if v is None or v == "":
+            return v
+        # Solo letras, números, puntos y guiones — sin protocolo
+        v = v.replace("https://", "").replace("http://", "").rstrip("/")
+        if not re.match(r"^[a-z0-9.\-]{3,80}$", v.lower()):
+            raise ValueError("Dominio inválido")
+        return v.lower()
 
 
 def requiere_admin(authorization: str = Header(...)):
